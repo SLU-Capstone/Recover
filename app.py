@@ -43,5 +43,6 @@ def hey():
     return 'Hello, %s. You took %s steps today and your resting HR was %s' \
             % (name, steps, resting)
 
+# Init App
 if __name__ == '__main__':
     app.run()
