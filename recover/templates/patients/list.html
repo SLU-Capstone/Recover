@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% for patient in patients %}
+        <h2>
+            <a href="{{ url_for('patients.detail', slug=patient.slug) }}">
+                {{ patient.last_name }}
+            </a>
+
+        </h2>
+        <p>{{ patient.first_name }} {{ patient.last_name }}</p>
+    {% endfor %}
+{% endblock %}

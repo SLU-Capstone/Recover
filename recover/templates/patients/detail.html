@@ -1,0 +1,17 @@
+
+<!-- Display patient info -->
+
+{% extends "base.html" %}
+
+{% block page_header %}
+    <div class="page-header">
+        <h1>{{ patient.first_name }} {{ patient.last_name }}</h1>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <p>Token: {{ patient.token }}<p>
+    <p>Refresh Token: {{ patient.refresh }}</p>
+    <p>Resting HR Today: {{ resting }}</p>
+
+{% endblock %}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recover</title>
+    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <style>.content {padding-top: 80px;}</style>
+</head>
+<body>
+
+    {%- block topbar -%}
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <h2>
+                    <a href="/" class="brand">Recover</a>
+                    <small>Test</small>
+                </h2>
+            </div>
+            <div class="navbar-collapse">
+            </div>
+        </div>
+    </nav>
+    {%- endblock -%}
+
+    <div class="container">
+        <div class="content">
+            {% block page_header %}{% endblock %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    {% block js_footer %}{% endblock %}
+
+</body>
+</html>
