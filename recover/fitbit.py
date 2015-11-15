@@ -1,8 +1,6 @@
 """
 A Python library for accessing the FitBit API.
-
 This library provides a wrapper to the FitBit API and does not provide storage of tokens or caching if that is required.
-
 Most of the code has been adapted from: https://github.com/magnific0/FitBit.py
 """
 import base64
@@ -10,10 +8,10 @@ import requests
 import secret
 import urllib
 
-
 class Fitbit:
     # All information must be as on the https://dev.fitbit.com/apps page.
     def __init__(self):
+        """ Set up variables to use in the rest of the classes functions. """
         self.CLIENT_ID = secret.CLIENT_ID
         self.CLIENT_SECRET = secret.CLIENT_SECRET
         self.REDIRECT_URI = secret.REDIRECT_URI
@@ -30,8 +28,10 @@ class Fitbit:
         self.TOKEN_URL = 'https://%s/oauth2/token' % self.API_SERVER
 
     def get_authorization_uri(self):
-
-        # Parameters for authorization, make sure to select 
+        """
+        Send a request to Fitbit for a link to authorize a new patient
+        Returns a string of the URL to go to.
+        """
         params = {
             'client_id': self.CLIENT_ID,
             'response_type': 'code',
@@ -39,21 +39,21 @@ class Fitbit:
             'redirect_uri': self.REDIRECT_URI,
             'expires_in': 2592000  # 30 day access
         }
-
-        # Encode parameters and construct authorization url to be returned to user.
         urlparams = urllib.urlencode(params)
         return "%s?%s" % (self.AUTHORIZE_URL, urlparams)
 
     # Tokes are requested based on access code. Access code must be fresh (10 minutes)
     def get_access_token(self, access_code):
-
-        # Construct the authentication header
+        """
+        Send a request to fitbit to get a token for the patient. The access_code
+        is the URL parameter in the redirect URL after a call from get_authorization_uri()
+        Returns a dict() containing an 'access_token' and 'refresh_token'
+        """
         auth_header = base64.b64encode(self.CLIENT_ID + ':' + self.CLIENT_SECRET)
         headers = {
             'Authorization': 'Basic %s' % auth_header,
             'Content-Type': 'application/x-www-form-urlencoded'
         }
-
         # Parameters for requesting tokens (auth + refresh)
         params = {
             'code': access_code,
@@ -61,7 +61,6 @@ class Fitbit:
             'client_id': self.CLIENT_ID,
             'redirect_uri': self.REDIRECT_URI
         }
-
         # Place request
         resp = requests.post(self.TOKEN_URL, data=params, headers=headers)
         status_code = resp.status_code
@@ -78,22 +77,22 @@ class Fitbit:
 
         return token
 
-    # Get new tokens based if authentication token is expired
     def refresh_access_token(self, token):
-
-        # Construct the authentication header
+        """
+        Get new tokens based if authentication token is expired. The input is the token dict()
+        returned from a call to get_access_token()
+        Returns a new dict() token
+        """
         auth_header = base64.b64encode(self.CLIENT_ID + ':' + self.CLIENT_SECRET)
         headers = {
             'Authorization': 'Basic %s' % auth_header,
             'Content-Type': 'application/x-www-form-urlencoded'
         }
-
         # Set up parameters for refresh request
         params = {
             'grant_type': 'refresh_token',
             'refresh_token': token['refresh_token']
         }
-
         # Place request
         resp = requests.post(self.TOKEN_URL, data=params, headers=headers)
 
@@ -104,20 +103,23 @@ class Fitbit:
             raise Exception("Something went wrong refreshing (%s): %s" % (
                 resp['errors'][0]['errorType'], resp['errors'][0]['message']))
 
-        # Distill
         token['access_token'] = resp['access_token']
         token['refresh_token'] = resp['refresh_token']
 
         return token
 
-    # Place api call to retrieve recover
     def api_call(self, token, call='/1/user/-/activities/log/steps/date/today/1d.json'):
-        # Other API Calls possible, or read the FitBit documentation for the full list
-        # (https://dev.fitbit.com/docs/), e.g.:
-        # apiCall = '/1/user/-/devices.json'
-        # apiCall = '/1/user/-/profile.json'
-        # apiCall = '/1/user/-/activities/date/2015-10-22.json'
+        """
+        Place api call to retrieve data
+        Other API Calls possible, or read the FitBit documentation for the full list
+        (https://dev.fitbit.com/docs/), e.g.:
+        apiCall = '/1/user/-/devices.json'
+        apiCall = '/1/user/-/profile.json'
+        apiCall = '/1/user/-/activities/date/2015-10-22.json'
 
+        Input is a user's token dict() and the specified api call
+        Returns a json of the data
+        """
         headers = {
             'Authorization': 'Bearer %s' % token['access_token']
         }
