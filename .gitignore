@@ -1,3 +1,9 @@
 *.pyc
 secret.py
 serve.sh
+
+# Virtualenv
+flask/
+
+# Mac OS X custom attribute files
+.DS_Store
