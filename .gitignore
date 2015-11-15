@@ -1,4 +1,9 @@
 *.pyc
 .idea/
 secret.py
-db/
+
+# Virtualenv
+flask/
+
+# Mac OS X custom attribute files
+.DS_Store
