@@ -3,6 +3,7 @@ from recover.patientdata import PatientData
 from flask import request, redirect, Blueprint, render_template, url_for
 from flask.views import MethodView
 from fitbit import Fitbit
+from mongoengine import DoesNotExist
 
 patients = Blueprint('patients', __name__, template_folder='templates')
 register = Blueprint('register', __name__)
@@ -32,7 +33,15 @@ class PatientAdder(MethodView):
         first, last = fullname.split(' ')
         fitbit_id = response['user']['encodedId']
 
-        new_guy = Patient(first, last, token['access_token'], token['refresh_token'], fitbit_id)
+        try:
+            inside = Patient.objects.get(slug=fitbit_id)
+            # if exception is not raised, we failed
+            return redirect('/')
+        except DoesNotExist as e:
+            # This is good!
+            pass
+
+        new_guy = Patient(slug=fitbit_id, first_name=first, last_name=last, token=token['access_token'], refresh=token['refresh_token'])
         new_guy.save()
         return redirect('/')
 

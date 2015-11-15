@@ -15,7 +15,7 @@ class PatientData:
     def get_resting_heart_rate(self):
         """ Returns the resting heart rate of the patient today. """
         try:
-            response = self.fitbit.api_call(self.token, '/1/user/-/activities/heart/date/today/1d.json')
+            response = fitbit.api_call(self.token, '/1/user/-/activities/heart/date/today/1d.json')
         except Exception as e:
             return e
         resting = str(response['activities-heart'][0]['value']['restingHeartRate'])
