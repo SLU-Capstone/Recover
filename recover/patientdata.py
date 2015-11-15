@@ -1,12 +1,13 @@
 from fitbit import Fitbit
 from recover.models import Patient
 
+fitbit = Fitbit()
+
 
 class PatientData:
     """ A wrapper class to allow for easier API usage for an individual patient. """
     def __init__(self, patient):
         """ Set up this object with the patients tokens. """
-        self.fitbit = Fitbit()
         self.token = dict()
         self.token['access_token'] = patient.token
         self.token['refresh_token'] = patient.refresh
