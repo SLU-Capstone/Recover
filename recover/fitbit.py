@@ -8,6 +8,8 @@ import requests
 import secret
 import urllib
 
+
+# noinspection PyIncorrectDocstring
 class Fitbit:
     # All information must be as on the https://dev.fitbit.com/apps page.
     def __init__(self):

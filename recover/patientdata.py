@@ -1,22 +1,44 @@
 from fitbit import Fitbit
-from recover.models import Patient
+from recover.models import Patient, Data
 
 fitbit = Fitbit()
 
 
+def time2sec(time):
+    hour, minute, sec = time.split(':')
+    h = int(hour)
+    m = int(minute) + 60 * h
+    return int(sec) + 60 * m
+
+
+# noinspection PyBroadException
 class PatientData:
     """ A wrapper class to allow for easier API usage for an individual patient. """
+
     def __init__(self, patient):
-        """ Set up this object with the patients tokens. """
+        """ Set up this object with the patients tokens.
+        :type patient: Patient
+        """
+        self.patient = patient
         self.token = dict()
         self.token['access_token'] = patient.token
         self.token['refresh_token'] = patient.refresh
 
-    def get_resting_heart_rate(self):
-        """ Returns the resting heart rate of the patient today. """
+    def get_heart_rate_data(self, date='today', detail_level='1min'):
+        """
+        Grabs the heart-rate data for the patient
+        :type detail_level: str
+        :param date: date of interest in yyyy-MM-dd format as a string
+        :param detail_level: detail level is a string. either 1min or 1sec
+        """
         try:
-            response = fitbit.api_call(self.token, '/1/user/-/activities/heart/date/today/1d.json')
-        except Exception as e:
-            return e
-        resting = str(response['activities-heart'][0]['value']['restingHeartRate'])
-        return resting
+            response = fitbit.api_call(self.token,
+                                       '/1/user/-/activities/heart/date/%s/1d/%s.json' % (date, detail_level))
+        except Exception:
+            return False
+        data = self.patient.add_data(response['activities-heart']['dateTime'])
+        data.resting_heart_rate = response['activities-heart']['restingHeartRate']
+        for info in response['activities-heart-intraday']['dataset']:
+            seconds = time2sec(info['time'])
+            data.heart_rate[seconds] = info['value']
+        return True
