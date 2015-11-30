@@ -1,15 +1,19 @@
+from flask import request, redirect, Blueprint, render_template
+from flask.views import MethodView
+from mongoengine import DoesNotExist
+
+from fitbit import Fitbit
 from recover.models import Patient
 from recover.patientdata import PatientData
-from flask import request, redirect, Blueprint, render_template, url_for
-from flask.views import MethodView
-from fitbit import Fitbit
 
 patients = Blueprint('patients', __name__, template_folder='templates')
 register = Blueprint('register', __name__)
 
 
+# noinspection PyAbstractClass
 class PatientAdder(MethodView):
-    def get(self):
+    @staticmethod
+    def get():
         """
         Send a new patient to Fitbit to authorize our app, then
         receives access code to get token.
@@ -32,28 +36,50 @@ class PatientAdder(MethodView):
         first, last = fullname.split(' ')
         fitbit_id = response['user']['encodedId']
 
-        new_guy = Patient(first, last, token['access_token'], token['refresh_token'], fitbit_id)
+        try:
+            Patient.objects.get(slug=fitbit_id)
+            # if exception is not raised, we failed
+            return redirect('/')
+        except DoesNotExist:
+            # This is good!
+            pass
+
+        new_guy = Patient(slug=fitbit_id, first_name=first, last_name=last, token=token['access_token'],
+                          refresh=token['refresh_token'], data=[])
         new_guy.save()
         return redirect('/')
 
 
+# noinspection PyAbstractClass
 class ListView(MethodView):
-    def get(self):
+    @staticmethod
+    def get():
         """ Renders patients/list.html with all of the patients as input """
         people = Patient.objects.all()
         return render_template('patients/list.html', patients=people)
 
 
+# noinspection PyAbstractClass
 class DetailView(MethodView):
-    def get(self, slug):
+    @staticmethod
+    def get(slug):
         """
         Renders patients/details.html with one of the patients as input.
         We will need to extend the functionality of this in order to pass
         additional health information.
+        :param slug: unique id
         """
         patient = Patient.objects.get_or_404(slug=slug)
-        resting_hr = PatientData(patient).get_resting_heart_rate()
-        return render_template('patients/detail.html', patient=patient, resting=resting_hr)
+        try:
+            resting_hr = patient['data'][0]['resting_heart_rate']
+            d = patient['data'][-1]['heart_rate']
+        except (KeyError, IndexError):
+            p = PatientData(patient)
+            p.get_heart_rate_data()
+            resting_hr = patient['data'][-1]['resting_heart_rate']
+            d = patient['data'][-1]['heart_rate']
+
+        return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d)
 
 
 patients.add_url_rule('/', view_func=ListView.as_view('list'))
