@@ -2,10 +2,12 @@ from recover import db
 from flask import url_for
 
 
-class Data(db.EmbeddedDocumentField):
+class Data(db.EmbeddedDocument):
     date = db.StringField(primary_key=True)
     resting_heart_rate = db.IntField()
     heart_rate = db.DictField()
+
+
 
 
 class Patient(db.Document):
@@ -29,12 +31,16 @@ class Patient(db.Document):
         """ Returns how to show a patient """
         return self.first_name + ' ' + self.last_name
 
-    def add_data(self, date):
-        return self.data.find(date=date)
+    def stats(self, date):
+        for d in self.data:
+            if d['date'] == date:
+                return d
+        d = Data()
+        d['date'] = date
+        self.data.append(d)
+        return self.data[-1]
 
     meta = {
         'ordering': ['last_name'],
-        'indexes': ['first_name']
+        'indexes': ['first_name', 'slug']
     }
-
-

@@ -3,11 +3,11 @@ from flask.views import MethodView
 from mongoengine import DoesNotExist
 
 from fitbit import Fitbit
-from recover.models import Patient, Data
+from recover.models import Patient
+from recover.patientdata import PatientData
 
 patients = Blueprint('patients', __name__, template_folder='templates')
 register = Blueprint('register', __name__)
-data = Blueprint('data', __name__)
 
 
 # noinspection PyAbstractClass
@@ -70,8 +70,16 @@ class DetailView(MethodView):
         :param slug: unique id
         """
         patient = Patient.objects.get_or_404(slug=slug)
-        resting_hr = patient.data.resting_heart_rate
-        return render_template('patients/detail.html', patient=patient, resting=resting_hr)
+        try:
+            resting_hr = patient['data'][0]['resting_heart_rate']
+            d = patient['data'][-1]['heart_rate']
+        except (KeyError, IndexError):
+            p = PatientData(patient)
+            p.get_heart_rate_data()
+            resting_hr = patient['data'][-1]['resting_heart_rate']
+            d = patient['data'][-1]['heart_rate']
+
+        return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d)
 
 
 patients.add_url_rule('/', view_func=ListView.as_view('list'))

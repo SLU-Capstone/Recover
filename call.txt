@@ -1,0 +1,62 @@
+
+Get activities: (non-intraday)
+
+/1/user/-/[resource-path]/date/[date]/[period].json
+/1/user/-/[resource-path]/date/[base-date]/[end-date].json
+
+resource-path:
+  activities/calories  
+  activities/caloriesBMR  
+  activities/steps  
+  activities/distance  
+  activities/floors  
+  activities/elevation  
+  activities/minutesSedentary  
+  activities/minutesLightlyActive  
+  activities/minutesFairlyActive  
+  activities/minutesVeryActive  
+  activities/activityCalories
+
+date/base-date/end-date:
+  yyyy-MM-dd 
+  today
+
+period:
+  1d, 7d, 30d, 1w, 1m, 3m, 6m, 1y
+
+Get activities: (intraday)
+
+  /1/user/-/[resource-path]/date/[date]/[date]/[detail-level].json
+  /1/user/-/[resource-path]/date/[date]/1d/[detail-level].json
+  /1/user/-/[resource-path]/date/[date]/[date]/[detail-level]/time/[start-time]/[end-time].json
+  /1/user/-/[resource-path]/date/[date]/1d/[detail-level]/time/[start-time]/[end-time].json
+
+resource-path:
+  activities/calories  
+  activities/steps  
+  activities/distance  
+  activities/floors  
+  activities/elevation
+
+detail level:
+  1min
+  15min
+
+start/end time:
+  HH:mm
+
+
+HEART RATE: (non-intraday)
+
+  /1/user/-/activities/heart/date/[date]/[period].json
+  /1/user/-/activities/heart/date/[base-date]/[end-date].json
+
+HEART RATE: (intraday)
+
+  /1/user/-/activities/heart/date/[date]/[end-date]/[detail-level].json
+  /1/user/-/activities/heart/date/[date]/[end-date]/[detail-level]/time/[start-time]/[end-time].json
+  /1/user/-/activities/heart/date/[date]/1d/[detail-level].json
+  /1/user/-/activities/heart/date/[date]/1d/[detail-level]/time/[start-time]/[end-time].json
+
+
+

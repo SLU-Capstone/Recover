@@ -13,10 +13,9 @@ def register_blueprints(ap):
     prevent circular imports by registering the blueprints.
     :param ap: app to register
     """
-    from recover.view import patients, register, data
+    from recover.view import patients, register
     ap.register_blueprint(patients)
     ap.register_blueprint(register)
-    ap.register_blueprint(data)
 
 register_blueprints(app)
 
