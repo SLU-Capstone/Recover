@@ -1,7 +1,3 @@
-# HealthViewer
-Proof-of-concept web app for retrieving data from Fitbit API
+# Recover
 
-# Dependencies
- - Flask - 0.10.1
- - pymongo - 3.1
- - MongoDB
+A web application that allows physicians to visualize the progress of a patient's rehabilitation in the weeks and months following a cardiovascular procedure, based on the patient's real-time Fitbit data.
