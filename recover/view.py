@@ -8,7 +8,6 @@ from recover.patient_data import PatientData
 
 patient_dashboard = Blueprint('patient_dashboard', __name__, template_folder='templates')
 patient_add = Blueprint('patient_add', __name__)
-home = Blueprint('home', __name__)
 
 
 # noinspection PyAbstractClass
@@ -86,16 +85,7 @@ class PatientDetailView(MethodView):
         return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d)
 
 
-# noinspection PyAbstractClass
-class HomeView(MethodView):
-    @staticmethod
-    def get():
-        return render_template('home.html')
-
-
 patient_dashboard.add_url_rule('/dashboard/', view_func=PatientListView.as_view('list'))
 patient_dashboard.add_url_rule('/dashboard/<slug>/', view_func=PatientDetailView.as_view('detail'))
 
 patient_add.add_url_rule('/dashboard/add', view_func=AddPatient.as_view('patientAdder'))
-
-home.add_url_rule('/', view_func=HomeView.as_view('home'))

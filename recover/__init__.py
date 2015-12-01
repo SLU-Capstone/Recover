@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask.ext.mongoengine import MongoEngine
 
 # Set up app and database connection
@@ -8,15 +8,19 @@ app.config['SECRET_KEY'] = 'wut'
 db = MongoEngine(app)
 
 
+@app.route('/')
+def load_home_page():
+    return render_template('home.html')
+
+
 def register_blueprints(ap):
     """
     prevent circular imports by registering the blueprints.
     :param ap: app to register
     """
-    from recover.view import patient_dashboard, patient_add, home
+    from recover.view import patient_dashboard, patient_add
     ap.register_blueprint(patient_dashboard)
     ap.register_blueprint(patient_add)
-    ap.register_blueprint(home)
 
 register_blueprints(app)
 
