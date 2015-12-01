@@ -36,12 +36,14 @@ class PatientData:
                                        '/1/user/-/activities/heart/date/%s/1d/%s.json' % (date, detail_level))
         except Exception:
             return False
-
-        data = self.patient.stats(response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore'))
-        data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
-        for info in response['activities-heart-intraday']['dataset']:
-            seconds = time2sec(info['time'])
-            data['heart_rate'][seconds] = info['value']
-        self.patient.save()
-        print 'wut'
-        return True
+        try:
+            data = self.patient.stats(response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore'))
+            data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
+            for info in response['activities-heart-intraday']['dataset']:
+                seconds = time2sec(info['time'])
+                data['heart_rate'][seconds] = info['value']
+            self.patient.save()
+            return True
+        except KeyError:
+            pass
+        return False

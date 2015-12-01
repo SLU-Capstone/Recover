@@ -75,9 +75,12 @@ class DetailView(MethodView):
             d = patient['data'][-1]['heart_rate']
         except (KeyError, IndexError):
             p = PatientData(patient)
-            p.get_heart_rate_data()
-            resting_hr = patient['data'][-1]['resting_heart_rate']
-            d = patient['data'][-1]['heart_rate']
+            if p.get_heart_rate_data():
+                resting_hr = patient['data'][-1]['resting_heart_rate']
+                d = patient['data'][-1]['heart_rate']
+            else:
+                resting_hr = "No Data."
+                d = "No Data."
 
         return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d)
 
