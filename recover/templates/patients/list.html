@@ -1,13 +1,24 @@
+<!-- list.html - Partial view for displaying list of all active patients on the physician dashboard -->
+
 {% extends "base.html" %}
 
-{% block content %}
-    {% for patient in patients %}
-        <h2>
-            <a href="{{ url_for('patient_dashboard.detail', slug=patient.slug) }}">
-                {{ patient.last_name }}
-            </a>
+<div class="row">
+    <div class="col-md-11">
+        {% block page_header %}
+            <div class="page-header">
+                <h1>My Active Patients</h1>
+            </div>
+        {% endblock %}
 
-        </h2>
-        <p>{{ patient.first_name }} {{ patient.last_name }}</p>
-    {% endfor %}
-{% endblock %}
+        {% block content %}
+            {% for patient in patients %}
+                <h2>
+                    <a href="{{ url_for('patient_dashboard.detail', slug=patient.slug) }}">
+                        {{ patient.last_name }}
+                    </a>
+                </h2>
+                <p>{{ patient.first_name }} {{ patient.last_name }}</p>
+            {% endfor %}
+        {% endblock %}
+    </div>
+</div>

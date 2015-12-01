@@ -1,18 +1,23 @@
-
-<!-- Display patient info -->
+<!-- detail.html - Partial view for properties on each patient -->
 
 {% extends "base.html" %}
-
 {% block page_header %}
+    </br></br>
     <div class="page-header">
         <h1>{{ patient.first_name }} {{ patient.last_name }}</h1>
     </div>
+    <style type="text/css">
+        p { overflow-wrap: break-word; word-wrap: break-word; }
+    </style>
 {% endblock %}
 
 {% block content %}
-    <p>Token: {{ patient.token }}<p>
-    <p>Refresh Token: {{ patient.refresh }}</p>
-    <p>Resting HR Today: {{ resting }}</p>
-    <p>HR data Today: {{ data }}</p>
-
+    <div class="row">
+        <div class="col-md-11">
+            <h4><span class="label label-primary">Fitbit Access Token:</span></h4><p class="nobreak">{{ patient.token }}</p>
+            <h4><span class="label label-primary">Fitbit Refresh Token:</span></h4><p>{{ patient.refresh }}</p>
+            <h4><span class="label label-success">Resting Heart Rate Today:</span></h4><p>{{ resting }}</p>
+            <h4><span class="label label-success">Heart Rate Data Today:</span></h4><p>{{ data }}</p>
+        </div>
+    </div>
 {% endblock %}

@@ -76,7 +76,7 @@ class PatientDetailView(MethodView):
             d = patient['health_data_per_day'][-1]['heart_rate']
         except (KeyError, IndexError):
             p = PatientData(patient)
-            if p.get_heart_rate_data():
+            if p.get_heart_rate_data_for_day():
                 resting_hr = patient['health_data_per_day'][-1]['resting_heart_rate']
                 d = patient['health_data_per_day'][-1]['heart_rate']
             else:
@@ -93,7 +93,7 @@ class HomeView(MethodView):
         return render_template('home.html')
 
 
-patient_dashboard.add_url_rule('/dashboard', view_func=PatientListView.as_view('list'))
+patient_dashboard.add_url_rule('/dashboard/', view_func=PatientListView.as_view('list'))
 patient_dashboard.add_url_rule('/dashboard/<slug>/', view_func=PatientDetailView.as_view('detail'))
 
 patient_add.add_url_rule('/dashboard/add', view_func=AddPatient.as_view('patientAdder'))
