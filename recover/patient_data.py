@@ -1,5 +1,6 @@
 from fitbit import Fitbit
 from recover.models import Patient
+from dateutil import rrule, parser
 
 fitbit = Fitbit()
 
@@ -15,7 +16,7 @@ class PatientData:
     """ A wrapper class to allow for easier API usage for an individual patient. """
 
     def __init__(self, patient):
-        """ Set up this object with the patients tokens.
+        """ Set up this object with the patient's Fitbit access tokens.
         :type patient: Patient
         """
         self.patient = patient
@@ -25,8 +26,8 @@ class PatientData:
 
     def get_heart_rate_data_for_day(self, date='today', detail_level='1min'):
         """
-        Grabs the heart-rate data for the patient
-        :type detail_level: str
+        Retrieves and saves a patient's heart-rate data (daily average and time-series data) for a given day.
+        :type detail_level: string
         :param date: date of interest in yyyy-MM-dd format as a string
         :param detail_level: detail level is a string. either 1min or 1sec
         """
@@ -47,5 +48,17 @@ class PatientData:
             pass
         return False
 
-    def get_heart_rate_data_for_date_range(self, date_range):
-        pass
+
+    def get_heart_rate_data_for_date_range(self, start_date, end_date):
+        """
+        Helper function to retrieve heart rate data for a date range
+        :param start_date: start date of range in yyyy-MM-dd string format
+        :param end_date: end date of range in yyyy-MM-dd string format
+        """
+        dates = list(rrule.rrule(rrule.DAILY,
+                         dtstart=parser.parse(start_date),
+                         until=parser.parse(end_date)))
+
+        for day in dates:
+            self.get_heart_rate_data_for_day(day.strftime("%Y-%m-%d"))
+
