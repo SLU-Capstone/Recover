@@ -3,7 +3,6 @@ from recover.models import Patient
 
 fitbit = Fitbit()
 
-
 def time2sec(time):
     hour, minute, sec = time.split(':')
     h = int(hour)
@@ -24,7 +23,7 @@ class PatientData:
         self.token['access_token'] = patient.token
         self.token['refresh_token'] = patient.refresh
 
-    def get_heart_rate_data(self, date='today', detail_level='1min'):
+    def get_heart_rate_data_for_day(self, date='today', detail_level='1min'):
         """
         Grabs the heart-rate data for the patient
         :type detail_level: str
@@ -47,3 +46,6 @@ class PatientData:
         except KeyError:
             pass
         return False
+
+    def get_heart_rate_data_for_date_range(self, date_range):
+        pass
