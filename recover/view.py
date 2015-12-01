@@ -45,7 +45,7 @@ class PatientAdder(MethodView):
             pass
 
         new_guy = Patient(slug=fitbit_id, first_name=first, last_name=last, token=token['access_token'],
-                          refresh=token['refresh_token'], data=[])
+                          refresh=token['refresh_token'], health_data_per_day=[])
         new_guy.save()
         return redirect('/')
 
@@ -71,13 +71,13 @@ class DetailView(MethodView):
         """
         patient = Patient.objects.get_or_404(slug=slug)
         try:
-            resting_hr = patient['data'][0]['resting_heart_rate']
-            d = patient['data'][-1]['heart_rate']
+            resting_hr = patient['health_data_per_day'][0]['resting_heart_rate']
+            d = patient['health_data_per_day'][-1]['heart_rate']
         except (KeyError, IndexError):
             p = PatientData(patient)
             if p.get_heart_rate_data():
-                resting_hr = patient['data'][-1]['resting_heart_rate']
-                d = patient['data'][-1]['heart_rate']
+                resting_hr = patient['health_data_per_day'][-1]['resting_heart_rate']
+                d = patient['health_data_per_day'][-1]['heart_rate']
             else:
                 resting_hr = "No Data."
                 d = "No Data."

@@ -13,5 +13,12 @@ manager.add_command("run", Server(
     host='0.0.0.0')
 )
 
+@manager.command
+def drop():
+    from recover.models import Patient
+    Patient.drop_collection()
+
+
+
 if __name__ == "__main__":
     manager.run()

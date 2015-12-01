@@ -2,12 +2,11 @@ from recover import db
 from flask import url_for
 
 
-class Data(db.EmbeddedDocument):
+class PatientHealthData(db.EmbeddedDocument):
     date = db.StringField(primary_key=True)
     resting_heart_rate = db.IntField()
     heart_rate = db.DictField()
-
-
+    day_complete = db.BooleanField()
 
 
 class Patient(db.Document):
@@ -21,7 +20,7 @@ class Patient(db.Document):
     last_name = db.StringField(max_length=32, required=True)
     token = db.StringField(max_length=511, required=True)
     refresh = db.StringField(max_length=511, required=True)
-    data = db.ListField(db.EmbeddedDocumentField('Data'))
+    health_data_per_day = db.ListField(db.EmbeddedDocumentField('PatientHealthData'))
 
     def get_url(self):
         """ Returns the appropriate url for the patients unique ID. """
@@ -32,13 +31,14 @@ class Patient(db.Document):
         return self.first_name + ' ' + self.last_name
 
     def stats(self, date):
-        for d in self.data:
+        for d in self.health_data_per_day:
             if d['date'] == date:
                 return d
-        d = Data()
+        d = PatientHealthData()
         d['date'] = date
-        self.data.append(d)
-        return self.data[-1]
+        d['day_complete'] = False
+        self.health_data_per_day.append(d)
+        return self.health_data_per_day[-1]
 
     meta = {
         'ordering': ['last_name'],
