@@ -4,14 +4,15 @@ from mongoengine import DoesNotExist
 
 from fitbit import Fitbit
 from recover.models import Patient
-from recover.patientdata import PatientData
+from recover.patient_data import PatientData
 
-patients = Blueprint('patients', __name__, template_folder='templates')
-register = Blueprint('register', __name__)
+patient_dashboard = Blueprint('patient_dashboard', __name__, template_folder='templates')
+patient_add = Blueprint('patient_add', __name__)
+home = Blueprint('home', __name__)
 
 
 # noinspection PyAbstractClass
-class PatientAdder(MethodView):
+class AddPatient(MethodView):
     @staticmethod
     def get():
         """
@@ -19,17 +20,17 @@ class PatientAdder(MethodView):
         receives access code to get token.
         """
         access_code = request.args.get('code')
-        fitterbitter = Fitbit()
+        api = Fitbit()
         if access_code is None:
-            auth_url = fitterbitter.get_authorization_uri()
+            auth_url = api.get_authorization_uri()
             return redirect(auth_url)
         try:
-            token = fitterbitter.get_access_token(access_code)
+            token = api.get_access_token(access_code)
         except Exception as e:
             return e
         # get the name
         try:
-            response = fitterbitter.api_call(token, '/1/user/-/profile.json')
+            response = api.api_call(token, '/1/user/-/profile.json')
         except Exception as e:
             return e
         fullname = response['user']['fullName']
@@ -39,7 +40,7 @@ class PatientAdder(MethodView):
         try:
             Patient.objects.get(slug=fitbit_id)
             # if exception is not raised, we failed
-            return redirect('/')
+            return redirect('/dashboard')
         except DoesNotExist:
             # This is good!
             pass
@@ -47,11 +48,11 @@ class PatientAdder(MethodView):
         new_guy = Patient(slug=fitbit_id, first_name=first, last_name=last, token=token['access_token'],
                           refresh=token['refresh_token'], health_data_per_day=[])
         new_guy.save()
-        return redirect('/')
+        return redirect('/dashboard')
 
 
 # noinspection PyAbstractClass
-class ListView(MethodView):
+class PatientListView(MethodView):
     @staticmethod
     def get():
         """ Renders patients/list.html with all of the patients as input """
@@ -60,7 +61,7 @@ class ListView(MethodView):
 
 
 # noinspection PyAbstractClass
-class DetailView(MethodView):
+class PatientDetailView(MethodView):
     @staticmethod
     def get(slug):
         """
@@ -85,6 +86,16 @@ class DetailView(MethodView):
         return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d)
 
 
-patients.add_url_rule('/', view_func=ListView.as_view('list'))
-patients.add_url_rule('/<slug>/', view_func=DetailView.as_view('detail'))
-register.add_url_rule('/register/', view_func=PatientAdder.as_view('patientAdder'))
+# noinspection PyAbstractClass
+class HomeView(MethodView):
+    @staticmethod
+    def get():
+        return render_template('home.html')
+
+
+patient_dashboard.add_url_rule('/dashboard', view_func=PatientListView.as_view('list'))
+patient_dashboard.add_url_rule('/dashboard/<slug>/', view_func=PatientDetailView.as_view('detail'))
+
+patient_add.add_url_rule('/dashboard/add', view_func=AddPatient.as_view('patientAdder'))
+
+home.add_url_rule('/', view_func=HomeView.as_view('home'))
