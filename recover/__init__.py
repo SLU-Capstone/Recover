@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, flash
 from flask.ext.mongoengine import MongoEngine
 
 # Set up app and database connection
@@ -18,9 +18,10 @@ def register_blueprints(ap):
     prevent circular imports by registering the blueprints.
     :param ap: app to register
     """
-    from recover.view import patient_dashboard, patient_add
+    from recover.view import patient_dashboard, patient_add, user_management
     ap.register_blueprint(patient_dashboard)
     ap.register_blueprint(patient_add)
+    ap.register_blueprint(user_management)
 
 register_blueprints(app)
 

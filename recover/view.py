@@ -1,14 +1,15 @@
-from flask import request, redirect, Blueprint, render_template
+from flask import request, redirect, Blueprint, render_template, flash
 from flask.views import MethodView
 from mongoengine import DoesNotExist
 
 from fitbit import Fitbit
 from recover.models import Patient
 from recover.patient_data import PatientData
+from recover.UserRegistrationForm import UserRegistrationForm
 
 patient_dashboard = Blueprint('patient_dashboard', __name__, template_folder='templates')
 patient_add = Blueprint('patient_add', __name__)
-
+user_management = Blueprint('user_management', __name__, template_folder='templates')
 
 # noinspection PyAbstractClass
 class AddPatient(MethodView):
@@ -44,9 +45,9 @@ class AddPatient(MethodView):
             # This is good!
             pass
 
-        new_guy = Patient(slug=fitbit_id, first_name=first, last_name=last, token=token['access_token'],
+        new_patient = Patient(slug=fitbit_id, first_name=first, last_name=last, token=token['access_token'],
                           refresh=token['refresh_token'], health_data_per_day=[])
-        new_guy.save()
+        new_patient.save()
         return redirect('/dashboard')
 
 
@@ -83,6 +84,21 @@ class PatientDetailView(MethodView):
                 d = "No Data."
 
         return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d)
+
+
+@user_management.route('/register/', methods=['GET', 'POST'])
+def register():
+    form = UserRegistrationForm(request.form)
+    if request.method == 'POST':
+        if form.validate():
+            # Create and save this new User
+            # user = User(form.username.data, form.email.data, form.password.data)
+            # db_session.add(user)
+            flash("User registration successful. You can now login above.", 'success')
+            return redirect('/')
+        else:
+            flash("Invalid input: please see the suggestions below.", 'warning')
+    return render_template('register.html', form=form)
 
 
 patient_dashboard.add_url_rule('/dashboard/', view_func=PatientListView.as_view('list'))
