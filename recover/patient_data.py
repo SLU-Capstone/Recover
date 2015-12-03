@@ -44,7 +44,7 @@ class PatientData:
                 data['heart_rate'][seconds] = info['value']
             self.patient.save()
             return True
-        except KeyError:
+        except (KeyError, TypeError):
             pass
         return False
 

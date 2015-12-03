@@ -13,7 +13,7 @@
         {% block content %}
             {% for patient in patients %}
                 <h2>
-                    <a href="{{ url_for('patient_dashboard.detail', slug=patient.slug) }}">
+                    <a href="{{ url_for('patient_dashboard.patient_detail', slug=patient.slug) }}">
                         {{ patient.last_name }}
                     </a>
                 </h2>
