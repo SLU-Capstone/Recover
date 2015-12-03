@@ -3,7 +3,7 @@ from flask.views import MethodView
 from mongoengine import DoesNotExist
 
 from fitbit import Fitbit
-from recover.models import Patient
+from recover.models import Patient, User
 from recover.patient_data import PatientData
 from recover.UserRegistrationForm import UserRegistrationForm
 
@@ -90,10 +90,18 @@ class PatientDetailView(MethodView):
 def register():
     form = UserRegistrationForm(request.form)
     if request.method == 'POST':
+
+        try:
+            if User.objects(email=form.email.data).count() > 0:
+                flash("A user with that email already exists. Please try again.", 'warning')
+                return render_template('register.html', form=form)
+        except AttributeError:
+            pass  # Users table is empty, so no need to check.
+
         if form.validate():
-            # Create and save this new User
-            # user = User(form.username.data, form.email.data, form.password.data)
-            # db_session.add(user)
+            new_user = User(username=form.username.data, email=form.email.data)
+            new_user.set_password(form.password.data)
+            new_user.save()
             flash("User registration successful. You can now login above.", 'success')
             return redirect('/')
         else:

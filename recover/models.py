@@ -1,5 +1,38 @@
 from recover import db
 from flask import url_for
+from flask.ext.login import UserMixin, LoginManager
+from werkzeug.security import generate_password_hash, check_password_hash
+
+login_manager = LoginManager()
+
+
+class User(db.Document):
+
+    username = db.StringField(max_length=25, required=True)
+    email = db.StringField(max_length=35, required=True)
+    password = db.StringField()
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def __unicode__(self):
+        return self.username
+
+    # These 4 methods override UserMixin
+    def is_active(self):
+        return True
+
+    def get_id(self):
+        return self.email
+
+    def is_anonymous(self):
+        return False
+
+    def is_authenticated(self):
+        return True
 
 
 class PatientHealthData(db.EmbeddedDocument):
@@ -27,7 +60,7 @@ class Patient(db.Document):
         return url_for('post', kwargs={'slug': self.slug})
 
     def __unicode__(self):
-        """ Returns how to show a patient """
+        """ String representation for a Patient """
         return self.first_name + ' ' + self.last_name
 
     def stats(self, date):

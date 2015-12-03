@@ -15,9 +15,9 @@ manager.add_command("run", Server(
 
 @manager.command
 def drop():
-    from recover.models import Patient
+    from recover.models import Patient, User
     Patient.drop_collection()
-
+    User.drop_collection()
 
 
 if __name__ == "__main__":
