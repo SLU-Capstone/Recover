@@ -1,21 +1,20 @@
 from flask import Flask, render_template
 from flask.ext.mongoengine import MongoEngine
-from flask.ext.login import LoginManager
+from flask.ext.login import LoginManager, current_user
 
 # Set up app and database connection
 app = Flask(__name__)
 app.config['MONGODB_SETTINGS'] = {'DB': 'tester'}
 app.config['SECRET_KEY'] = 'wut'
 
-login_manager = LoginManager()
-login_manager.init_app(app)
+login_manager = LoginManager(app)
 
 db = MongoEngine(app)
 
 
 @app.route('/')
 def load_home_page():
-    return render_template('home.html')
+    return render_template('home.html', user=current_user)
 
 
 def register_blueprints(ap):

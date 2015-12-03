@@ -38,16 +38,25 @@
           <a class="navbar-brand" href="#">Recover</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-          <form class="navbar-form navbar-right">
-            <div class="form-group">
-              <input type="text" placeholder="Physician username" class="form-control">
-            </div>
-            <div class="form-group">
-              <input type="password" placeholder="Password" class="form-control">
-            </div>
-{#            <button type="submit" class="btn btn-success">Sign in</button>#}
-            <a href="/dashboard" class="btn btn-success" role="button">Sign in</a>
-          </form>
+
+            {% if user.is_authenticated %}
+                <ul class="nav navbar-nav navbar-right">
+                    <li><p class="navbar-btn">
+                        <a href="/dashboard" class="btn btn-success"><span class="glyphicon glyphicon-th-list"></span> {{ user.username }}'s dashboard</a>
+                    </p></li>
+                </ul>
+            {% else %}
+              <form class="navbar-form navbar-right" action="/login" method="POST">
+                <div class="form-group">
+                  <input type="text" name="email" placeholder="Physician email" class="form-control">
+                </div>
+                <div class="form-group">
+                  <input type="password" name="password" placeholder="Password" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-success">Sign in</button>
+              </form>
+            {% endif %}
+
         </div><!--/.navbar-collapse -->
       </div>
     </nav>

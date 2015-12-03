@@ -1,13 +1,12 @@
 from recover import db
 from flask import url_for
-from flask.ext.login import UserMixin, LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
-
-login_manager = LoginManager()
 
 
 class User(db.Document):
-
+    """
+    A User object represents an entity with the ability to log-in, i.e. physicians.
+    """
     username = db.StringField(max_length=25, required=True)
     email = db.StringField(max_length=35, required=True)
     password = db.StringField()
@@ -16,10 +15,11 @@ class User(db.Document):
         self.password = generate_password_hash(password)
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        return check_password_hash(self.password, password)
 
     def __unicode__(self):
-        return self.username
+        """ String representation of a Patient """
+        return self.email
 
     # These 4 methods override UserMixin
     def is_active(self):
@@ -60,7 +60,7 @@ class Patient(db.Document):
         return url_for('post', kwargs={'slug': self.slug})
 
     def __unicode__(self):
-        """ String representation for a Patient """
+        """ String representation of a Patient """
         return self.first_name + ' ' + self.last_name
 
     def stats(self, date):

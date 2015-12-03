@@ -40,9 +40,9 @@
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="/dashboard/add">Add Patient</a></li>
-                    <li><a href="#">Settings</a></li>
-                    <li><a href="#">Profile</a></li>
+                    <li><a href="/dashboard/add"><span class="glyphicon glyphicon-plus"></span>  Add Patient</a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-cog"></span>  Settings</a></li>
+                    <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span>  Sign Out</a></li>
                 </ul>
                 <form class="navbar-form navbar-right">
                     <input type="text" class="form-control" placeholder="Search...">
@@ -51,6 +51,8 @@
         </div>
     </nav>
 {%- endblock -%}
+
+    {% include "flash_partial.html" %}
 
     <div class="container">
         <div class="content">
