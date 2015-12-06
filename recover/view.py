@@ -1,11 +1,9 @@
 from flask import request, redirect, Blueprint, render_template, flash
 from flask.ext.login import current_user, login_user, logout_user, login_required
 from mongoengine import DoesNotExist
-
 from recover import login_manager
 from fitbit import Fitbit
 from recover.models import Patient, User
-
 from recover.patient_data import PatientData
 from recover.UserRegistrationForm import UserRegistrationForm
 

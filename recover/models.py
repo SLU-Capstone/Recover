@@ -12,13 +12,22 @@ class User(db.Document):
     password = db.StringField()
 
     def set_password(self, password):
+        """
+        :type password: str
+        """
         self.password = generate_password_hash(password)
 
     def check_password(self, password):
+        """
+        :type password: str
+        """
         return check_password_hash(self.password, password)
 
     def __unicode__(self):
-        """ String representation of a Patient """
+        """
+        String representation of a Patient
+        :rtype: str
+        """
         return self.email
 
     # These 4 methods override UserMixin
@@ -64,6 +73,9 @@ class Patient(db.Document):
         return self.first_name + ' ' + self.last_name
 
     def stats(self, date):
+        """
+        :type date: str
+        """
         for d in self.health_data_per_day:
             if d['date'] == date:
                 return d

@@ -4,6 +4,7 @@ from dateutil import rrule, parser
 
 fitbit = Fitbit()
 
+
 def time2sec(time):
     hour, minute, sec = time.split(':')
     h = int(hour)
@@ -48,7 +49,6 @@ class PatientData:
             pass
         return False
 
-
     def get_heart_rate_data_for_date_range(self, start_date, end_date):
         """
         Helper function to retrieve heart rate data for a date range
@@ -56,9 +56,8 @@ class PatientData:
         :param end_date: end date of range in yyyy-MM-dd string format
         """
         dates = list(rrule.rrule(rrule.DAILY,
-                         dtstart=parser.parse(start_date),
-                         until=parser.parse(end_date)))
+                                 dtstart=parser.parse(start_date),
+                                 until=parser.parse(end_date)))
 
         for day in dates:
             self.get_heart_rate_data_for_day(day.strftime("%Y-%m-%d"))
-

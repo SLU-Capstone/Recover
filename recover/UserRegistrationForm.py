@@ -1,4 +1,4 @@
-from wtforms import Form, BooleanField, StringField, PasswordField, validators
+from wtforms import Form, StringField, PasswordField, validators
 
 
 class UserRegistrationForm(Form):
