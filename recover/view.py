@@ -3,7 +3,7 @@ from flask.ext.login import current_user, login_user, logout_user, login_require
 from mongoengine import DoesNotExist
 from recover import login_manager
 from fitbit import Fitbit
-from recover.models import Patient, User
+from recover.models import Patient, User, PatientInvite
 from recover.patient_data import PatientData
 from recover.UserRegistrationForm import UserRegistrationForm
 from recover.AddPatientForm import AddPatientForm
@@ -29,7 +29,9 @@ def add_patient():
 
         if form.validate():
             # Use Mandrill to generate and send an invite email to patient
-            resp = email_patient_invite(form.email.data, form.first_name.data)
+            invite = PatientInvite(inviting_physician=current_user, accepted=False, email=form.email.data)
+            invite.save()
+            resp = email_patient_invite(form.email.data, form.first_name.data, invite_id)
             if resp[0]['status'] == "sent":
                 flash("Patient has been invited. They will appear on your Dashboard after granting access.", 'success')
 
@@ -56,9 +58,10 @@ def authorize_new_patient():
     ''' #TODO: Need to determine how to persist <id> through the OAauth request process in order to associate the
         returned Fitbit account with the Physician that invited the user who clicked the link in the email. '''
     access_code = request.args.get('code')
+    invite_id = request.args.get('state')
     api = Fitbit()
     if access_code is None:
-        auth_url = api.get_authorization_uri()
+        auth_url = api.get_authorization_uri(invite_id)
         return redirect(auth_url)
     try:
         token = api.get_access_token(access_code)
@@ -68,6 +71,7 @@ def authorize_new_patient():
         response = api.api_call(token, '/1/user/-/profile.json')
     except Exception as e:
         return e
+
     fullname = response['user']['fullName']
     first, last = fullname.split()
     fitbit_id = response['user']['encodedId']
@@ -83,7 +87,7 @@ def authorize_new_patient():
     new_patient = Patient(slug=fitbit_id, first_name=first, last_name=last, token=token['access_token'],
                           refresh=token['refresh_token'], health_data_per_day=[])
     new_patient.save()
-    return redirect('/thanks')
+    return redirect('/thanks invited by' + str(User.username))
 
 @patient_add.route('/thanks')
 def thanks():

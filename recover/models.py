@@ -45,6 +45,12 @@ class User(db.Document):
         return True
 
 
+class PatientInvite(db.Document):
+    inviting_physician = db.ReferenceField('User')
+    accepted = db.BooleanField()
+    email = db.StringField(max_length=35)
+
+
 class PatientHealthData(db.EmbeddedDocument):
     date = db.StringField(primary_key=True)
     resting_heart_rate = db.IntField()

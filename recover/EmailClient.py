@@ -22,9 +22,7 @@ def send_email(destination_email, recipient_name, subject, message):
         raise
 
 
-def email_patient_invite(email, first_name):
+def email_patient_invite(email, first_name, state):
     message = "Hello " + first_name + ",\n\nPlease click the confirmation link to grant Recover access to your Fitbit data." \
-              "\n\nhttp://localhost:5000/authorize/"
-    # TODO: Dynamically generate this unique id
+              "\n\nhttp://localhost:5000/authorize?state=" + state
     return send_email(email, first_name, "You're invited to Recover!", message)
-    # TODO: if successful, return the confirmation code.
