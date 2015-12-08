@@ -33,6 +33,9 @@ class Fitbit:
         """
         Send a request to Fitbit for a link to authorize a new patient
         Returns a string of the URL to go to.
+
+        The 'state' variable functions as an identifier so that the authorized user returned from Fitbit
+        can be associated with the user who clicked the confirm link (and thus the inviting physician).
         """
         params = {
             'client_id': self.CLIENT_ID,

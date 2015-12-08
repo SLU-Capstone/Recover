@@ -31,7 +31,7 @@ class User(db.Document):
         """
         return self.email
 
-    # These 4 methods override UserMixin
+    # Below 4 methods are required for app-wide Login Manager.
     def is_active(self):
         return True
 
@@ -46,12 +46,26 @@ class User(db.Document):
 
 
 class PatientInvite(db.Document):
+    """
+    Model to represent the state of a Physician's invitation to add a new Patient.
+    Persists the relationship between an invited patient and the physician who added them, for the
+    "pending acceptance" phase until the Patient object is formally created upon granting of Fitbit access.
+    """
     inviting_physician = db.ReferenceField('User')
     accepted = db.BooleanField()
     email = db.StringField(max_length=35)
+    first_name = db.StringField(max_length=32)
+    last_name = db.StringField(max_length=32)
 
 
 class PatientHealthData(db.EmbeddedDocument):
+    """
+    Model to encapsulate a single day's worth of Fitbit health activity for a patient.
+    Each instance represents the data of a single date, keyed by a date string of format "YYYY-MM-DD".
+    'heart_rate' is a dictionary of heart rate measurement values keyed by the number of seconds into the day,
+        and is of the form {'10800' : '88', ... }
+    'day_complete' represents whether the objects contains ALL data for the given day.
+    """
     date = db.StringField(primary_key=True)
     resting_heart_rate = db.IntField()
     heart_rate = db.DictField()
@@ -64,10 +78,10 @@ class Patient(db.Document):
     Currently, we are only storing the name and tokens of the patient. If we
     need the data for the patient, we make an api call for it.
     """
-    slug = db.StringField(primary_key=True)  # unique id
+    slug = db.StringField(primary_key=True)  # same as their Fitbit Profile ID)
     first_name = db.StringField(max_length=32, required=True)
     last_name = db.StringField(max_length=32, required=True)
-    email = db.StringField(max_length=35)  # TODO: eventually this should likely be required.
+    email = db.StringField(max_length=35, required=True)
     token = db.StringField(max_length=511, required=True)
     refresh = db.StringField(max_length=511, required=True)
     health_data_per_day = db.ListField(db.EmbeddedDocumentField('PatientHealthData'))

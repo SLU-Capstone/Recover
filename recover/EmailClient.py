@@ -22,7 +22,9 @@ def send_email(destination_email, recipient_name, subject, message):
         raise
 
 
-def email_patient_invite(email, first_name, state):
-    message = "Hello " + first_name + ",\n\nPlease click the confirmation link to grant Recover access to your Fitbit data." \
-              "\n\nhttp://localhost:5000/authorize?state=" + state
+def email_patient_invite(email, first_name, invite_id, physician_name):
+    message = "Hello " + first_name + ",\n\n" + physician_name + " has invited you to join Recover." \
+              "\n\nPlease click the confirmation link to grant Recover access to your Fitbit data." \
+              "\n\nhttp://localhost:5000/authorize?state=" + invite_id
+
     return send_email(email, first_name, "You're invited to Recover!", message)
