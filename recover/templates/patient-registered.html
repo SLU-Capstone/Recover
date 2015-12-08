@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Recover - Account Confirmed</title>
+    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/css/home.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Vanilla navigation bar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">Recover</a>
+        </div>
+      </div>
+    </nav>
+
+    {% include "flash_partial.html" %}
+
+    <div class="container">
+        <div class="page-header">
+          <h1><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Account Confirmed</h1>
+        </div>
+
+        <div class="row clearfix">
+            <div class="col-md-6 column">
+                 <h4>Thank you, {{ name }}. Your account is now active.</h4>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+</body>
+</html>

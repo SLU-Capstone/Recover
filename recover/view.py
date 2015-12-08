@@ -3,7 +3,7 @@ from flask.ext.login import current_user, login_user, logout_user, login_require
 from mongoengine import DoesNotExist
 from recover import login_manager
 from fitbit import Fitbit
-from recover.models import Patient, User
+from recover.models import Patient, User, PatientInvite
 from recover.patient_data import PatientData
 from recover.UserRegistrationForm import UserRegistrationForm
 from recover.AddPatientForm import AddPatientForm
@@ -27,16 +27,24 @@ def add_patient():
         except AttributeError:
             pass  # Patients table is empty, so no need to check
 
+        # TODO: refactor out this invitation functionality
         if form.validate():
-            # Use Mandrill to generate and send an invite email to patient
-            resp = email_patient_invite(form.email.data, form.first_name.data)
-            if resp[0]['status'] == "sent":
-                flash("Patient has been invited. They will appear on your Dashboard after granting access.", 'success')
 
-                ''' #TODO: - generate dynamic code to send in patient invite.
-                           - associate this patient and email with the Physician that invited them,
-                             i.e. so not all physicians can see each other's patients!
-                '''
+            # Don't allow Physician to send duplicate invite requests to a new patient
+            if PatientInvite.objects(email=form.email.data).count() > 0:
+                flash("Warning: You have already invited this patient to join.", 'warning')
+                return redirect('/dashboard')
+
+            # Generate and send an invite email to patient
+            invite = PatientInvite(inviting_physician=current_user.to_dbref(), accepted=False, email=form.email.data,
+                                   first_name=form.first_name.data, last_name = form.last_name.data)
+            invite.save()
+            resp = email_patient_invite(email=form.email.data, first_name=form.first_name.data,
+                                        invite_id=str(invite.id), physician_name=current_user.username)
+            if resp[0]['status'] == "sent":
+                success_msg = form.first_name.data + " has been emailed an invitation, and will appear" \
+                                                     " on your Dashboard after granting access."
+                flash(success_msg, 'success')
             else:
                 flash("There was an error in sending the patient invitation. Please try again later.", 'warning')
             return redirect('/dashboard')
@@ -45,49 +53,65 @@ def add_patient():
     return render_template('add-patient.html', form=form)
 
 
-@patient_add.route('/authorize/<id>', methods=['GET'])
-@login_required
-def authorize_new_patient(id):
+@patient_add.route('/authorize', methods=['GET'])
+def authorize_new_patient():
     """
     This is called once a patient clicks the confirmation link in their email.
     Send a new patient to Fitbit to authorize our app, then
     receives access code to get token.
     """
-    ''' #TODO: Need to determine how to persist <id> through the OAauth request process in order to associate the
-        returned Fitbit account with the Physician that invited the user who clicked the link in the email. '''
     access_code = request.args.get('code')
+    invite_id = request.args.get('state')
     api = Fitbit()
+
+    # Require users to be invited by a physician. Only occurs when they receive an email w/ invite_id (aka "state").
+    if invite_id is None:
+        flash("Error: an authorization token is required. Please use the confirmation link that was emailed to you.", 'warning')
+        return redirect('/')
+
     if access_code is None:
-        auth_url = api.get_authorization_uri()
+        auth_url = api.get_authorization_uri(invite_id)
         return redirect(auth_url)
     try:
         token = api.get_access_token(access_code)
     except Exception as e:
         return e
-    # get the name
     try:
         response = api.api_call(token, '/1/user/-/profile.json')
     except Exception as e:
         return e
-    fullname = response['user']['fullName']
-    first, last = fullname.split(' ')
+
+    # fullname = response['user']['fullName']  # Using name entered by Physician on invite instead.
     fitbit_id = response['user']['encodedId']
 
-    # Ensure this patient has been invited by a physician.
-
-
-
     try:
-        Patient.objects.get(slug=fitbit_id)
-        return redirect('/dashboard')
-    except DoesNotExist:
-        # This is good!
-        pass
+        invite = PatientInvite.objects.get(id=invite_id)
+        if not invite.accepted:
+            invite.accepted = True
+            invite.save()
+            new_patient = Patient(slug=fitbit_id, first_name=invite.first_name, last_name=invite.last_name, email=invite.email,
+                                  token=token['access_token'], refresh=token['refresh_token'], health_data_per_day=[])
+            new_patient.save()
 
-    new_patient = Patient(slug=fitbit_id, first_name=first, last_name=last, token=token['access_token'],
-                          refresh=token['refresh_token'], health_data_per_day=[])
-    new_patient.save()
-    return redirect('/dashboard')
+            # Now save this patient to the inviting physician's list of patients.
+            inviting_physician = invite.inviting_physician
+            inviting_physician.patients.append(new_patient)
+            inviting_physician.save()
+
+            return redirect('/patient-registered?name=' + invite.first_name)
+        else:
+            flash("It appears you've already confirmed this account.", 'warning')
+            return redirect('/')
+
+    except Exception as e:
+        # TODO: determine what error occurred, and send them to error page accordingly.
+        raise
+
+
+@patient_add.route('/patient-registered')
+def thanks():
+    fname = request.args.get('name')
+    return render_template('patient-registered.html', name=fname)
 
 
 @patient_dashboard.route('/dashboard')

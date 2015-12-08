@@ -29,14 +29,18 @@ class Fitbit:
         self.AUTHORIZE_URL = 'https://%s/oauth2/authorize' % self.WWW_SERVER
         self.TOKEN_URL = 'https://%s/oauth2/token' % self.API_SERVER
 
-    def get_authorization_uri(self):
+    def get_authorization_uri(self, state=''):
         """
         Send a request to Fitbit for a link to authorize a new patient
         Returns a string of the URL to go to.
+
+        The 'state' variable functions as an identifier so that the authorized user returned from Fitbit
+        can be associated with the user who clicked the confirm link (and thus the inviting physician).
         """
         params = {
             'client_id': self.CLIENT_ID,
             'response_type': 'code',
+            'state': state,
             'scope': ' '.join(self.API_SCOPES),
             'redirect_uri': self.REDIRECT_URI,
             'expires_in': 2592000  # 30 day access
