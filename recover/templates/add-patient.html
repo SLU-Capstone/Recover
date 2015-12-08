@@ -1,0 +1,28 @@
+<!-- add-patient.html - Partial view for form to invite a new patient -->
+
+{% extends "base.html" %}
+{% block title %}Add Patient{% endblock %}
+{% block page_header %}
+    <div class="page-header">
+        <h1>Enroll New Patient</h1>
+    </div>
+    <style type="text/css">
+        p { overflow-wrap: break-word; word-wrap: break-word; }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="row clearfix">
+        <div class="col-md-6 column">
+
+            {% from "_formhelpers.html" import render_field %}
+            <form class="form" method=post action="/dashboard/add">
+                {{ render_field(form.first_name) }}
+                {{ render_field(form.last_name) }}
+                {{ render_field(form.email) }}
+                <button type="submit" class="btn btn-primary">Send Invitation</button>
+            </form>
+
+        </div>
+    </div>
+{% endblock %}

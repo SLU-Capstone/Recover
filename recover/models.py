@@ -61,6 +61,7 @@ class Patient(db.Document):
     slug = db.StringField(primary_key=True)  # unique id
     first_name = db.StringField(max_length=32, required=True)
     last_name = db.StringField(max_length=32, required=True)
+    email = db.StringField(max_length=35)  # TODO: eventually this should likely be required.
     token = db.StringField(max_length=511, required=True)
     refresh = db.StringField(max_length=511, required=True)
     health_data_per_day = db.ListField(db.EmbeddedDocumentField('PatientHealthData'))

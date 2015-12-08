@@ -6,19 +6,55 @@ from fitbit import Fitbit
 from recover.models import Patient, User
 from recover.patient_data import PatientData
 from recover.UserRegistrationForm import UserRegistrationForm
+from recover.AddPatientForm import AddPatientForm
+from recover.EmailClient import email_patient_invite
 
 patient_dashboard = Blueprint('patient_dashboard', __name__, template_folder='templates')
 patient_add = Blueprint('patient_add', __name__)
 user_management = Blueprint('user_management', __name__, template_folder='templates')
 
 
-@patient_add.route('/dashboard/add', methods=['GET'])
+@patient_add.route('/dashboard/add', methods=['GET', 'POST'])
 @login_required
 def add_patient():
+    form = AddPatientForm(request.form)
+    if request.method == 'POST':
+        try:
+            # Ensure this physician is not already monitoring this patient
+            if current_user.patients.objects(email=form.email.data).count() > 0:
+                flash("Error: You are already monitoring this patient. Please specify a new patient.", 'warning')
+                return render_template('add-patient.html', form=form)
+        except AttributeError:
+            pass  # Patients table is empty, so no need to check
+
+        if form.validate():
+            # Use Mandrill to generate and send an invite email to patient
+            resp = email_patient_invite(form.email.data, form.first_name.data)
+            if resp[0]['status'] == "sent":
+                flash("Patient has been invited. They will appear on your Dashboard after granting access.", 'success')
+
+                ''' #TODO: - generate dynamic code to send in patient invite.
+                           - associate this patient and email with the Physician that invited them,
+                             i.e. so not all physicians can see each other's patients!
+                '''
+            else:
+                flash("There was an error in sending the patient invitation. Please try again later.", 'warning')
+            return redirect('/dashboard')
+        else:
+            flash("Invalid input: please see the suggestions below.", 'warning')
+    return render_template('add-patient.html', form=form)
+
+
+@patient_add.route('/authorize/<id>', methods=['GET'])
+@login_required
+def authorize_new_patient(id):
     """
+    This is called once a patient clicks the confirmation link in their email.
     Send a new patient to Fitbit to authorize our app, then
     receives access code to get token.
     """
+    ''' #TODO: Need to determine how to persist <id> through the OAauth request process in order to associate the
+        returned Fitbit account with the Physician that invited the user who clicked the link in the email. '''
     access_code = request.args.get('code')
     api = Fitbit()
     if access_code is None:
@@ -37,9 +73,12 @@ def add_patient():
     first, last = fullname.split(' ')
     fitbit_id = response['user']['encodedId']
 
+    # Ensure this patient has been invited by a physician.
+
+
+
     try:
         Patient.objects.get(slug=fitbit_id)
-        # if exception is not raised, we failed
         return redirect('/dashboard')
     except DoesNotExist:
         # This is good!
