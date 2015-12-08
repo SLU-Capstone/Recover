@@ -8,7 +8,7 @@ def send_email(destination_email, recipient_name, subject, message):
         'to': [{'email': destination_email,
                 'name': recipient_name,
                 'type': 'to'}],
-        'from_email': 'notifications@reikam.com',
+        'from_email': 'notifications@getrecover.co',
         'from_name': 'Recover App',
         'subject': subject,
         'text': message
