@@ -45,9 +45,9 @@ def add_patient():
     return render_template('add-patient.html', form=form)
 
 
-@patient_add.route('/authorize/<id>', methods=['GET'])
-@login_required
-def authorize_new_patient(id):
+@patient_add.route('/authorize', methods=['GET'])
+# @login_required // patients cant log in
+def authorize_new_patient():
     """
     This is called once a patient clicks the confirmation link in their email.
     Send a new patient to Fitbit to authorize our app, then
@@ -64,22 +64,18 @@ def authorize_new_patient(id):
         token = api.get_access_token(access_code)
     except Exception as e:
         return e
-    # get the name
     try:
         response = api.api_call(token, '/1/user/-/profile.json')
     except Exception as e:
         return e
     fullname = response['user']['fullName']
-    first, last = fullname.split(' ')
+    first, last = fullname.split()
     fitbit_id = response['user']['encodedId']
 
     # Ensure this patient has been invited by a physician.
-
-
-
     try:
         Patient.objects.get(slug=fitbit_id)
-        return redirect('/dashboard')
+        return redirect('/thanks')
     except DoesNotExist:
         # This is good!
         pass
@@ -87,7 +83,11 @@ def authorize_new_patient(id):
     new_patient = Patient(slug=fitbit_id, first_name=first, last_name=last, token=token['access_token'],
                           refresh=token['refresh_token'], health_data_per_day=[])
     new_patient.save()
-    return redirect('/dashboard')
+    return redirect('/thanks')
+
+@patient_add.route('/thanks')
+def thanks():
+    return 'Thanks'
 
 
 @patient_dashboard.route('/dashboard')
