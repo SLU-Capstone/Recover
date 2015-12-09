@@ -118,7 +118,7 @@ def thanks():
 @login_required
 def dashboard():
     """ Renders patients/list.html with all of the patients as input """
-    people = Patient.objects.all()
+    people = current_user.patients
     return render_template('patients/list.html', physician=current_user, patients=people)
 
 
