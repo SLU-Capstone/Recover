@@ -1,9 +1,6 @@
 Recover: Cardiovascular Tracking System
 =======================================
 
-Matthew Meyer and Luke Reichold.    
-Saint Louis University.    
-Department of Mathematics and Computer Science.    
 
 Introduction
 ------------
@@ -23,20 +20,25 @@ can gain a more complete picture of the patient’s activity variability over a 
 supplements the health assessment of the patient rather than only having a single point of care interaction with which
 to base all data from.
 
+
 Usage
 -----
 
-This project primarily uses [Flask](http://flask.pocoo.org/) and extensions of Flask for the web application and 
-[MongoDB](https://www.mongodb.org/) as the database for our storage.
+This project primarily uses Flask_ and extensions of Flask for the web application and MongoDB_ as the database
+for our storage. Full source code is available from our `GitHub repository`_.
 
-To use, clone our repository and cd into it and download dependencies
+To use, clone our repository and cd into it and download dependencies::
 
     git clone https://github.com/SLU-Capstone/Recover.git
     cd Recover/
     pip install -r requirements.txt
 
-Now, to selfhost the application
+Now, to selfhost the application::
 
     python manage.py run
 
 You should now have a copy of the web application at 127.0.0.1:5000
+
+.. _Flask: http://flask.pocoo.org/
+.. _MongoDB: https://www.mongodb.org/
+.. _GitHub repository: https://github.com/SLU-Capstone/Recover

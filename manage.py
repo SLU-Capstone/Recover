@@ -11,7 +11,8 @@ manager.add_command("run", Server(
     use_debugger=True,
     use_reloader=True,
     host='0.0.0.0')
-)
+                    )
+
 
 @manager.command
 def drop():
@@ -19,6 +20,7 @@ def drop():
     PatientInvite.drop_collection()
     Patient.drop_collection()
     User.drop_collection()
+
 
 if __name__ == "__main__":
     manager.run()

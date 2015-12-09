@@ -37,7 +37,7 @@ def add_patient():
 
             # Generate and send an invite email to patient
             invite = PatientInvite(inviting_physician=current_user.to_dbref(), accepted=False, email=form.email.data,
-                                   first_name=form.first_name.data, last_name = form.last_name.data)
+                                   first_name=form.first_name.data, last_name=form.last_name.data)
             invite.save()
             resp = email_patient_invite(email=form.email.data, first_name=form.first_name.data,
                                         invite_id=str(invite.id), physician_name=current_user.username)
@@ -66,7 +66,8 @@ def authorize_new_patient():
 
     # Require users to be invited by a physician. Only occurs when they receive an email w/ invite_id (aka "state").
     if invite_id is None:
-        flash("Error: an authorization token is required. Please use the confirmation link that was emailed to you.", 'warning')
+        flash("Error: an authorization token is required. Please use the confirmation link that was emailed to you.",
+              'warning')
         return redirect('/')
 
     if access_code is None:
@@ -89,7 +90,8 @@ def authorize_new_patient():
         if not invite.accepted:
             invite.accepted = True
             invite.save()
-            new_patient = Patient(slug=fitbit_id, first_name=invite.first_name, last_name=invite.last_name, email=invite.email,
+            new_patient = Patient(slug=fitbit_id, first_name=invite.first_name, last_name=invite.last_name,
+                                  email=invite.email,
                                   token=token['access_token'], refresh=token['refresh_token'], health_data_per_day=[])
             new_patient.save()
 
@@ -103,7 +105,7 @@ def authorize_new_patient():
             flash("It appears you've already confirmed this account.", 'warning')
             return redirect('/')
 
-    except Exception as e:
+    except Exception:
         # TODO: determine what error occurred, and send them to error page accordingly.
         raise
 

@@ -32,16 +32,19 @@ class User(db.Document):
         return self.email
 
     # Below 4 methods are required for app-wide Login Manager.
-    def is_active(self):
+    @staticmethod
+    def is_active():
         return True
 
     def get_id(self):
         return self.email
 
-    def is_anonymous(self):
+    @staticmethod
+    def is_anonymous():
         return False
 
-    def is_authenticated(self):
+    @staticmethod
+    def is_authenticated():
         return True
 
 
