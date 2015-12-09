@@ -10,3 +10,8 @@ class UserRegistrationForm(Form):
     ])
     confirm = PasswordField('Repeat Password')
 
+
+
+
+
+

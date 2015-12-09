@@ -1,17 +1,11 @@
-from flask import request, redirect, Blueprint, render_template, flash
-from flask.ext.login import current_user, login_user, logout_user, login_required
-from mongoengine import DoesNotExist
-from recover import login_manager
-from fitbit import Fitbit
-from recover.models import Patient, User, PatientInvite
-from recover.patient_data import PatientData
-from recover.UserRegistrationForm import UserRegistrationForm
-from recover.AddPatientForm import AddPatientForm
+from flask import Blueprint, request, flash, render_template, redirect
+from flask.ext.login import login_required, current_user
 from recover.EmailClient import email_patient_invite
+from recover.fitbit import Fitbit
+from recover.forms.AddPatientForm import AddPatientForm
+from recover.models import PatientInvite, Patient
 
-patient_dashboard = Blueprint('patient_dashboard', __name__, template_folder='templates')
 patient_add = Blueprint('patient_add', __name__)
-user_management = Blueprint('user_management', __name__, template_folder='templates')
 
 
 @patient_add.route('/dashboard/add', methods=['GET', 'POST'])
@@ -91,8 +85,8 @@ def authorize_new_patient():
             invite.accepted = True
             invite.save()
             new_patient = Patient(slug=fitbit_id, first_name=invite.first_name, last_name=invite.last_name,
-                                  email=invite.email,
-                                  token=token['access_token'], refresh=token['refresh_token'], health_data_per_day=[])
+                                  email=invite.email, token=token['access_token'], refresh=token['refresh_token'],
+                                  health_data_per_day=[])
             new_patient.save()
 
             # Now save this patient to the inviting physician's list of patients.
@@ -115,104 +109,3 @@ def thanks():
     fname = request.args.get('name')
     return render_template('patient-registered.html', name=fname)
 
-
-@patient_dashboard.route('/dashboard')
-@login_required
-def dashboard():
-    """ Renders patients/list.html with all of the patients as input """
-    people = current_user.patients
-    return render_template('patients/list.html', physician=current_user, patients=people)
-
-
-# noinspection PyAbstractClass
-@patient_dashboard.route('/dashboard/<slug>', methods=['GET'])
-@login_required
-def patient_detail(slug):
-    """
-    Renders patients/details.html with one of the patients as input.
-    We will need to extend the functionality of this in order to pass
-    additional health information.
-    :param slug: unique id
-    """
-    patient = Patient.objects.get_or_404(slug=slug)
-    try:
-        resting_hr = patient['health_data_per_day'][0]['resting_heart_rate']
-        d = patient['health_data_per_day'][-1]['heart_rate']
-    except (KeyError, IndexError):
-        p = PatientData(patient)
-        if p.get_heart_rate_data_for_day():
-            resting_hr = patient['health_data_per_day'][-1]['resting_heart_rate']
-            d = patient['health_data_per_day'][-1]['heart_rate']
-        else:
-            resting_hr = "No Data."
-            d = "No Data."
-
-    return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d)
-
-
-@user_management.route('/register/', methods=['GET', 'POST'])
-def register():
-    form = UserRegistrationForm(request.form)
-    if request.method == 'POST':
-        try:
-            if User.objects(email=form.email.data).count() > 0:
-                flash("A user with that email already exists. Please try again.", 'warning')
-                return render_template('register.html', form=form)
-        except AttributeError:
-            pass  # Users table is empty, so no need to check.
-
-        if form.validate():
-            new_user = User(username=form.username.data, email=form.email.data)
-            new_user.set_password(form.password.data)
-            new_user.save()
-            flash("User registration successful. You can now login above.", 'success')
-            return redirect('/')
-        else:
-            flash("Invalid input: please see the suggestions below.", 'warning')
-    return render_template('register.html', form=form)
-
-
-@user_management.route('/login', methods=['POST'])
-def login():
-    email = request.form['email']
-    login_unsuccessful = "Login failed: Invalid email or password. Please try again."
-
-    try:  # User with given email does not exist
-        user = User.objects.get(email=email)
-    except DoesNotExist:
-        flash(login_unsuccessful, 'warning')
-        return redirect('/')
-
-    if user.check_password(request.form['password']):
-        login_user(user)
-        message = "Welcome, " + user.username + "!"
-        flash(message, 'success')
-        return redirect('/dashboard')
-
-    flash(login_unsuccessful, 'warning')
-    return redirect('/')
-
-
-@login_manager.user_loader
-def load_user(email):
-    user = User.objects(email=email)
-    if user.count() == 1:
-        return user[0]
-    return None
-
-
-@login_manager.unauthorized_handler
-def unauthorized():
-    # customize message shown for unauthorized route access.
-    flash("Unauthorized resource: You'll first need to login to do that.", 'warning')
-    return redirect('/')
-
-
-@user_management.route('/logout')
-@login_required
-def logout():
-    user = current_user
-    user.authenticated = False
-    user.save()
-    logout_user()
-    return redirect('/')
