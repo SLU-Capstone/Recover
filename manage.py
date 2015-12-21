@@ -15,6 +15,16 @@ manager.add_command("run", Server(
 
 
 @manager.command
+def doc():
+    os.chdir('doc')
+    os.system('make html > /dev/null')
+    print 'html documentation is in doc/_build/html/'
+    os.system('make latexpdf >/dev/null 2>&1')
+    print 'latex and pdf documentation is in doc/_build/latex/'
+    os.chdir('..')
+
+
+@manager.command
 def drop():
     from recover.models import Patient, User, PatientInvite
     PatientInvite.drop_collection()
