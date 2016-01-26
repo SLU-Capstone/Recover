@@ -1,3 +1,4 @@
+
 from flask import Blueprint, render_template
 from flask.ext.login import login_required, current_user
 from recover.models import Patient
@@ -9,20 +10,26 @@ patient_dashboard = Blueprint('patient_dashboard', __name__, template_folder='te
 @patient_dashboard.route('/dashboard')
 @login_required
 def dashboard():
-    """ Renders patients/list.html with all of the patients as input """
+    """
+    Renders the dashboard home for a logged on user.
+    Corresponding html file is in `recover/templates/patients/list.html`
+    with all of the patients associated with the logged on user as input.
+    """
     people = current_user.patients
     return render_template('patients/list.html', physician=current_user, patients=people)
 
 
-# noinspection PyAbstractClass
 @patient_dashboard.route('/dashboard/<slug>', methods=['GET'])
 @login_required
 def patient_detail(slug):
     """
-    Renders patients/details.html with one of the patients as input.
-    We will need to extend the functionality of this in order to pass
-    additional health information.
-    :param slug: unique id
+    Renders a detailed view of a selected patient. More functionality
+    is coming soon! Corresponding html file is in
+    `recover/templates/patients/detail.html` with the selected patient
+    as input.
+
+    Parameters:
+     - *slug*: A unique id associated with a given patient.
     """
     patient = Patient.objects.get_or_404(slug=slug)
     try:

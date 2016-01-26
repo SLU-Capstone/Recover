@@ -66,7 +66,7 @@ class PatientHealthData(db.EmbeddedDocument):
     Model to encapsulate a single day's worth of Fitbit health activity for a patient.
     Each instance represents the data of a single date, keyed by a date string of format "YYYY-MM-DD".
     'heart_rate' is a dictionary of heart rate measurement values keyed by the number of seconds into the day,
-        and is of the form {'10800' : '88', ... }
+    and is of the form {'10800' : '88', ... }
     'day_complete' represents whether the objects contains ALL data for the given day.
     """
     date = db.StringField(primary_key=True)

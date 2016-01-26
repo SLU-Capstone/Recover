@@ -4,7 +4,7 @@ Code
 UserRegistrationForm
 --------------------
 
-.. automodule:: recover.UserRegistrationForm
+.. automodule:: recover.forms.UserRegistrationForm
     :members:
 
 fitbit
@@ -23,10 +23,4 @@ patient_data
 ------------
 
 .. automodule:: recover.patient_data
-    :members:
-
-view
-----
-
-.. automodule:: recover.view
     :members:
