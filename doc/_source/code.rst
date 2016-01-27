@@ -1,12 +1,6 @@
 Code
 ====
 
-UserRegistrationForm
---------------------
-
-.. automodule:: recover.forms.UserRegistrationForm
-    :members:
-
 fitbit
 ------
 
@@ -24,3 +18,10 @@ patient_data
 
 .. automodule:: recover.patient_data
     :members:
+
+EmailClient
+-----------
+
+.. automodule:: recover.EmailClient
+    :members:
+
