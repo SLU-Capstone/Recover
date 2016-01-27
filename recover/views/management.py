@@ -10,6 +10,10 @@ user_management = Blueprint('user_management', __name__, template_folder='../tem
 
 @user_management.route('/register/', methods=['GET', 'POST'])
 def register():
+    """
+    Registers a Physician to use our system. Physicians will be required to
+    enter a user name, email address, password, and confirm their password.
+    """
     form = UserRegistrationForm(request.form)
     if request.method == 'POST':
         try:
@@ -32,6 +36,11 @@ def register():
 
 @user_management.route('/login', methods=['POST'])
 def login():
+    """
+    The checks a users email with a password hash and if successful, allows the
+    user to log into our system. If unsuccessful, the user is redirected to the
+    home page with a warning.
+    """
     email = request.form['email']
     login_unsuccessful = "Login failed: Invalid email or password. Please try again."
 
@@ -54,6 +63,9 @@ def login():
 @user_management.route('/logout')
 @login_required
 def logout():
+    """
+    User becomes unauthenticated and logs him or her off of our system.
+    """
     user = current_user
     user.authenticated = False
     user.save()
@@ -63,6 +75,9 @@ def logout():
 
 @login_manager.user_loader
 def load_user(email):
+    """
+    Loads a user after successfully logging into the system.
+    """
     user = User.objects(email=email)
     if user.count() == 1:
         return user[0]
@@ -71,6 +86,10 @@ def load_user(email):
 
 @login_manager.unauthorized_handler
 def unauthorized():
+    """
+    Redirects users who attempt to access pages that they must strictly
+    be logged on to in order to access.
+    """
     # customize message shown for unauthorized route access.
     flash("Unauthorized resource: You'll first need to login to do that.", 'warning')
     return redirect('/')

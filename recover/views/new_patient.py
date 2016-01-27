@@ -11,6 +11,13 @@ patient_add = Blueprint('patient_add', __name__)
 @patient_add.route('/dashboard/add', methods=['GET', 'POST'])
 @login_required
 def add_patient():
+    """
+    Allows a physician to enter in patient information and for an
+    invitational email to be sent to the patient. The PatientInvite
+    is then stored so as to not spam the patient and for logging
+    purposes.
+    :return:
+    """
     form = AddPatientForm(request.form)
     if request.method == 'POST':
         try:
@@ -51,8 +58,8 @@ def add_patient():
 def authorize_new_patient():
     """
     This is called once a patient clicks the confirmation link in their email.
-    Send a new patient to Fitbit to authorize our app, then
-    receives access code to get token.
+    Send a new patient to Fitbit to authorize our app, then receives access
+    code to get Fitbit token.
     """
     access_code = request.args.get('code')
     invite_id = request.args.get('state')
@@ -106,6 +113,9 @@ def authorize_new_patient():
 
 @patient_add.route('/patient-registered')
 def thanks():
+    """
+    Page to offer gratitude for patients signing up for this program.
+    """
     fname = request.args.get('name')
     return render_template('patient-registered.html', name=fname)
 
