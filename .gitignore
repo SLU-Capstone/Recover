@@ -2,6 +2,8 @@
 .idea/
 secret.py
 
+recover/doc/
+
 # Virtualenv
 venv/
 

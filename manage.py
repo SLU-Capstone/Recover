@@ -22,6 +22,7 @@ def doc():
     os.system('make latexpdf >/dev/null 2>&1')
     print 'latex and pdf documentation is in doc/_build/latex/'
     os.chdir('..')
+    os.system('cp -r doc/_build/html/ recover/doc/')
 
 
 @manager.command
