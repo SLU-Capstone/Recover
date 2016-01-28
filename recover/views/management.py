@@ -94,3 +94,24 @@ def unauthorized():
     flash("Unauthorized resource: You'll first need to login to do that.", 'warning')
     return redirect('/')
 
+
+# Admin section #
+from recover.forms import AdminViewer
+
+@user_management.route('/admin', methods=['GET', 'POST'])
+@login_required
+def admin():
+    if str(current_user) != 'admin':
+        flash('Error: Restricted Access', 'warning')
+        return redirect('/')
+    userForms = []
+    for user in User.objects():
+        form = AdminViewer.AdminUsers(request.form, [user.username, user.email])
+        form.username.data = user.username
+        form.email.data = user.email
+        userForms.append(form)
+    patientForm = AdminViewer.AdminPatients(request.form)
+    if request.method == 'POST':
+        flash("User update successful. lol, jk. Not implemented yet.", 'success')
+        return redirect('/admin')
+    return render_template('admin.html', userForms=userForms)
