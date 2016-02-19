@@ -37,7 +37,7 @@ class User(db.Document):
         return True
 
     def get_id(self):
-        return self.email
+        return str(self.id)
 
     @staticmethod
     def is_anonymous():

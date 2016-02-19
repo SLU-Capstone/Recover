@@ -74,11 +74,11 @@ def logout():
 
 
 @login_manager.user_loader
-def load_user(email):
+def load_user(UniqueID):
     """
     Loads a user after successfully logging into the system.
     """
-    user = User.objects(email=email)
+    user = User.objects(id=UniqueID)
     if user.count() == 1:
         return user[0]
     return None
@@ -109,9 +109,12 @@ def admin():
         form = AdminViewer.AdminUsers(request.form, [user.username, user.email])
         form.username.data = user.username
         form.email.data = user.email
+        form.meta = user.id
         userForms.append(form)
+
     patientForm = AdminViewer.AdminPatients(request.form)
     if request.method == 'POST':
-        flash("User update successful. lol, jk. Not implemented yet.", 'success')
+        string = '%s' % request.form.__str__()
+        flash(string, 'success')
         return redirect('/admin')
     return render_template('admin.html', userForms=userForms)

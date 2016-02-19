@@ -1,9 +1,12 @@
 from flask import Blueprint, request, flash, render_template, redirect
 from flask.ext.login import login_required, current_user
+from mongoengine import DoesNotExist
+
 from recover.EmailClient import email_patient_invite
 from recover.fitbit import Fitbit
 from recover.forms.AddPatientForm import AddPatientForm
 from recover.models import PatientInvite, Patient
+from recover.patient_data import PatientData
 
 patient_add = Blueprint('patient_add', __name__)
 
@@ -77,11 +80,13 @@ def authorize_new_patient():
     try:
         token = api.get_access_token(access_code)
     except Exception as e:
-        return e
+        flash(e.message, 'warning')
+        return redirect('/')
     try:
         response = api.api_call(token, '/1/user/-/profile.json')
     except Exception as e:
-        return e
+        flash(e.message, 'warning')
+        return redirect('/')
 
     # fullname = response['user']['fullName']  # Using name entered by Physician on invite instead.
     fitbit_id = response['user']['encodedId']
@@ -96,6 +101,13 @@ def authorize_new_patient():
                                   health_data_per_day=[])
             new_patient.save()
 
+            # get the first months worth of data for the brand new patient
+            new_patient_data = PatientData(new_patient)
+            if not new_patient_data.get_heart_rate_data_for_period('1m'):
+                flash('Could not retrieve Patient data', 'warning')
+                return redirect('/')
+
+
             # Now save this patient to the inviting physician's list of patients.
             inviting_physician = invite.inviting_physician
             inviting_physician.patients.append(new_patient)
@@ -106,9 +118,9 @@ def authorize_new_patient():
             flash("It appears you've already confirmed this account.", 'warning')
             return redirect('/')
 
-    except Exception:
-        # TODO: determine what error occurred, and send them to error page accordingly.
-        raise
+    except DoesNotExist as e:
+        flash(e.__str__(), 'warning')
+        return redirect('/')
 
 
 @patient_add.route('/patient-registered')

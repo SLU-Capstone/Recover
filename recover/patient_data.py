@@ -49,15 +49,44 @@ class PatientData:
             pass
         return False
 
-    def get_heart_rate_data_for_date_range(self, start_date, end_date):
+    def get_heart_rate_data_for_period(self, period):
+        try:
+            response = fitbit.api_call(self.token,
+                                       '1/user/-/activities/heart/date/today/%s.json' % (period))
+        except Exception:
+            return False
+        try:
+            data = self.patient.stats(response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore'))
+            data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
+            for info in response['activities-heart-intraday']['dataset']:
+                seconds = time2sec(info['time'])
+                data['heart_rate'][seconds] = info['value']
+            self.patient.save()
+            return True;
+        except (KeyError, TypeError):
+            pass
+        return False
+
+    def get_heart_rate_data_for_date_range(self, start_date, end_date='today', detail_level='1min'):
         """
         Helper function to retrieve heart rate data for a date range
         :param start_date: start date of range in yyyy-MM-dd string format
         :param end_date: end date of range in yyyy-MM-dd string format
         """
-        dates = list(rrule.rrule(rrule.DAILY,
-                                 dtstart=parser.parse(start_date),
-                                 until=parser.parse(end_date)))
-
-        for day in dates:
-            self.get_heart_rate_data_for_day(day.strftime("%Y-%m-%d"))
+        try:
+            response = fitbit.api_call(self.token,
+                                       '/1/user/-/activities/heart/date/%s/%s/%s.json'
+                                       % (start_date, end_date, detail_level))
+        except Exception:
+            return False
+        try:
+            data = self.patient.stats(response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore'))
+            data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
+            for info in response['activities-heart-intraday']['dataset']:
+                seconds = time2sec(info['time'])
+                data['heart_rate'][seconds] = info['value']
+            self.patient.save()
+            return True
+        except (KeyError, TypeError):
+            pass
+        return False
