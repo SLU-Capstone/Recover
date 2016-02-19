@@ -107,7 +107,6 @@ def authorize_new_patient():
                 flash('Could not retrieve Patient data', 'warning')
                 return redirect('/')
 
-
             # Now save this patient to the inviting physician's list of patients.
             inviting_physician = invite.inviting_physician
             inviting_physician.patients.append(new_patient)
@@ -130,4 +129,3 @@ def thanks():
     """
     fname = request.args.get('name')
     return render_template('patient-registered.html', name=fname)
-

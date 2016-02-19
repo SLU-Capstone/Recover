@@ -1,6 +1,5 @@
 from fitbit import Fitbit
 from recover.models import Patient
-from dateutil import rrule, parser
 
 fitbit = Fitbit()
 
@@ -52,7 +51,7 @@ class PatientData:
     def get_heart_rate_data_for_period(self, period):
         try:
             response = fitbit.api_call(self.token,
-                                       '1/user/-/activities/heart/date/today/%s.json' % (period))
+                                       '1/user/-/activities/heart/date/today/%s.json' % period)
         except Exception:
             return False
         try:
@@ -62,7 +61,7 @@ class PatientData:
                 seconds = time2sec(info['time'])
                 data['heart_rate'][seconds] = info['value']
             self.patient.save()
-            return True;
+            return True
         except (KeyError, TypeError):
             pass
         return False

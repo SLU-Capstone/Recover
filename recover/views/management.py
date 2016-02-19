@@ -74,11 +74,11 @@ def logout():
 
 
 @login_manager.user_loader
-def load_user(UniqueID):
+def load_user(unique):
     """
     Loads a user after successfully logging into the system.
     """
-    user = User.objects(id=UniqueID)
+    user = User.objects(id=unique)
     if user.count() == 1:
         return user[0]
     return None
