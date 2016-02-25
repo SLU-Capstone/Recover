@@ -54,8 +54,10 @@ class PatientData:
             data = self.patient.stats(response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore'))
             data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
             for info in response['activities-heart-intraday']['dataset']:
-                #seconds = time2sec(info['time'], data['date'])
-                data['heart_rate'][info['time']] = int(info['value'])
+                dayStr = data.date
+                dayStr += ' ' + info['time']
+                unix = str(int(mktime(datetime.strptime(dayStr, "%Y-%m-%d %H:%M:%S").timetuple())))
+                data['heart_rate'][unix] = info['value']
             self.patient.save()
             return True
         except (KeyError, TypeError):
@@ -88,7 +90,7 @@ class PatientData:
                 for info in resp['activities-heart-intraday']['dataset']:
                     dayStr = data.date
                     dayStr += ' ' + info['time']
-                    unix = mktime(datetime.strptime(dayStr, "%Y-%m-%d %H:%M:%S").timetuple())
+                    unix = str(int(mktime(datetime.strptime(dayStr, "%Y-%m-%d %H:%M:%S").timetuple())))
                     data['heart_rate'][unix] = info['value']
                 self.patient.save()
                 return True
@@ -114,8 +116,10 @@ class PatientData:
             data = self.patient.stats(response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore'))
             data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
             for info in response['activities-heart-intraday']['dataset']:
-                seconds = time2sec(info['time'])
-                data['heart_rate'][seconds] = info['value']
+                dayStr = data.date
+                dayStr += ' ' + info['time']
+                unix = str(int(mktime(datetime.strptime(dayStr, "%Y-%m-%d %H:%M:%S").timetuple())))
+                data['heart_rate'][unix] = info['value']
             self.patient.save()
             return True
         except (KeyError, TypeError):
