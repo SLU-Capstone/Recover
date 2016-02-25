@@ -103,7 +103,7 @@ def authorize_new_patient():
 
             # get the first months worth of data for the brand new patient
             new_patient_data = PatientData(new_patient)
-            if not new_patient_data.get_heart_rate_data_for_period('1m'):
+            if not new_patient_data.get_heart_rate_data_for_X_days(30):
                 flash('Could not retrieve Patient data', 'warning')
                 return redirect('/')
 
