@@ -1,5 +1,8 @@
 import logging
+from datetime import datetime, time
 from time import mktime
+
+from mongoengine import ValidationError
 
 from fitbit import Fitbit
 from recover.models import Patient
@@ -51,8 +54,8 @@ class PatientData:
             data = self.patient.stats(response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore'))
             data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
             for info in response['activities-heart-intraday']['dataset']:
-                seconds = time2sec(info['time'], data['date'])
-                data['heart_rate'][seconds] = info['value']
+                #seconds = time2sec(info['time'], data['date'])
+                data['heart_rate'][info['time']] = int(info['value'])
             self.patient.save()
             return True
         except (KeyError, TypeError):
@@ -83,13 +86,13 @@ class PatientData:
                 data['resting_heart_rate'] = resp['activities-heart'][0]['value']['restingHeartRate']
                 app.logger.info('got resting')
                 for info in resp['activities-heart-intraday']['dataset']:
-                    seconds = time2sec(info['time'], data['date'])
-                    app.logger.info('got secs')
-                    data['heart_rate'][seconds] = info['value']
-                    app.logger.info('got val')
+                    dayStr = data.date
+                    dayStr += ' ' + info['time']
+                    unix = mktime(datetime.strptime(dayStr, "%Y-%m-%d %H:%M:%S").timetuple())
+                    data['heart_rate'][unix] = info['value']
                 self.patient.save()
                 return True
-        except (KeyError, TypeError) as e:
+        except (KeyError, TypeError, ValidationError, AttributeError) as e:
             app.logger.info(e.message)
             app.logger.info(response[0])
             pass
