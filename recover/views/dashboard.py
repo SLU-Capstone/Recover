@@ -44,4 +44,5 @@ def patient_detail(slug):
             resting_hr = "No Data."
             d = "No Data."
 
+    # foo = ['this', 'is', 'a', 'series', 'of', 'data']
     return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d)

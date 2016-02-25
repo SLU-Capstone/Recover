@@ -85,7 +85,9 @@ class Patient(db.Document):
     first_name = db.StringField(max_length=32, required=True)
     last_name = db.StringField(max_length=32, required=True)
     email = db.StringField(max_length=35, required=True)
+    # Fitbit Access Token
     token = db.StringField(max_length=511, required=True)
+    # Fitbit Refresh Token
     refresh = db.StringField(max_length=511, required=True)
     health_data_per_day = db.ListField(db.EmbeddedDocumentField('PatientHealthData'))
 
