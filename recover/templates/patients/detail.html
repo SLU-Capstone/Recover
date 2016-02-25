@@ -26,23 +26,19 @@
     <script type="text/javascript">
 
         {# Receive data from server-side into JS object on client-side. #}
-        var data = '{{ data }}';
-        console.log(data);
+        var data = {{ data|tojson }};
+
+        all = [];
+        for (var key in data) {
+            all.push({'x': key, 'y': data[key]});
+        }
 
         var container = document.getElementById('visualization');
-        var items = [
-        {x: '2014-06-11', y: 10},
-        {x: '2014-06-12', y: 25},
-        {x: '2014-06-14', y: 10},
-        {x: '2014-06-15', y: 15},
-        {x: '2014-06-13', y: 30},
-        {x: '2014-06-16', y: 30}
-        ];
 
-        var dataset = new vis.DataSet(items);
+        var dataset = new vis.DataSet(all);
         var options = {
-          start: '2014-06-10',
-          end: '2014-06-18'
+          start: '2016-02-22',
+          end: '2016-02-26'
         };
         var graph2d = new vis.Graph2d(container, dataset, options);
     </script>

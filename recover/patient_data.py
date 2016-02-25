@@ -56,8 +56,7 @@ class PatientData:
             for info in response['activities-heart-intraday']['dataset']:
                 dayStr = data.date
                 dayStr += ' ' + info['time']
-                unix = str(int(mktime(datetime.strptime(dayStr, "%Y-%m-%d %H:%M:%S").timetuple())))
-                data['heart_rate'][unix] = info['value']
+                data['heart_rate'][dayStr] = info['value']
             self.patient.save()
             return True
         except (KeyError, TypeError):
@@ -90,8 +89,7 @@ class PatientData:
                 for info in resp['activities-heart-intraday']['dataset']:
                     dayStr = data.date
                     dayStr += ' ' + info['time']
-                    unix = str(int(mktime(datetime.strptime(dayStr, "%Y-%m-%d %H:%M:%S").timetuple())))
-                    data['heart_rate'][unix] = info['value']
+                    data['heart_rate'][dayStr] = info['value']
                 self.patient.save()
                 return True
         except (KeyError, TypeError, ValidationError, AttributeError) as e:
@@ -100,6 +98,7 @@ class PatientData:
             pass
         return False
 
+    # TODO: Fix this. make it good.
     def get_heart_rate_data_for_date_range(self, start_date, end_date='today', detail_level='1min'):
         """
         Helper function to retrieve heart rate data for a date range
@@ -118,8 +117,7 @@ class PatientData:
             for info in response['activities-heart-intraday']['dataset']:
                 dayStr = data.date
                 dayStr += ' ' + info['time']
-                unix = str(int(mktime(datetime.strptime(dayStr, "%Y-%m-%d %H:%M:%S").timetuple())))
-                data['heart_rate'][unix] = info['value']
+                data['heart_rate'][dayStr] = info['value']
             self.patient.save()
             return True
         except (KeyError, TypeError):
