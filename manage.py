@@ -30,7 +30,6 @@ def drop():
     from recover.models import Patient, User, PatientInvite
     PatientInvite.drop_collection()
     Patient.drop_collection()
-    User.drop_collection()
 
 
 if __name__ == "__main__":
