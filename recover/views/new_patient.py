@@ -35,7 +35,7 @@ def add_patient():
         if form.validate():
 
             # Don't allow Physician to send duplicate invite requests to a new patient
-            if PatientInvite.objects(email=form.email.data).count() > 0:
+            if PatientInvite.objects(email=form.email.data, inviting_physician=current_user.to_dbref()).count() > 0:
                 flash("Warning: You have already invited this patient to join.", 'warning')
                 return redirect('/dashboard')
 
