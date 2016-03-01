@@ -1,6 +1,4 @@
 import logging
-from datetime import datetime, time
-from time import mktime
 
 from mongoengine import ValidationError
 
@@ -8,22 +6,6 @@ from fitbit import Fitbit
 from recover.models import Patient
 
 fitbit = Fitbit()
-
-
-# time is HH:MM:SS
-# date is yyyy-MM-dd
-def time2sec(time, date):
-    hour, minute, sec = time.split(':')
-    year, month, day = date.split('-')
-    y = int(year)
-    mo = int(month)
-    d = int(day)
-    h = int(hour)
-    mi = int(minute)
-    s = int(sec)
-    time = date(y, mo, d, h, mi, s)
-    return int(mktime(time.timetuple()))
-
 
 # noinspection PyBroadException
 class PatientData:
@@ -47,7 +29,7 @@ class PatientData:
         """
         try:
             response = fitbit.api_call(self.token,
-                                       '/1/user/-/activities/heart/date/%s/1d/%s.json' % (date, detail_level))
+                                       '/1/user/%s/activities/heart/date/%s/1d/%s.json' % (self.patient.slug, date, detail_level))
         except Exception:
             return False
         try:
