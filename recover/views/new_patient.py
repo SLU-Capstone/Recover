@@ -95,7 +95,7 @@ def authorize_new_patient():
         invite = PatientInvite.objects.get(id=invite_id)
         if not invite.accepted:
             invite.accepted = True
-            invite.save()
+            PatientInvite.delete(invite)
             new_patient = Patient(slug=fitbit_id, first_name=invite.first_name, last_name=invite.last_name,
                                   email=invite.email, token=token['access_token'], refresh=token['refresh_token'],
                                   health_data_per_day=[])
