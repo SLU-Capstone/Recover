@@ -32,10 +32,13 @@ def patient_detail(slug):
     Parameters:
      - *slug*: A unique id associated with a given patient.
     """
+
     patient = Patient.objects.get_or_404(slug=slug)
     try:
         resting_hr = patient['health_data_per_day'][0]['resting_heart_rate']
         d = patient['health_data_per_day'][-1]['heart_rate']
+        p = PatientData(patient)
+        p.get_activity_data_for_date_range("2016-02-25")
     except (KeyError, IndexError):
         p = PatientData(patient)
         if p.get_heart_rate_data_for_day():
@@ -44,6 +47,5 @@ def patient_detail(slug):
         else:
             resting_hr = "No Data."
             d = "No Data."
-
-    # foo = ['this', 'is', 'a', 'series', 'of', 'data']
+        p.get_activity_data_for_date_range("2016-02-25")
     return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d)
