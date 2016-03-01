@@ -65,7 +65,8 @@ class Fitbit:
             'code': access_code,
             'grant_type': 'authorization_code',
             'client_id': self.CLIENT_ID,
-            'redirect_uri': self.REDIRECT_URI
+            'redirect_uri': self.REDIRECT_URI,
+            'expires_in': 2592000  # 30 day access
         }
         # Place request
         resp = requests.post(self.TOKEN_URL, data=params, headers=headers)
