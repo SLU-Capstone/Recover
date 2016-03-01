@@ -25,9 +25,10 @@
     {# Populate the graph #}
     <script type="text/javascript">
 
-        {# Receive data from server-side into JS object on client-side. #}
-        var data = {{ data|tojson }};
+        {# Receive data from server-side into client-side JS object. #}
+        var data = {{ data | tojson }};
 
+        // Convert to x-y format for Vis JS
         all = [];
         for (var key in data) {
             all.push({'x': key, 'y': data[key]});

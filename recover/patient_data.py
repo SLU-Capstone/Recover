@@ -1,5 +1,5 @@
 import logging
-
+from recover import app
 from mongoengine import ValidationError
 
 from fitbit import Fitbit
@@ -48,9 +48,7 @@ class PatientData:
         return False
 
     def get_heart_rate_data_for_X_days(self, Xdays):
-        from recover import app
         app.logger.addHandler(logging.FileHandler('log/log.txt'))
-        app.logger.info('started fun')
 
         from datetime import date, timedelta
         today = date.today()
@@ -77,6 +75,7 @@ class PatientData:
                     app.logger.info(e.message)
                     app.logger.info(response[0])
                     pass
+
         except Exception as e:
             app.logger.info('call: /1/user/-/activities/heart/date/%s/1min.json' % day)
             app.logger.info(e.message)
@@ -94,8 +93,10 @@ class PatientData:
             response = fitbit.api_call(self.token,
                                        '/1/user/-/activities/heart/date/%s/%s/%s.json'
                                        % (start_date, end_date, detail_level))
-        except Exception:
+        except Exception as e:
+            app.logger.info(e.message)
             return False
+
         try:
             data = self.patient.stats(response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore'))
             data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
@@ -104,6 +105,44 @@ class PatientData:
                 dayStr += ' ' + info['time']
                 data['heart_rate'][dayStr] = info['value']
             self.patient.save()
+            return True
+        except (KeyError, TypeError):
+            pass
+        return False
+
+    def get_activity_data_for_date_range(self, start_date, end_date='today', detail_level='15min'):
+        """
+        Helper function to retrieve activity (step) data for a date range
+        :param start_date: start date of range in yyyy-MM-dd string format
+        :param end_date: end date of range in yyyy-MM-dd string format
+        """
+
+        # TODO: Check to see if we already have this data before fetching it.
+
+        app.logger.addHandler(logging.FileHandler('log/log.txt'))
+        app.logger.info("### LOGGING FETCHED ACTIVITY DATA ")
+
+        try:
+            response = fitbit.api_call(self.token,
+                                       '/1/user/-/activities/steps/date/%s/%s/%s.json'
+                                       % (start_date, end_date, detail_level))
+            app.logger.info(response)
+        except Exception as e:
+            app.logger.info(e.message)
+            return False
+        try:
+            # data = self.patient.stats(response['activities-log-steps-intraday']['dataset'].encode('ascii', 'ignore'))
+
+            app.logger.addHandler(logging.FileHandler('log/log.txt'))
+            app.logger.info("### I got to this point!")
+            app.logger.info(response)
+
+            # data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
+            # for info in response['activities-heart-intraday']['dataset']:
+            #     dayStr = data.date
+            #     dayStr += ' ' + info['time']
+            #     data['heart_rate'][dayStr] = info['value']
+            # self.patient.save()
             return True
         except (KeyError, TypeError):
             pass

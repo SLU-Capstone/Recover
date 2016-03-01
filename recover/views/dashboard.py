@@ -1,9 +1,5 @@
 import logging
-
-import time
-
 import datetime
-from pandas import json
 
 from flask import Blueprint, render_template
 from flask.ext.login import login_required, current_user
@@ -39,6 +35,7 @@ def patient_detail(slug):
     Parameters:
      - *slug*: A unique id associated with a given patient.
     """
+
     patient = Patient.objects.get_or_404(slug=slug)
     t = datetime.datetime.today()
     try:
@@ -59,6 +56,7 @@ def patient_detail(slug):
             d.update(patient['health_data_per_day'][i]['heart_rate'])
             resting_hr += patient['health_data_per_day'][-1]['resting_heart_rate']
         resting_hr /= len(patient['health_data_per_day'])
+
     except (KeyError, IndexError):
         p = PatientData(patient)
         if p.get_heart_rate_data_for_day():
@@ -70,5 +68,4 @@ def patient_detail(slug):
         start = patient['health_data_per_day'][0]['date']
         end = patient['health_data_per_day]'][-1]['date']
 
-    # foo = ['this', 'is', 'a', 'series', 'of', 'data']
     return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d, start=start, end=end)
