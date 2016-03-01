@@ -50,11 +50,13 @@ def patient_detail(slug):
             PatientData(patient).get_heart_rate_data_for_X_days(days)
         resting_hr = 0
         d = {}
+        hrDaily = {}
         start = patient['health_data_per_day'][0]['date']
         end = patient['health_data_per_day'][-1]['date']
-        for i in range(0,len(patient['health_data_per_day'])):
+        for i in range(0, len(patient['health_data_per_day'])):
             d.update(patient['health_data_per_day'][i]['heart_rate'])
             resting_hr += patient['health_data_per_day'][-1]['resting_heart_rate']
+            hrDaily[patient['health_data_per_day'][i]['date']] = patient['health_data_per_day'][i]['resting_heart_rate']
         resting_hr /= len(patient['health_data_per_day'])
 
     except (KeyError, IndexError):
@@ -68,4 +70,4 @@ def patient_detail(slug):
         start = patient['health_data_per_day'][0]['date']
         end = patient['health_data_per_day]'][-1]['date']
 
-    return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d, start=start, end=end)
+    return render_template('patients/detail.html', patient=patient, resting=resting_hr, hrDaily=hrDaily, data=d, start=start, end=end)

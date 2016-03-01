@@ -27,22 +27,47 @@
 
         {# Receive data from server-side into client-side JS object. #}
         var data = {{ data | tojson }};
+        var hr = {{ hrDaily | tojson }};
 
         // Convert to x-y format for Vis JS
         all = [];
         for (var key in data) {
-            all.push({'x': key, 'y': data[key]});
+            all.push({'x': key, 'y': data[key], group: 0});
+        }
+
+        for (var key in hr) {
+            all.push({'x': key, 'y': hr[key], group: 1});
         }
 
         var container = document.getElementById('visualization');
+        // var dataset = new vis.DataSet(all);
 
-        var dataset = new vis.DataSet(all);
+        var groups = new vis.DataSet();
+        groups.add({
+            id: 0,
+            content: "HR",
+            options: {
+                drawPoints: {
+                    style: 'circle' // square, circle
+                }
+        }});
+
+        groups.add({
+            id: 1,
+            content: "Average Resting HR",
+            options: {
+                drawPoints: {
+                    style: 'square' // square, circle
+                }
+        }});
+
+
         var options = {
           start: "{{ start }}",
           end: "{{ end }}"
         };
         console.log(options['start']);
-        var graph2d = new vis.Graph2d(container, dataset, options);
+        var graph2d = new vis.Graph2d(container, all, groups, options);
     </script>
 
     <div class="row">
