@@ -1,7 +1,14 @@
 import logging
 
+import time
+
+import datetime
+from pandas import json
+
 from flask import Blueprint, render_template
 from flask.ext.login import login_required, current_user
+
+from recover import app
 from recover.models import Patient
 from recover.patient_data import PatientData
 
@@ -33,9 +40,25 @@ def patient_detail(slug):
      - *slug*: A unique id associated with a given patient.
     """
     patient = Patient.objects.get_or_404(slug=slug)
+    t = datetime.datetime.today()
     try:
-        resting_hr = patient['health_data_per_day'][0]['resting_heart_rate']
-        d = patient['health_data_per_day'][-1]['heart_rate']
+        last_pull = patient['health_data_per_day'][-1]['date']
+        if last_pull != t.isoformat()[0:10]:
+            app.logger.addHandler(logging.FileHandler('log/patient_detail.txt'))
+            app.logger.info(last_pull)
+            app.logger.info(t.isoformat()[0:10])
+            today = t
+            last = datetime.datetime.strptime(last_pull, '%Y-%m-%d')
+            days = (today - last).days
+            PatientData(patient).get_heart_rate_data_for_X_days(days)
+        resting_hr = 0
+        d = {}
+        start = patient['health_data_per_day'][0]['date']
+        end = patient['health_data_per_day'][-1]['date']
+        for i in range(0,len(patient['health_data_per_day'])):
+            d.update(patient['health_data_per_day'][i]['heart_rate'])
+            resting_hr += patient['health_data_per_day'][-1]['resting_heart_rate']
+        resting_hr /= len(patient['health_data_per_day'])
     except (KeyError, IndexError):
         p = PatientData(patient)
         if p.get_heart_rate_data_for_day():
@@ -44,6 +67,8 @@ def patient_detail(slug):
         else:
             resting_hr = "No Data."
             d = "No Data."
+        start = patient['health_data_per_day'][0]['date']
+        end = patient['health_data_per_day]'][-1]['date']
 
     # foo = ['this', 'is', 'a', 'series', 'of', 'data']
-    return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d)
+    return render_template('patients/detail.html', patient=patient, resting=resting_hr, data=d, start=start, end=end)

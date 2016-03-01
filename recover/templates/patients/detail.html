@@ -37,18 +37,16 @@
 
         var dataset = new vis.DataSet(all);
         var options = {
-          start: '2016-02-22',
-          end: '2016-02-26'
+          start: "{{ start }}",
+          end: "{{ end }}"
         };
+        console.log(options['start']);
         var graph2d = new vis.Graph2d(container, dataset, options);
     </script>
 
     <div class="row">
         <div class="col-md-11">
-            <h4><span class="label label-primary">Fitbit Access Token:</span></h4><p class="nobreak">{{ patient.token }}</p>
-            <h4><span class="label label-primary">Fitbit Refresh Token:</span></h4><p>{{ patient.refresh }}</p>
-            <h4><span class="label label-success">Resting Heart Rate Today:</span></h4><p>{{ resting }}</p>
-            <h4><span class="label label-success">Heart Rate Data Today:</span></h4><p>{{ data }}</p>
+            <h4><span class="label label-success">Resting Heart Rate Average:</span></h4><p>{{ resting }}</p>
         </div>
     </div>
 {% endblock %}
