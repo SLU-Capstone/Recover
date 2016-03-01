@@ -99,19 +99,6 @@ class Patient(db.Document):
         """ String representation of a Patient """
         return self.first_name + ' ' + self.last_name
 
-    def stats(self, date):
-        """
-        :type date: str
-        """
-        for d in self.health_data_per_day:
-            if d['date'] == date:
-                return d
-        d = PatientHealthData()
-        d['date'] = date
-        d['day_complete'] = False
-        self.health_data_per_day.append(d)
-        return self.health_data_per_day[-1]
-
     meta = {
         'ordering': ['last_name'],
         'indexes': ['first_name', 'slug']

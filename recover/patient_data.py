@@ -3,7 +3,7 @@ import logging
 from mongoengine import ValidationError
 
 from fitbit import Fitbit
-from recover.models import Patient
+from recover.models import Patient, PatientHealthData
 
 fitbit = Fitbit()
 
@@ -33,12 +33,14 @@ class PatientData:
         except Exception:
             return False
         try:
-            data = self.patient.stats(response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore'))
+            data = PatientHealthData()
+            data['date'] = response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore')
             data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
             for info in response['activities-heart-intraday']['dataset']:
                 dayStr = data.date
                 dayStr += ' ' + info['time']
                 data['heart_rate'][dayStr] = info['value']
+            self.patient.health_data_per_day.append(data)
             self.patient.save()
             return True
         except (KeyError, TypeError):
@@ -55,30 +57,31 @@ class PatientData:
         day = ''
         try:
             response = []
-            for i in range(0,Xdays + 1):
-                day = (today - timedelta(days=i)).isoformat()
-                response.append(fitbit.api_call(self.token, '/1/user/-/activities/heart/date/%s/1d/1min.json' % day))
+            for i in range(Xdays + 1):
+                day = (today - timedelta(days=Xdays-i)).isoformat()
+                app.logger.info('getting day %s' % i)
+                response = fitbit.api_call(self.token, '/1/user/%s/activities/heart/date/%s/1d/1min.json' % (self.patient.slug, day))
+                try:
+                    data = PatientHealthData()
+                    app.logger.info('day %s collected out of %s' % (i, len(response)))
+                    data['date'] = response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore')
+                    data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
+                    app.logger.info('got resting')
+                    for info in response['activities-heart-intraday']['dataset']:
+                        dayStr = data.date
+                        dayStr += ' ' + info['time']
+                        data['heart_rate'][dayStr] = info['value']
+                    self.patient.health_data_per_day.append(data)
+                    self.patient.save()
+                except (KeyError, TypeError, ValidationError, AttributeError) as e:
+                    app.logger.info(e.message)
+                    app.logger.info(response[0])
+                    pass
         except Exception as e:
             app.logger.info('call: /1/user/-/activities/heart/date/%s/1min.json' % day)
             app.logger.info(e.message)
             return False
-
-        try:
-            for resp in response:
-                data = self.patient.stats(resp['activities-heart'][0]['dateTime'].encode('ascii', 'ignore'))
-                data['resting_heart_rate'] = resp['activities-heart'][0]['value']['restingHeartRate']
-                app.logger.info('got resting')
-                for info in resp['activities-heart-intraday']['dataset']:
-                    dayStr = data.date
-                    dayStr += ' ' + info['time']
-                    data['heart_rate'][dayStr] = info['value']
-                self.patient.save()
-                return True
-        except (KeyError, TypeError, ValidationError, AttributeError) as e:
-            app.logger.info(e.message)
-            app.logger.info(response[0])
-            pass
-        return False
+        return True
 
     # TODO: Fix this. make it good.
     def get_heart_rate_data_for_date_range(self, start_date, end_date='today', detail_level='1min'):
