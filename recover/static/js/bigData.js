@@ -40,7 +40,7 @@ normal = function(lst) {
         if (i + 1 == lst.length) {
             break;
         }
-        var ave = lst[i].y + lst[i+1].y / 2.0;
+        var ave = float(lst[i].y) + float(lst[i+1].y) / 2.0;
         var date = lst[i].x;
         norm.push({'x':date, 'y':ave});
         lst.splice(i+1,1);
