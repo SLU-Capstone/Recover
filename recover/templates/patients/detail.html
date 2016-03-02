@@ -17,8 +17,9 @@
 
 {% block content %}
 
-    <script src="../static/vis/vis.js"></script>
-    <link href="../static/vis/vis.css" rel="stylesheet" type="text/css" />
+    <script src="../static/js/vis.js"></script>
+    <script src="../static/js/bigData.js"></script>
+    <link href="../static/css/vis.css" rel="stylesheet" type="text/css" />
 
     <div id="visualization"></div>
 
@@ -29,11 +30,13 @@
         var data = {{ data | tojson }};
         var hr = {{ hrDaily | tojson }};
 
+
         // Convert to x-y format for Vis JS
         all = [];
         for (var key in data) {
             all.push({'x': key, 'y': data[key], group: 0});
         }
+        var DATA = new Big(all);
 
         for (var key in hr) {
             all.push({'x': key, 'y': hr[key], group: 1});
@@ -66,8 +69,19 @@
           start: "{{ start }}",
           end: "{{ end }}"
         };
-        console.log(options['start']);
         var graph2d = new vis.Graph2d(container, all, groups, options);
+        console.log(all.length)
+
+        graph2d.on('rangechanged', function(event) {
+            var s = event['start'];
+            var e = event['end'];
+            console.log('Scaling down');
+            var items = DATA.getRange(s.toString(), e.toString());
+            graph2d.setItems(items);
+            console.log('Scaled down to ', items.length);
+        });
+
+
     </script>
 
     <div class="row">
