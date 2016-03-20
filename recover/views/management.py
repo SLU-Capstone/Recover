@@ -2,6 +2,7 @@ from flask import Blueprint, request, flash, render_template, redirect
 from flask.ext.login import login_user, login_required, current_user, logout_user
 from mongoengine import DoesNotExist
 from recover import login_manager
+from recover.EmailClient import email_physician_confirmation
 from recover.forms.UserRegistrationForm import UserRegistrationForm
 from recover.models import User
 
@@ -12,47 +13,83 @@ user_management = Blueprint('user_management', __name__, template_folder='../tem
 def register():
     """
     Registers a Physician to use our system. Physicians will be required to
-    enter a user name, email address, password, and confirm their password.
+    enter a username, email address, password, and password confirmation.
     """
     form = UserRegistrationForm(request.form)
     if request.method == 'POST':
         try:
             if User.objects(email=form.email.data).count() > 0:
-                flash("A user with that email already exists. Please try again.", 'warning')
+                u = User.objects(email=form.email.data)[0]
+                if not u.confirmed:
+                    flash("That email address has already been registered, but has not been confirmed. "
+                          "Please click the link in the confirmation email to continue.", 'warning')
+                else:
+                    flash("A user with that email address already exists. Please try logging in.", 'warning')
                 return render_template('register.html', form=form)
         except AttributeError:
             pass  # Users table is empty, so no need to check.
 
         if form.validate():
-            new_user = User(username=form.username.data, email=form.email.data)
-            new_user.set_password(form.password.data)
-            new_user.save()
-            flash("User registration successful. You can now login above.", 'success')
+            # Generate and send a confirmation email to this new Physician user
+            email_sent = email_physician_confirmation(email=form.email.data, username=form.username.data)
+
+            if email_sent:
+                success_msg = "Account successfully created. Please check your email for a confirmation link " \
+                              " in order to login."
+                flash(success_msg, 'success')
+
+                # Create the new user with "unconfirmed" state.
+                new_user = User(username=form.username.data, email=form.email.data)
+                new_user.set_password(form.password.data)
+                new_user.confirmed = False
+                new_user.save()
+            else:
+                flash('We were unable to send your confirmation email. Please ensure the address provided is correct.',
+                      'warning')
+
+            # flash("User registration successful. You can now login above.", 'success')
             return redirect('/')
         else:
             flash("Invalid input: please see the suggestions below.", 'warning')
     return render_template('register.html', form=form)
 
 
+@user_management.route('/confirm-account')
+def confirm_account():
+    """
+    New physician users directed here via email link to verify email address.
+    Pass in "id" (which represents their account), and mark it to "confirmed".
+    """
+    id = request.args.get('id')
+    user = User.objects.get(email=id.decode('hex'))
+    user.confirmed = True
+    user.save()
+    return render_template('account-confirmed.html', name=user.username)
+
+
 @user_management.route('/login', methods=['POST'])
 def login():
     """
-    The checks a users email with a password hash and if successful, allows the
-    user to log into our system. If unsuccessful, the user is redirected to the
-    home page with a warning.
+    Compares hash of given password to the password hash of the user with the given email.
+    If matching, successfully logs in user. If unsuccessful, show warning and redirect user.
     """
     email = request.form['email']
     login_unsuccessful = "Login failed: Invalid email or password. Please try again."
 
-    try:  # User with given email does not exist
+    # First, ensure that user with given email address exists.
+    try:
         user = User.objects.get(email=email)
     except DoesNotExist:
         flash(login_unsuccessful, 'warning')
         return redirect('/')
 
+    if not user.confirmed:
+        flash("Please first confirm your account by clicking the link in the Account Confirmation email.", 'warning')
+        return redirect('/')
+
     if user.check_password(request.form['password']):
         login_user(user)
-        message = "Welcome, " + user.username + "!"
+        message = 'Welcome, {}!'.format(user.username)
         flash(message, 'success')
         return redirect('/dashboard')
 
@@ -64,7 +101,7 @@ def login():
 @login_required
 def logout():
     """
-    User becomes unauthenticated and logs him or her off of our system.
+    Deauthenticate current user and log out.
     """
     user = current_user
     user.authenticated = False
@@ -76,7 +113,7 @@ def logout():
 @login_manager.user_loader
 def load_user(unique):
     """
-    Loads a user after successfully logging into the system.
+    Loads a user after successfully logging into the app.
     """
     user = User.objects(id=unique)
     if user.count() == 1:
@@ -87,16 +124,15 @@ def load_user(unique):
 @login_manager.unauthorized_handler
 def unauthorized():
     """
-    Redirects users who attempt to access pages that they must strictly
-    be logged on to in order to access.
+    Show warning and redirect users if they attempt to access privileged resources.
     """
-    # customize message shown for unauthorized route access.
     flash("Unauthorized resource: You'll first need to login to do that.", 'warning')
     return redirect('/')
 
 
-# Admin section #
+# Admin section - WIP #
 from recover.forms import AdminViewer
+
 
 @user_management.route('/admin', methods=['GET', 'POST'])
 @login_required

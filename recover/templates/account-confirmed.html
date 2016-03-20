@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Recover - Register Account</title>
+    <title>Recover - Account Confirmed</title>
     <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="../static/css/home.css" rel="stylesheet">
 </head>
@@ -23,21 +23,14 @@
 
     <div class="container">
         <div class="page-header">
-            <h1><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Register a Physician Account</h1>
+          <h1><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Account Confirmed</h1>
         </div>
 
         <div class="row clearfix">
-            <div class="col-md-6 column">
-
-                {% from "_formhelpers.html" import render_field %}
-                <form class="form" method=post action="/register/">
-                    {{ render_field(form.username) }}
-                    {{ render_field(form.email) }}
-                    {{ render_field(form.password) }}
-                    {{ render_field(form.confirm) }}
-                    <button type="submit" class="btn btn-primary">Register</button>
-                </form>
-
+            <div class="col-md-12 column">
+                <h4>Thank you, {{ name }}. Your account is now active.</h4>
+                </br>
+                <h4>You can now <a href="../">login here.</a></h4>
             </div>
         </div>
     </div>

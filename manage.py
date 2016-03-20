@@ -30,6 +30,7 @@ def drop():
     from recover.models import Patient, User, PatientInvite
     PatientInvite.drop_collection()
     Patient.drop_collection()
+    # TODO: clear out other tables
 
 
 if __name__ == "__main__":
