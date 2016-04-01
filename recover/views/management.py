@@ -1,7 +1,7 @@
 from flask import Blueprint, request, flash, render_template, redirect
 from flask.ext.login import login_user, login_required, current_user, logout_user
 from mongoengine import DoesNotExist
-from recover import login_manager
+from recover import login_manager, app
 from recover.EmailClient import email_physician_confirmation
 from recover.forms.UserRegistrationForm import UserRegistrationForm
 from recover.models import User
@@ -129,6 +129,11 @@ def unauthorized():
     flash("Unauthorized resource: You'll first need to login to do that.", 'warning')
     return redirect('/')
 
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('404.html'), 404
 
 # Admin section - WIP #
 from recover.forms import AdminViewer
