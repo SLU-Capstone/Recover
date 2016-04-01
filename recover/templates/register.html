@@ -32,6 +32,7 @@
                 {% from "_formhelpers.html" import render_field %}
                 <form class="form" method=post action="/register/">
                     {{ render_field(form.username) }}
+                    {{ render_field(form.full_name) }}
                     {{ render_field(form.email) }}
                     {{ render_field(form.password) }}
                     {{ render_field(form.confirm) }}

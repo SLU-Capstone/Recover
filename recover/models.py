@@ -9,8 +9,10 @@ class User(db.Document):
     """
     username = db.StringField(max_length=25, required=True)
     email = db.StringField(max_length=35, required=True)
+    full_name = db.StringField()
     password = db.StringField()
     confirmed = db.BooleanField()
+    last_seen = db.DateTimeField()
     patients = db.ListField(db.ReferenceField('Patient'))
 
     def set_password(self, password):

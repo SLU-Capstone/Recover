@@ -5,6 +5,7 @@ from recover import login_manager, app
 from recover.EmailClient import email_physician_confirmation
 from recover.forms.UserRegistrationForm import UserRegistrationForm
 from recover.models import User
+from datetime import datetime
 
 user_management = Blueprint('user_management', __name__, template_folder='../templates')
 
@@ -39,7 +40,7 @@ def register():
                 flash(success_msg, 'success')
 
                 # Create the new user with "unconfirmed" state.
-                new_user = User(username=form.username.data, email=form.email.data)
+                new_user = User(username=form.username.data, full_name=form.full_name.data, email=form.email.data)
                 new_user.set_password(form.password.data)
                 new_user.confirmed = False
                 new_user.save()
@@ -130,6 +131,14 @@ def unauthorized():
     return redirect('/')
 
 
+# This indicates when user was last ACTIVE, not their last log-on.
+# May want to display last log-on in the future.
+@app.before_request
+def before_request():
+    if current_user.is_authenticated():
+        current_user.last_seen = datetime.utcnow()
+        current_user.save()
+
 
 @app.errorhandler(404)
 def not_found(error):
@@ -143,7 +152,6 @@ def internal_error(error):
 
 # Admin section - WIP #
 from recover.forms import AdminViewer
-
 
 @user_management.route('/admin', methods=['GET', 'POST'])
 @login_required

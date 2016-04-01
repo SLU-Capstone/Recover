@@ -23,6 +23,19 @@ def dashboard():
     return render_template('patients/list.html', physician=current_user, patients=people)
 
 
+@patient_dashboard.route('/settings')
+@login_required
+def settings():
+    """
+    Renders the Settings page for a logged-on Physician.
+    Corresponding html file is in `recover/templates/settings.html`
+    """
+    num_patients = len(current_user.patients)
+    date_joined = current_user.id.generation_time.strftime('%b %d, %Y')
+
+    return render_template('settings.html', user=current_user, num_patients=num_patients, joined=date_joined)
+
+
 @patient_dashboard.route('/dashboard/<slug>', methods=['GET'])
 @login_required
 def patient_detail(slug):
