@@ -49,7 +49,7 @@
             {% else %}
               <form class="navbar-form navbar-right" action="/login" method="POST">
                 <div class="form-group">
-                  <input type="text" name="email" placeholder="Physician email" class="form-control">
+                  <input type="text" name="username" placeholder="Physician username" class="form-control">
                 </div>
                 <div class="form-group">
                   <input type="password" name="password" placeholder="Password" class="form-control">
@@ -64,7 +64,6 @@
 
     {% include "flash_partial.html" %}
 
-    <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
       <div class="container">
         <h1>Recover smarter.</h1>
@@ -74,7 +73,6 @@
     </div>
 
     <div class="container">
-      <!-- Example row of columns -->
       <div class="row">
         <div class="col-md-4">
           <h2>Gain Insights</h2>

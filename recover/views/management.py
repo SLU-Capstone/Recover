@@ -71,15 +71,15 @@ def confirm_account():
 @user_management.route('/login', methods=['POST'])
 def login():
     """
-    Compares hash of given password to the password hash of the user with the given email.
+    Compares hash of given password to the password hash of the user with the given username.
     If matching, successfully logs in user. If unsuccessful, show warning and redirect user.
     """
-    email = request.form['email']
-    login_unsuccessful = "Login failed: Invalid email or password. Please try again."
+    username = request.form['username']
+    login_unsuccessful = "Login failed: Invalid username or password. Please try again."
 
-    # First, ensure that user with given email address exists.
+    # First, ensure that user with given username exists.
     try:
-        user = User.objects.get(email=email)
+        user = User.objects.get(username=username)
     except DoesNotExist:
         flash(login_unsuccessful, 'warning')
         return redirect('/')
