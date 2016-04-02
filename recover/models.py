@@ -12,7 +12,8 @@ class User(db.Document):
     full_name = db.StringField()
     password = db.StringField()
     confirmed = db.BooleanField()
-    last_seen = db.DateTimeField()
+    last_login = db.DateTimeField()
+    last_active = db.DateTimeField()
     patients = db.ListField(db.ReferenceField('Patient'))
 
     def set_password(self, password):

@@ -20,8 +20,8 @@
             <ul class="list-group">
                 <li class="list-group-item text-right"><span class="pull-left"><strong>Username</strong></span> {{ user.username}} </li>
                 <li class="list-group-item text-right"><span class="pull-left"><strong>Last login</strong></span>
-                    {% if user.last_seen %}
-                        {{ moment(user.last_seen).calendar() }}
+                    {% if user.last_login %}
+                        {{ moment(user.last_login).calendar() }}
                      {% endif %}
                 </li>
                 <li class="list-group-item text-right"><span class="pull-left"><strong>Account status</strong></span>

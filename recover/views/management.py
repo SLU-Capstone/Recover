@@ -90,6 +90,10 @@ def login():
 
     if user.check_password(request.form['password']):
         login_user(user)
+
+        user.last_login = datetime.utcnow()
+        user.save()
+
         message = 'Welcome, {}!'.format(user.username)
         flash(message, 'success')
         return redirect('/dashboard')
@@ -131,12 +135,13 @@ def unauthorized():
     return redirect('/')
 
 
-# This indicates when user was last ACTIVE, not their last log-on.
-# May want to display last log-on in the future.
 @app.before_request
 def before_request():
-    if current_user.is_authenticated():
-        current_user.last_seen = datetime.utcnow()
+    """
+    Before each resource request, update user's last_activity attribute.
+    """
+    if current_user.is_authenticated:
+        current_user.last_active = datetime.utcnow()
         current_user.save()
 
 
