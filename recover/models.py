@@ -7,8 +7,8 @@ class User(db.Document):
     """
     A User object represents an entity with the ability to log-in, i.e. physicians.
     """
-    username = db.StringField(max_length=25, required=True)
-    email = db.StringField(max_length=35, required=True)
+    username = db.StringField(max_length=25, required=True, unique=True)
+    email = db.StringField(max_length=35, required=True, unique=True)
     full_name = db.StringField(max_length=70, required=True)
     password = db.StringField()
     confirmed = db.BooleanField()
@@ -85,7 +85,7 @@ class Patient(db.Document):
     Currently, we are only storing the name and tokens of the patient. If we
     need the data for the patient, we make an api call for it.
     """
-    slug = db.StringField(primary_key=True)  # same as their Fitbit Profile ID)
+    slug = db.StringField(primary_key=True)  # same as their Fitbit Profile ID
     first_name = db.StringField(max_length=32, required=True)
     last_name = db.StringField(max_length=32, required=True)
     email = db.StringField(max_length=35, required=True)

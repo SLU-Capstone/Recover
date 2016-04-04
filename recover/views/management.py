@@ -1,6 +1,6 @@
 from flask import Blueprint, request, flash, render_template, redirect
 from flask.ext.login import login_user, login_required, current_user, logout_user
-from mongoengine import DoesNotExist
+from mongoengine import DoesNotExist, NotUniqueError
 from recover import login_manager, app
 from recover.EmailClient import email_physician_confirmation
 from recover.forms.UserRegistrationForm import UserRegistrationForm
@@ -24,32 +24,38 @@ def register():
                 if not u.confirmed:
                     flash("That email address has already been registered, but has not been confirmed. "
                           "Please click the link in the confirmation email to continue.", 'warning')
-                else:
-                    flash("A user with that email address already exists. Please try logging in.", 'warning')
-                return render_template('register.html', form=form)
+                    return render_template('register.html', form=form)
         except AttributeError:
             pass  # Users table is empty, so no need to check.
 
         if form.validate():
-            # Generate and send a confirmation email to this new Physician user
-            email_sent = email_physician_confirmation(email=form.email.data, username=form.username.data)
 
-            if email_sent:
-                success_msg = "Account successfully created. Please check your email for a confirmation link " \
-                              " in order to login."
-                flash(success_msg, 'success')
+            # Create the new user with "unconfirmed" state.
+            new_user = User(username=form.username.data, full_name=form.full_name.data, email=form.email.data)
+            new_user.set_password(form.password.data)
+            new_user.confirmed = False
 
-                # Create the new user with "unconfirmed" state.
-                new_user = User(username=form.username.data, full_name=form.full_name.data, email=form.email.data)
-                new_user.set_password(form.password.data)
-                new_user.confirmed = False
+            try:
+                # Try to save this new user (implicitly validating the uniqueness of email/username)
                 new_user.save()
-            else:
-                flash('We were unable to send your confirmation email. Please ensure the address provided is correct.',
-                      'warning')
 
-            # flash("User registration successful. You can now login above.", 'success')
-            return redirect('/')
+                # Generate and send a confirmation email to this new Physician user
+                email_sent = email_physician_confirmation(email=form.email.data, username=form.username.data)
+
+                if email_sent:
+                    success_msg = "Account successfully created. Please check your email for a confirmation link " \
+                                  " in order to login."
+                    flash(success_msg, 'success')
+                    return redirect('/')
+                else:
+                    flash('We were unable to send your confirmation email. Please ensure the provided email address " \
+                          "is correct.', 'warning')
+
+            except NotUniqueError:
+                flash("That username or email is already registered. Please select a different one.", 'warning')
+
+            return render_template('register.html', form=form)
+
         else:
             flash("Invalid input: please see the suggestions below.", 'warning')
     return render_template('register.html', form=form)
@@ -157,6 +163,7 @@ def internal_error(error):
 
 # Admin section - WIP #
 from recover.forms import AdminViewer
+
 
 @user_management.route('/admin', methods=['GET', 'POST'])
 @login_required
