@@ -1,12 +1,13 @@
 import logging
 import datetime
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, flash, request
 from flask.ext.login import login_required, current_user
 
 from recover import app
 from recover.models import Patient
 from recover.patient_data import PatientData
+from recover.forms.UserRegistrationForm import UserRegistrationForm
 
 patient_dashboard = Blueprint('patient_dashboard', __name__, template_folder='templates')
 
@@ -28,16 +29,37 @@ def dashboard():
     return render_template('patients/list.html', physician=current_user, patients=people)
 
 
-@patient_dashboard.route('/settings')
+@patient_dashboard.route('/settings/', methods=['GET', 'POST'])
 @login_required
 def settings():
     """
     Renders the Settings page for a logged-on Physician.
-    Corresponding html file is in `recover/templates/settings.html`
+    Corresponding html file is in `recover/templates/settings.html`.
+    The UserRegistrationForm class is used to edit account properties as well.
     """
+    form = UserRegistrationForm(request.form)
     num_patients = len(current_user.patients)
     date_joined = current_user.id.generation_time.strftime('%b %d, %Y')
-    return render_template('settings.html', user=current_user, num_patients=num_patients, joined=date_joined)
+
+    if request.method == 'POST':
+        if form.validate():
+            flash("Your profile has been updated.", 'success')
+
+            user = current_user
+            user.full_name = form.full_name.data
+            user.username = form.username.data
+            user.email = form.email.data
+            user.set_password(form.password.data)
+            user.save()
+        else:
+            flash("Invalid input: please see the suggestions below.", 'warning')
+
+    # Pre-populate form
+    form.full_name.data = current_user.full_name
+    form.username.data = current_user.username
+    form.email.data = current_user.email
+
+    return render_template('settings.html', form=form, user=current_user, num_patients=num_patients, joined=date_joined)
 
 
 @patient_dashboard.route('/dashboard/<slug>', methods=['GET'])

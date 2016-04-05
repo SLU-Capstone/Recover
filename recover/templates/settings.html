@@ -51,6 +51,7 @@
 
     </div>  <!--/col-4 / END left column-->
 
+    <!-- 'Settings' main content pane -->
     <div class="col-sm-8" style="padding-left: 20px;">
         <ul class="nav nav-tabs" id="myTab">
             <li class="active"><a href="#settings" data-toggle="tab">Settings</a></li>
@@ -58,45 +59,17 @@
 
         <div class="tab-content">
 
-            <div class="tab-pane active" id="setings">
-                <form class="form" action="##" method="post" id="registrationForm">
-                    <div class="form-group">
+            <div class="tab-pane active" id="settings">
 
-                        <div class="col-xs-12">
-                            <label for="full_name"><h4>Full name</h4></label>
-                            <input type="text" class="form-control" name="full_name" id="full_name" placeholder="John Smith" value="{{ user.full_name }}">
-                        </div>
-                    </div>
-                    <div class="form-group">
+                {% from "_formhelpers.html" import render_field %}
 
-                        <div class="col-xs-12">
-                            <label for="username"><h4>Username</h4></label>
-                            <input type="text" class="form-control" name="username" id="username" placeholder="e.g. jsmith123" value="{{ user.username }}">
-                        </div>
-                    </div>
+                <form class="form" method="post" action="/settings/">
+                    <div class="col-xs-12">{{ render_field(form.full_name) }}</div>
+                    <div class="col-xs-12">{{ render_field(form.username) }}</div>
+                    <div class="col-xs-12">{{ render_field(form.email) }}</div>
+                    <div class="col-xs-6">{{ render_field(form.password) }}</div>
+                    <div class="col-xs-6">{{ render_field(form.confirm) }}</div>
 
-                    <div class="form-group">
-
-                        <div class="col-xs-12">
-                            <label for="email"><h4>Email</h4></label>
-                            <input type="email" class="form-control" name="email" id="email" placeholder="you@email.com" value="{{ user.email }}">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-
-                        <div class="col-xs-6">
-                            <label for="password"><h4>Password</h4></label>
-                            <input type="password" class="form-control" name="password" id="password" placeholder="password" title="enter your password.">
-                        </div>
-                    </div>
-                    <div class="form-group">
-
-                        <div class="col-xs-6">
-                            <label for="password2"><h4>Verify</h4></label>
-                            <input type="password" class="form-control" name="password2" id="password2" placeholder="password again" title="enter your password2.">
-                        </div>
-                    </div>
                     <div class="form-group">
                         <div class="col-xs-12">
                             <br>
@@ -104,11 +77,12 @@
                             <button class="btn btn-lg" type="reset"><i class="glyphicon glyphicon-repeat"></i> Reset</button>
                         </div>
                     </div>
+                </form>
             </div>
 
         </div> <!-- /tab-content -->
+    </div>     <!-- END 'Settings' main content pane -->
 
-    </div>
 
     <!-- Timezone Detection Code -->
     <script type="text/javascript" src='../static/js/jstz.min.js'></script>

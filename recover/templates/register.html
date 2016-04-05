@@ -30,7 +30,7 @@
             <div class="col-md-6 column">
 
                 {% from "_formhelpers.html" import render_field %}
-                <form class="form" method=post action="/register/">
+                <form class="form" method="post" action="/register/">
                     {{ render_field(form.username) }}
                     {{ render_field(form.full_name) }}
                     {{ render_field(form.email) }}
