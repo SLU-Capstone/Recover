@@ -64,9 +64,9 @@
                 {% from "_formhelpers.html" import render_field %}
 
                 <form class="form" method="post" action="/settings/">
-                    <div class="col-xs-12">{{ render_field(form.full_name) }}</div>
-                    <div class="col-xs-12">{{ render_field(form.username) }}</div>
-                    <div class="col-xs-12">{{ render_field(form.email) }}</div>
+                    <div class="col-xs-12">{{ render_field(form.full_name, placeholder="e.g. Dr. John Smith") }}</div>
+                    <div class="col-xs-12">{{ render_field(form.username, placeholder="e.g. jsmith1") }}</div>
+                    <div class="col-xs-12">{{ render_field(form.email, placeholder="e.g. john@example.com") }}</div>
 
                     <div class="form-group">
                         <div class="col-xs-12">

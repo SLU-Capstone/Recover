@@ -15,11 +15,11 @@
 
             {% from "_formhelpers.html" import render_field %}
             <form class="form" method="post" action="/register/">
-                {{ render_field(form.username) }}
-                {{ render_field(form.full_name) }}
-                {{ render_field(form.email) }}
-                {{ render_field(form.password) }}
-                {{ render_field(form.confirm) }}
+                {{ render_field(form.username, placeholder="jsmith1") }}
+                {{ render_field(form.full_name, placeholder="Dr. John Smith") }}
+                {{ render_field(form.email, placeholder="email@example.com") }}
+                {{ render_field(form.password, placeholder="") }}
+                {{ render_field(form.confirm, placeholder="") }}
                 <button type="submit" class="btn btn-primary">Register</button>
             </form>
 
