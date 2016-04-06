@@ -38,15 +38,15 @@ def email_patient_invite(email, first_name, invite_id, physician_name):
     message = 'Hello {name}, \n\n' \
               '{physician} has invited you to join Recover.\n\n' \
               'Please click the confirmation link to grant Recover access to your Fitbit data.\n\n' \
-              '{URL}/authorize?state={invite_id}'.format(name=first_name, physician=physician_name,
-                                                         URL=BASE_PATH, invite_id=invite_id)
+              'http://{URL}/authorize?state={invite_id}'.format(name=first_name, physician=physician_name,
+                                                                URL=BASE_PATH, invite_id=invite_id)
 
     subject = "You're invited to Recover!"
 
     return send_email(email, first_name, subject, message)
 
 
-def email_physician_confirmation(email, username):
+def email_physician_confirmation(email, name):
     """
     Sends an account confirmation email to a new physician user.
     This verifies that the user has access to the email address they provided,
@@ -60,8 +60,8 @@ def email_physician_confirmation(email, username):
               'Please click the confirmation link below to confirm your account. \n\n' \
               '{link}\n\n'\
               'Thank you,\n' \
-              'Recover Team'.format(name=username, link=link)
+              'Recover Team'.format(name=name, link=link)
 
     subject = "Required: Please Confirm Recover Account"
 
-    return send_email(email, username, subject, message)
+    return send_email(email, name, subject, message)

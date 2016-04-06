@@ -42,11 +42,12 @@ def add_patient():
             invite.save()
 
             email_sent = email_patient_invite(email=form.email.data, first_name=form.first_name.data,
-                                              invite_id=str(invite.id), physician_name=current_user.username)
+                                              invite_id=str(invite.id), physician_name=current_user.full_name)
 
             if email_sent:
-                success_msg = "{name} has been emailed an invitation, and will appear" \
-                              " on your Dashboard after granting access.".format(name=form.first_name.data)
+                success_msg = "{fname} {lname} has been emailed an invitation, and will appear" \
+                              " on your Dashboard after granting access.".format(fname=form.first_name.data,
+                                                                                 lname=form.last_name.data)
                 flash(success_msg, 'success')
             else:
                 flash('We were unable to send the patient invitation. Please ensure the address provided is correct.',

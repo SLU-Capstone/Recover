@@ -40,7 +40,7 @@ def register():
                 new_user.save()
 
                 # Generate and send a confirmation email to this new Physician user
-                email_sent = email_physician_confirmation(email=form.email.data, username=form.username.data)
+                email_sent = email_physician_confirmation(email=form.email.data, name=form.full_name.data)
 
                 if email_sent:
                     success_msg = "Account successfully created. Please check your email for a confirmation link " \
@@ -52,7 +52,7 @@ def register():
                           "is correct.', 'warning')
 
             except NotUniqueError:
-                flash("That username or email is already registered. Please select a different one.", 'warning')
+                flash("That username or email is already registered. Please try a different one.", 'warning')
 
             return render_template('register.html', form=form)
 
@@ -100,7 +100,7 @@ def login():
         user.last_login = datetime.utcnow()
         user.save()
 
-        message = 'Welcome, {}!'.format(user.username)
+        message = 'Welcome, {}!'.format(user.full_name)
         flash(message, 'success')
         return redirect('/dashboard')
 
