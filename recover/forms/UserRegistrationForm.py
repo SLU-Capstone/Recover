@@ -3,8 +3,8 @@ from wtforms import Form, StringField, PasswordField, validators
 
 class UserRegistrationForm(Form):
     """
-    Form for physician registration to use our system.
-    Physician will enter a username, full_name, email, and password.
+    Form to represent required fields for user (physician) registration.
+    Physician enters a username, full name, email, and password.
     """
     username = StringField('Username', [validators.Length(min=4, max=25)])
     full_name = StringField('Full Name', [validators.Length(min=2, max=70)])

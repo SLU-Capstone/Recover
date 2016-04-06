@@ -7,7 +7,7 @@ from flask.ext.login import login_required, current_user
 from recover import app
 from recover.models import Patient
 from recover.patient_data import PatientData
-from recover.forms.UserRegistrationForm import UserRegistrationForm
+from recover.forms.EditProfileForm import EditProfileForm
 
 patient_dashboard = Blueprint('patient_dashboard', __name__, template_folder='templates')
 
@@ -35,9 +35,9 @@ def settings():
     """
     Renders the Settings page for a logged-on Physician.
     Corresponding html file is in `recover/templates/settings.html`.
-    The UserRegistrationForm class is used to edit account properties as well.
+    The EditProfileForm class is used to edit account properties.
     """
-    form = UserRegistrationForm(request.form)
+    form = EditProfileForm(request.form)
     num_patients = len(current_user.patients)
     date_joined = current_user.id.generation_time.strftime('%b %d, %Y')
 
@@ -49,7 +49,6 @@ def settings():
             user.full_name = form.full_name.data
             user.username = form.username.data
             user.email = form.email.data
-            user.set_password(form.password.data)
             user.save()
         else:
             flash("Invalid input: please see the suggestions below.", 'warning')
