@@ -8,13 +8,14 @@ class User(db.Document):
     A User object represents an entity with the ability to log-in, i.e. physicians.
     """
     username = db.StringField(max_length=25, required=True, unique=True)
-    email = db.StringField(max_length=35, required=True, unique=True)
+    email = db.EmailField(required=True, unique=True)
     full_name = db.StringField(max_length=70, required=True)
     password = db.StringField()
     confirmed = db.BooleanField()
     last_login = db.DateTimeField()
     last_active = db.DateTimeField()
     patients = db.ListField(db.ReferenceField('Patient'))
+    patient_config = db.EmbeddedDocumentListField('PatientConfig')
 
     def set_password(self, password):
         """
@@ -50,6 +51,38 @@ class User(db.Document):
     @staticmethod
     def is_authenticated():
         return True
+
+
+class PatientConfig(db.EmbeddedDocument):
+    """
+    Model to represent a physician's custom data thresholds for a given patient.
+    A physician has exactly one such object per patient.
+    Each of the 4 dictionaries below have "value" and "window" fields that represent preferred thresholds.
+    Also holds a "notes" field in which the physician can append notes over time.
+    """
+    minHR = db.DictField()
+    maxHR = db.DictField()
+    minSteps = db.DictField()
+    maxSteps = db.DictField()
+    notes = db.StringField(max_length=10000)
+    patient = db.ReferenceField('Patient', required=True, unique=True)
+
+
+class Alert(db.EmbeddedDocument):
+    """
+    Model to represent an instance of when a patient's data deviated from the physician's
+    pre-defined Heart Rate or Activity thresholds as defined in PatientConfig.
+    A given physician has Alert object(s).
+    'trigger_info' is a dictionary that represents the threshold conditions that triggered the alert, and
+    is of the following format: { 'class'='HR' / 'STEP' , operation = "MIN" / "MAX" }
+    """
+    recorded_value = db.IntField()
+    threshold_value = db.IntField()
+    time_window = db.IntField()
+    trigger_info = db.DictField()
+    patient = db.ReferenceField('Patient', required=True)
+    incident_time = db.DateTimeField(required=True)
+    read = db.BooleanField(default=False)
 
 
 class PatientInvite(db.Document):
@@ -88,12 +121,12 @@ class Patient(db.Document):
     slug = db.StringField(primary_key=True)  # same as their Fitbit Profile ID
     first_name = db.StringField(max_length=32, required=True)
     last_name = db.StringField(max_length=32, required=True)
-    email = db.StringField(max_length=35, required=True)
+    email = db.EmailField(required=True)
     # Fitbit Access Token
     token = db.StringField(max_length=511, required=True)
     # Fitbit Refresh Token
     refresh = db.StringField(max_length=511, required=True)
-    health_data_per_day = db.ListField(db.EmbeddedDocumentField('PatientHealthData'))
+    health_data_per_day = db.EmbeddedDocumentListField('PatientHealthData')
     date_last_synced = db.DateTimeField()
 
     def get_url(self):
@@ -107,4 +140,5 @@ class Patient(db.Document):
     meta = {
         'ordering': ['last_name'],
         'indexes': ['first_name', 'slug']
+
     }

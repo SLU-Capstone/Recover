@@ -6,12 +6,11 @@ from recover import app
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 manager = Manager(app)
 
-# Turn on debugger by default and reloader
+# Turn on debugger by default
 manager.add_command("run", Server(
     use_debugger=True,
     use_reloader=True,
-    host='0.0.0.0')
-                    )
+    host='0.0.0.0'))
 
 
 @manager.command
@@ -24,10 +23,12 @@ def doc():
     os.chdir('..')
     os.system('cp -r doc/_build/html/ recover/doc/')
 
+
 @manager.command
 def midnight():
     from scripts.midnightRun import midnightRun
     midnightRun()
+
 
 @manager.command
 def drop():
