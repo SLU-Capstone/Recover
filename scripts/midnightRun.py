@@ -1,6 +1,7 @@
 from recover.models import *
 from recover.patient_data import *
-from datetime import date
+import datetime
+
 
 def midnightRun():
     physicians = User.objects()
@@ -12,3 +13,4 @@ def midnightRun():
             last_synced = last_synced[0:10]
             data.get_heart_rate_data_for_date_range(last_synced)
             data.get_activity_data_for_date_range(last_synced)
+            patient.date_last_synced = datetime.datetime.now()
