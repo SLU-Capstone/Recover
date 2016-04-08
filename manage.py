@@ -24,6 +24,10 @@ def doc():
     os.chdir('..')
     os.system('cp -r doc/_build/html/ recover/doc/')
 
+@manager.command
+def midnight():
+    from scripts.midnightRun import midnightRun
+    midnightRun()
 
 @manager.command
 def drop():
