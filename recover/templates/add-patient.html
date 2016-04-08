@@ -17,10 +17,13 @@
 
             {% from "_formhelpers.html" import render_field %}
             <form class="form" method=post action="/dashboard/add">
-                {{ render_field(form.first_name) }}
-                {{ render_field(form.last_name) }}
-                {{ render_field(form.email) }}
-                <button type="submit" class="btn btn-primary">Send Invitation</button>
+                {{ render_field(form.first_name, placeholder="John") }}
+                {{ render_field(form.last_name, placeholder="Smith") }}
+                {{ render_field(form.email, placeholder="john@example.com") }}
+                <button type="submit" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-send" aria-hidden="true"></span>
+                    Send Invitation
+                </button>
             </form>
 
         </div>

@@ -7,8 +7,7 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="shortcut icon" href="../static/favicon.ico" , type="image/x-icon">
-    <link rel="icon" href="../static/favicon.ico" , type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
     <title>{% block title %}{% endblock %} - Recover</title>
 
@@ -16,7 +15,8 @@
     <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="../static/css/home.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/home.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/sticky-footer.css') }}" rel="stylesheet">
 
     {{ moment.include_jquery() }}
     {{ moment.include_moment() }}
@@ -48,27 +48,32 @@
                     <li><a href="/settings"><span class="glyphicon glyphicon-cog"></span>  Settings</a></li>
                     <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span>  Sign Out</a></li>
                 </ul>
-                <form class="navbar-form navbar-right">
-                    <input type="text" class="form-control" placeholder="Search...">
-                </form>
             </div>
         </div>
     </nav>
 {%- endblock -%}
 
     {% include "flash_partial.html" %}
-
     <div class="container">
-            {% block page_header %}{% endblock %}
-            {% block content %}{% endblock %}
+        {% block page_header %}{% endblock %}
+        {% block content %}{% endblock %}
     </div>
+
+    <div class="footer">
+        <div class="foot-container">
+            <p class="text-muted">&copy; 2016 Recover: Matthew Meyer and Luke Reichold -
+                <a href="../doc/index.html">View Documentation</a>
+            </p>
+        </div>
+    </div>
+
     {% block js_footer %}{% endblock %}
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="../static/js/bootstrap.min.js"></script>
+    <script type=text/javascript src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 
   </body>
 </html>
