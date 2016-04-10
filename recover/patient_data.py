@@ -47,10 +47,14 @@ class PatientData:
                 try:
                     data = PatientHealthData(date=day)
                     all_data = self.patient.health_data_per_day
+                    found = False
                     for d in all_data:
                         if d.date == day:
                             data = d
+                            found = True
                             break
+                    if not found:
+                        self.patient.health_data_per_day.append(data)
 
                     app.logger.info('day %s collected out of %s' % (i, len(response)))
                     data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
@@ -59,7 +63,6 @@ class PatientData:
                         day_str = data.date
                         day_str += ' ' + info['time']
                         data['heart_rate'][day_str] = info['value']
-                    self.patient.health_data_per_day.append(data)
                     self.patient.save()
                 except (KeyError, TypeError, ValidationError, AttributeError) as e:
                     app.logger.info(e.message)
@@ -102,10 +105,14 @@ class PatientData:
                 try:
                     data = PatientHealthData(date=day)
                     all_data = self.patient.health_data_per_day
+                    found = False
                     for d in all_data:
                         if d.date == day:
                             data = d
+                            found = True
                             break
+                    if not found:
+                        self.patient.health_data_per_day.append(data)
 
                     app.logger.info('day %s collected out of %s' % (i, len(response)))
                     data['total_steps'] = response['activities-log-steps'][0]['value']
@@ -114,7 +121,6 @@ class PatientData:
                         day_str = data.date
                         day_str += ' ' + info['time']
                         data['activity_data'][day_str] = info['value']
-                    self.patient.health_data_per_day.append(data)
                     self.patient.save()
                 except (KeyError, TypeError, ValidationError, AttributeError) as e:
                     app.logger.info(e.message)
