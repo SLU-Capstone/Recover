@@ -14,6 +14,7 @@ db = MongoEngine(app)
 
 moment = Moment(app)
 
+
 @app.route('/')
 def load_home_page():
     return render_template('home.html', user=current_user)

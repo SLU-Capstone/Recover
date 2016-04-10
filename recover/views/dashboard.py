@@ -110,7 +110,7 @@ def patient_detail(slug):
             today = t
             last = datetime.datetime.strptime(last_pull, '%Y-%m-%d')
             days = (today - last).days
-            PatientData(patient).get_heart_rate_data_for_X_days(days)
+            PatientData(patient).get_heart_rate_data_for_x_days(days)
         resting_hr = 0
         d = {}
         hrDaily = {}

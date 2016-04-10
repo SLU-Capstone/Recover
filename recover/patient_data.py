@@ -1,11 +1,11 @@
 import logging
 from recover import app
 from mongoengine import ValidationError
-
 from fitbit import Fitbit
 from recover.models import Patient, PatientHealthData
 
 fitbit = Fitbit()
+
 
 # noinspection PyBroadException
 class PatientData:
@@ -29,7 +29,8 @@ class PatientData:
         """
         try:
             response = fitbit.api_call(self.token,
-                                       '/1/user/%s/activities/heart/date/%s/1d/%s.json' % (self.patient.slug, date, detail_level))
+                                       '/1/user/%s/activities/heart/date/%s/1d/%s.json' % (
+                                           self.patient.slug, date, detail_level))
         except Exception:
             return False
         try:
@@ -37,9 +38,9 @@ class PatientData:
             data['date'] = response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore')
             data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
             for info in response['activities-heart-intraday']['dataset']:
-                dayStr = data.date
-                dayStr += ' ' + info['time']
-                data['heart_rate'][dayStr] = info['value']
+                day_str = data.date
+                day_str += ' ' + info['time']
+                data['heart_rate'][day_str] = info['value']
             self.patient.health_data_per_day.append(data)
             self.patient.save()
             return True
@@ -47,18 +48,18 @@ class PatientData:
             pass
         return False
 
-    def get_heart_rate_data_for_X_days(self, Xdays):
+    def get_heart_rate_data_for_x_days(self, x_days):
         app.logger.addHandler(logging.FileHandler('log/log.txt'))
 
         from datetime import date, timedelta
         today = date.today()
         day = ''
         try:
-            response = []
-            for i in range(Xdays + 1):
-                day = (today - timedelta(days=Xdays-i)).isoformat()
+            for i in range(x_days + 1):
+                day = (today - timedelta(days=x_days - i)).isoformat()
                 app.logger.info('getting day %s' % i)
-                response = fitbit.api_call(self.token, '/1/user/%s/activities/heart/date/%s/1d/1min.json' % (self.patient.slug, day))
+                response = fitbit.api_call(self.token, '/1/user/%s/activities/heart/date/%s/1d/1min.json' % (
+                self.patient.slug, day))
                 try:
                     data = PatientHealthData()
                     app.logger.info('day %s collected out of %s' % (i, len(response)))
@@ -66,9 +67,9 @@ class PatientData:
                     data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
                     app.logger.info('got resting')
                     for info in response['activities-heart-intraday']['dataset']:
-                        dayStr = data.date
-                        dayStr += ' ' + info['time']
-                        data['heart_rate'][dayStr] = info['value']
+                        day_str = data.date
+                        day_str += ' ' + info['time']
+                        data['heart_rate'][day_str] = info['value']
                     self.patient.health_data_per_day.append(data)
                     self.patient.save()
                 except (KeyError, TypeError, ValidationError, AttributeError) as e:
@@ -101,9 +102,9 @@ class PatientData:
             data = self.patient.stats(response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore'))
             data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
             for info in response['activities-heart-intraday']['dataset']:
-                dayStr = data.date
-                dayStr += ' ' + info['time']
-                data['heart_rate'][dayStr] = info['value']
+                day_str = data.date
+                day_str += ' ' + info['time']
+                data['heart_rate'][day_str] = info['value']
             self.patient.save()
             return True
         except (KeyError, TypeError):

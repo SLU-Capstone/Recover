@@ -16,6 +16,7 @@ class User(db.Document):
     last_active = db.DateTimeField()
     patients = db.ListField(db.ReferenceField('Patient'))
     patient_config = db.EmbeddedDocumentListField('PatientConfig')
+    alerts = db.EmbeddedDocumentListField('Alert')
 
     def set_password(self, password):
         """

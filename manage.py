@@ -26,8 +26,8 @@ def doc():
 
 @manager.command
 def midnight():
-    from scripts.midnightRun import midnightRun
-    midnightRun()
+    from scripts.midnightRun import midnight_run
+    midnight_run()
 
 
 @manager.command

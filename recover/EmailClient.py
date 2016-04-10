@@ -4,6 +4,7 @@ import secret
 BASE_PATH = "162.243.19.76"
 CONFIRM_ROUTE = "/confirm-account?id="
 
+
 def send_email(destination_email, recipient_name, subject, message):
     """
     Sends an email to recipient_name at destination_email with the given subject and message.
@@ -58,7 +59,7 @@ def email_physician_confirmation(email, name):
     message = 'Hello {name}, \n\n' \
               'Thank you for registering for Recover. \n\n' \
               'Please click the confirmation link below to confirm your account. \n\n' \
-              '{link}\n\n'\
+              '{link}\n\n' \
               'Thank you,\n' \
               'Recover Team'.format(name=name, link=link)
 

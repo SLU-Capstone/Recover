@@ -109,7 +109,7 @@ def authorize_new_patient():
 
             # By default, get 5 days worth of data for the brand new patient
             new_patient_data = PatientData(new_patient)
-            if not new_patient_data.get_heart_rate_data_for_X_days(5):
+            if not new_patient_data.get_heart_rate_data_for_x_days(5):
                 flash('Could not retrieve Patient data', 'warning')
                 return redirect('/')
 
