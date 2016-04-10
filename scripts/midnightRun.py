@@ -1,6 +1,8 @@
+from collections import deque
+
 from recover.models import *
 from recover.patient_data import *
-import datetime
+from datetime import datetime
 
 
 def new_patient_alert(actual_val, val, window, trigger, patient, time):
@@ -16,26 +18,37 @@ def new_patient_alert(actual_val, val, window, trigger, patient, time):
     return alert
 
 
-def check_max_hr(val, window, patient):
-    return check(val, window, 1, 0, patient)
+def check(window, operation, data):
+    vals = deque()
+    times = deque()
+    begin_time = ''
+    total = 0
+    size = 0
+    for key, value in data.iteritems():
+        if begin_time == '':  # first iteration only
+            begin_time = key
+        diff = datetime.strptime(key, '%y-%m-%d %h:%m:%s').date()
+        diff -= datetime.strptime(begin_time, '%y-%m-%d %h:%m:%s').date()
+        if diff.min < window:
+            vals.append(value)
+            times.append(key)
+            total += value
+            size += 1
+        else:
+            average = float(total) / size
+            if operation(average):
+                return begin_time, average
+            total -= vals.popleft()
+            size -= 1
+            times.popleft()
+            try:
+                new_front = times.popleft()
+                begin_time = new_front
+                times.appendleft(begin_time)
+            except IndexError:
+                return '', 0
 
-
-def check_min_hr(val, window, patient):
-    return check(val, window, 0, 0, patient)
-
-
-def check_max_steps(val, window, patient):
-    return check(val, window, 1, 1, patient)
-
-
-def check_min_steps(val, window, patient):
-    return check(val, window, 0, 1, patient)
-
-
-def check(val, window, operation, option, patient):
-    actual = 0
-    timestamp = datetime.date.today()
-    return actual, timestamp
+    return '', 0
 
 
 def midnight_run():
@@ -65,32 +78,41 @@ def midnight_run():
         for config in configurations:
             patient = config.patient
 
-            val = config.minHR.value
-            window = config.minHR.window
-            actual_value, timestamp = check_min_hr(val, window, patient)
-            trigger = {'class': 'HR', 'operation': 'MIN'}
-            new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
-            physician.alerts.append(new_alert)
+            for day in patient.health_data_per_day:
+                if not day.checked:
+                    # check min hr
+                    val = config.minHR.value
+                    window = config.minHR.window
+                    actual_value, timestamp = check(window, lambda x: x > val, day.heart_rate)
+                    trigger = {'class': 'HR', 'operation': 'MIN'}
+                    new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
+                    physician.alerts.append(new_alert)
 
-            val = config.maxHR.value
-            window = config.maxHR.window
-            actual_value, timestamp = check_max_hr(val, window, patient)
-            trigger = {'class': 'HR', 'operation': 'MAX'}
-            new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
-            physician.alerts.append(new_alert)
+                    # check max hr
+                    val = config.maxHR.value
+                    window = config.maxHR.window
+                    actual_value, timestamp = check(window, lambda x: x < val, day.heart_rate)
+                    trigger = {'class': 'HR', 'operation': 'MAX'}
+                    new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
+                    physician.alerts.append(new_alert)
 
-            val = config.minSteps.value
-            window = config.minSteps.window
-            actual_value, timestamp = check_min_steps(val, window, patient)
-            trigger = {'class': 'STEP', 'operation': 'MIN'}
-            new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
-            physician.alerts.append(new_alert)
+                    # check min steps
+                    val = config.minSteps.value
+                    window = config.minSteps.window
+                    actual_value, timestamp = check(window, lambda x: x > val, day.activity_data)
+                    trigger = {'class': 'STEP', 'operation': 'MIN'}
+                    new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
+                    physician.alerts.append(new_alert)
 
-            val = config.maxSteps.value
-            window = config.maxSteps.window
-            actual_value, timestamp = check_max_steps(val, window, patient)
-            trigger = {'class': 'STEP', 'operation': 'MAX'}
-            new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
-            physician.alerts.append(new_alert)
+                    val = config.maxSteps.value
+                    window = config.maxSteps.window
+                    actual_value, timestamp = check(window, lambda x: x < val, day.activity_data)
+                    trigger = {'class': 'STEP', 'operation': 'MAX'}
+                    new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
+                    physician.alerts.append(new_alert)
+
+                    day.checked = True
+
+            patient.save()
 
         physician.save()

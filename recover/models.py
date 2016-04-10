@@ -113,6 +113,7 @@ class PatientHealthData(db.EmbeddedDocument):
     heart_rate = db.DictField()
     activity_data = db.DictField()
     day_complete = db.BooleanField()
+    checked = db.BooleanField()
 
 
 class Patient(db.Document):
