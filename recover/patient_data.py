@@ -45,9 +45,14 @@ class PatientData:
                 response = fitbit.api_call(self.token, '/1/user/%s/activities/heart/date/%s/1d/1min.json' % (
                     self.patient.slug, day))
                 try:
-                    data = PatientHealthData()
+                    data = PatientHealthData(date=day)
+                    all_data = self.patient.health_data_per_day
+                    for d in all_data:
+                        if d.date == day:
+                            data = d
+                            break
+
                     app.logger.info('day %s collected out of %s' % (i, len(response)))
-                    data['date'] = response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore')
                     data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
                     app.logger.info('got resting')
                     for info in response['activities-heart-intraday']['dataset']:
@@ -79,6 +84,48 @@ class PatientData:
         x = (end - start).days
         return self.get_heart_rate_data_for_x_days(x, end_date)
 
+    def get_activity_data_for_x_days(self, x_days, end_date ='today'):
+        app.logger.addHandler(logging.FileHandler('log/log.txt'))
+
+        from datetime import date, timedelta, datetime
+        if end_date == 'today':
+            end_date = date.today()
+        else:
+            end_date = datetime.strptime(end_date, '%y-%m-%d').date()
+        day = ''
+        try:
+            for i in range(x_days + 1):
+                day = (end_date - timedelta(days=x_days - i)).isoformat()
+                app.logger.info('getting day %s' % i)
+                response = fitbit.api_call(self.token, '/1/user/%s/activities/steps/date/%s/1d/15min.json' % (
+                    self.patient.slug, day))
+                try:
+                    data = PatientHealthData(date=day)
+                    all_data = self.patient.health_data_per_day
+                    for d in all_data:
+                        if d.date == day:
+                            data = d
+                            break
+
+                    app.logger.info('day %s collected out of %s' % (i, len(response)))
+                    data['total_steps'] = response['activities-log-steps'][0]['value']
+                    app.logger.info('got total Steps')
+                    for info in response['activities-log-steps-intraday']['dataset']:
+                        day_str = data.date
+                        day_str += ' ' + info['time']
+                        data['activity_data'][day_str] = info['value']
+                    self.patient.health_data_per_day.append(data)
+                    self.patient.save()
+                except (KeyError, TypeError, ValidationError, AttributeError) as e:
+                    app.logger.info(e.message)
+                    app.logger.info(response[0])
+                    pass
+
+        except Exception as e:
+            app.logger.info('call: /1/user/-/activities/heart/date/%s/1min.json' % day)
+            app.logger.info(e.message)
+            return False
+        return True
 
     def get_activity_data_for_date_range(self, start_date, end_date='today', detail_level='15min'):
         """
@@ -86,33 +133,8 @@ class PatientData:
         :param start_date: start date of range in yyyy-MM-dd string format
         :param end_date: end date of range in yyyy-MM-dd string format
         """
-
-        # TODO: Check to see if we already have this data before fetching it.
-
-        app.logger.addHandler(logging.FileHandler('log/log.txt'))
-        app.logger.info("### LOGGING FETCHED ACTIVITY DATA ")
-
-        try:
-            response = fitbit.api_call(self.token,
-                                       '/1/user/-/activities/steps/date/%s/%s/%s.json'
-                                       % (start_date, end_date, detail_level))
-            app.logger.info(response)
-        except Exception as e:
-            app.logger.info(e.message)
-            return False
-        try:
-            # data = self.patient.stats(response['activities-log-steps-intraday']['dataset'].encode('ascii', 'ignore'))
-
-            app.logger.addHandler(logging.FileHandler('log/log.txt'))
-            app.logger.info("### I got to this point!")
-            app.logger.info(response)
-
-            # for info in response['activities-heart-intraday']['dataset']:
-            #     dayStr = data.date
-            #     dayStr += ' ' + info['time']
-            #     data['heart_rate'][dayStr] = info['value']
-            # self.patient.save()
-            return True
-        except (KeyError, TypeError):
-            pass
-        return False
+        from datetime import datetime
+        start = datetime.strptime(start_date, '%y-%m-%d').date()
+        end = datetime.strptime(end_date, '%y-%m-%d').date()
+        x = (end - start).days
+        return self.get_activity_data_for_x_days(x, end_date)

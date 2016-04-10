@@ -109,7 +109,9 @@ class PatientHealthData(db.EmbeddedDocument):
     """
     date = db.StringField(primary_key=True)
     resting_heart_rate = db.IntField()
+    total_steps = db.IntField()
     heart_rate = db.DictField()
+    activity_data = db.DictField()
     day_complete = db.BooleanField()
 
 
