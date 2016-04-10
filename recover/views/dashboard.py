@@ -1,13 +1,12 @@
 import logging
 import datetime
-
 from flask import Blueprint, render_template, flash, request
 from flask.ext.login import login_required, current_user
-
 from recover import app
-from recover.models import Patient
+from recover.models import Patient, check_password_hash, generate_password_hash
 from recover.patient_data import PatientData
 from recover.forms.EditProfileForm import EditProfileForm
+from recover.forms.ChangePasswordForm import ChangePasswordForm
 
 patient_dashboard = Blueprint('patient_dashboard', __name__, template_folder='templates')
 
@@ -38,6 +37,8 @@ def settings():
     The EditProfileForm class is used to edit account properties.
     """
     form = EditProfileForm(request.form)
+    password_form = ChangePasswordForm()
+
     num_patients = len(current_user.patients)
     date_joined = current_user.id.generation_time.strftime('%b %d, %Y')
 
@@ -58,7 +59,31 @@ def settings():
     form.username.data = current_user.username
     form.email.data = current_user.email
 
-    return render_template('settings.html', form=form, user=current_user, num_patients=num_patients, joined=date_joined)
+    return render_template('settings.html', form=form, password_form=password_form, user=current_user,
+                           num_patients=num_patients, joined=date_joined)
+
+
+@patient_dashboard.route('/change-password', methods=['POST'])
+@login_required
+def change_password():
+    """
+    Submit 'change user password' form from Settings page to this endpoint.
+    If new passwords match and user entered correct current password, then update user's password accordingly.
+    """
+    if request.form['current'] is None or request.form['new'] is None or request.form['new_confirm'] is None:
+        return "An error occurred, please try again later."
+    else:
+        current = request.form['current']
+        new = request.form['new']
+        new_confirm = request.form['new_confirm']
+        if check_password_hash(current_user.password, current):
+            if new == new_confirm:
+                current_user.password = generate_password_hash(new)
+                return "success"
+            else:
+                return "The 'new password' and 'repeat new password' fields do not match."
+        else:
+            return "Incorrect current password. Please try again."
 
 
 @patient_dashboard.route('/dashboard/<slug>', methods=['GET'])
@@ -108,4 +133,5 @@ def patient_detail(slug):
         start = patient[DAILY_DATA][0]['date']
         end = patient[DAILY_DATA][-1]['date']
 
-    return render_template('patients/detail.html', patient=patient, resting=resting_hr, hrDaily=hrDaily, data=d, start=start, end=end)
+    return render_template('patients/detail.html', patient=patient, resting=resting_hr, hrDaily=hrDaily, data=d,
+                           start=start, end=end)
