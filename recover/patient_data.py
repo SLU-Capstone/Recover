@@ -27,39 +27,23 @@ class PatientData:
         :param date: date of interest in yyyy-MM-dd format as a string
         :param detail_level: detail level is a string. either 1min or 1sec
         """
-        try:
-            response = fitbit.api_call(self.token,
-                                       '/1/user/%s/activities/heart/date/%s/1d/%s.json' % (
-                                           self.patient.slug, date, detail_level))
-        except Exception:
-            return False
-        try:
-            data = PatientHealthData()
-            data['date'] = response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore')
-            data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
-            for info in response['activities-heart-intraday']['dataset']:
-                day_str = data.date
-                day_str += ' ' + info['time']
-                data['heart_rate'][day_str] = info['value']
-            self.patient.health_data_per_day.append(data)
-            self.patient.save()
-            return True
-        except (KeyError, TypeError):
-            pass
-        return False
+        return self.get_heart_rate_data_for_x_days(1, end_date=date)
 
-    def get_heart_rate_data_for_x_days(self, x_days):
+    def get_heart_rate_data_for_x_days(self, x_days, end_date='today'):
         app.logger.addHandler(logging.FileHandler('log/log.txt'))
 
-        from datetime import date, timedelta
-        today = date.today()
+        from datetime import date, timedelta, datetime
+        if end_date == 'today':
+            end_date = date.today()
+        else:
+            end_date = datetime.strptime(end_date, '%y-%m-%d').date()
         day = ''
         try:
             for i in range(x_days + 1):
-                day = (today - timedelta(days=x_days - i)).isoformat()
+                day = (end_date - timedelta(days=x_days - i)).isoformat()
                 app.logger.info('getting day %s' % i)
                 response = fitbit.api_call(self.token, '/1/user/%s/activities/heart/date/%s/1d/1min.json' % (
-                self.patient.slug, day))
+                    self.patient.slug, day))
                 try:
                     data = PatientHealthData()
                     app.logger.info('day %s collected out of %s' % (i, len(response)))
@@ -83,33 +67,18 @@ class PatientData:
             return False
         return True
 
-    # TODO: Fix this. make it good.
     def get_heart_rate_data_for_date_range(self, start_date, end_date='today', detail_level='1min'):
         """
         Helper function to retrieve heart rate data for a date range
         :param start_date: start date of range in yyyy-MM-dd string format
         :param end_date: end date of range in yyyy-MM-dd string format
         """
-        try:
-            response = fitbit.api_call(self.token,
-                                       '/1/user/-/activities/heart/date/%s/%s/%s.json'
-                                       % (start_date, end_date, detail_level))
-        except Exception as e:
-            app.logger.info(e.message)
-            return False
+        from datetime import datetime
+        start = datetime.strptime(start_date, '%y-%m-%d').date()
+        end = datetime.strptime(end_date, '%y-%m-%d').date()
+        x = (end - start).days
+        return self.get_heart_rate_data_for_x_days(x, end_date)
 
-        try:
-            data = self.patient.stats(response['activities-heart'][0]['dateTime'].encode('ascii', 'ignore'))
-            data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
-            for info in response['activities-heart-intraday']['dataset']:
-                day_str = data.date
-                day_str += ' ' + info['time']
-                data['heart_rate'][day_str] = info['value']
-            self.patient.save()
-            return True
-        except (KeyError, TypeError):
-            pass
-        return False
 
     def get_activity_data_for_date_range(self, start_date, end_date='today', detail_level='15min'):
         """
@@ -138,7 +107,6 @@ class PatientData:
             app.logger.info("### I got to this point!")
             app.logger.info(response)
 
-            # data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
             # for info in response['activities-heart-intraday']['dataset']:
             #     dayStr = data.date
             #     dayStr += ' ' + info['time']
