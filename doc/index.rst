@@ -1,3 +1,6 @@
+Recover
+-------
+
 .. toctree::
    :caption: Table of Contents
 
