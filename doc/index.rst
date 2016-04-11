@@ -4,4 +4,6 @@
    _source/intro
    _source/code
    _source/views
+   _source/forms
+   _source/scripts
 
