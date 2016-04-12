@@ -31,7 +31,7 @@ def register():
         if form.validate():
 
             # Create the new user with "unconfirmed" state.
-            new_user = User(username=form.username.data, full_name=form.full_name.data, email=form.email.data)
+            new_user = User(username=form.username.data.lower(), full_name=form.full_name.data, email=form.email.data)
             new_user.set_password(form.password.data)
             new_user.confirmed = False
 
@@ -85,7 +85,7 @@ def login():
 
     # First, ensure that user with given username exists.
     try:
-        user = User.objects.get(username=username)
+        user = User.objects.get(username=username.lower())
     except DoesNotExist:
         flash(login_unsuccessful, 'warning')
         return redirect('/')
