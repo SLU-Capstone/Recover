@@ -1,4 +1,5 @@
-from wtforms import Form, StringField, PasswordField, validators
+from wtforms import Form, StringField, validators
+from wtforms.fields.html5 import EmailField
 
 
 class EditProfileForm(Form):
@@ -8,5 +9,5 @@ class EditProfileForm(Form):
     """
     username = StringField('Username', [validators.Length(min=4, max=25)])
     full_name = StringField('Full Name', [validators.Length(min=2, max=70)])
-    email = StringField('Email Address', [validators.Length(min=5, max=35)])
+    email = EmailField('Email Address', [validators.Length(min=5, max=35), validators.Email()])
 
