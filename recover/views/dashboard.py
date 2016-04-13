@@ -121,12 +121,15 @@ def patient_detail(slug):
         HRdata = {}
         HRaverage = {}
         StepsData = {}
-        for i in range(0, len(patient[DAILY_DATA])):
-            HRdata.update(patient[DAILY_DATA][i][HR])
-            StepsData.update(patient[DAILY_DATA][i][STEPS])
-            resting_hr += patient[DAILY_DATA][-1][RESTING_HR]
-            HRaverage[patient[DAILY_DATA][i]['date']] = patient[DAILY_DATA][i][RESTING_HR]
-        resting_hr /= len(patient[DAILY_DATA])
+        try:
+            for i in range(0, len(patient[DAILY_DATA])):
+                HRdata.update(patient[DAILY_DATA][i][HR])
+                StepsData.update(patient[DAILY_DATA][i][STEPS])
+                resting_hr += patient[DAILY_DATA][i][RESTING_HR]
+                HRaverage[patient[DAILY_DATA][i]['date']] = patient[DAILY_DATA][i][RESTING_HR]
+            resting_hr /= len(patient[DAILY_DATA])
+        except TypeError as e:
+            pass
 
     except (KeyError, IndexError):
         p = PatientData(patient)
