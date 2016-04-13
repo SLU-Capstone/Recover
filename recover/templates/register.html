@@ -1,48 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Recover - Register Account</title>
-    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../static/css/home.css" rel="stylesheet">
-</head>
+{% extends "base-bland.html" %}
 
-<body>
-    <!-- Vanilla navigation bar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="/">Recover</a>
-        </div>
-      </div>
-    </nav>
+<!-- Partial view for User Registration page -->
 
-    {% include "flash_partial.html" %}
+{% block title %}Register Account{% endblock %}
 
-    <div class="container">
-        <div class="page-header">
-          <h1>Register an Account</h1>
-        </div>
+{% block content %}
 
-        <div class="row clearfix">
-            <div class="col-md-6 column">
+    <div class="page-header">
+        <h1><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Register a Physician Account</h1>
+    </div>
 
-                {% from "_formhelpers.html" import render_field %}
-                <form class="form" method=post action="/register/">
-                    {{ render_field(form.username) }}
-                    {{ render_field(form.email) }}
-                    {{ render_field(form.password) }}
-                    {{ render_field(form.confirm) }}
-                    <button type="submit" class="btn btn-primary">Register</button>
-                </form>
+    <div class="row clearfix">
+        <div class="col-md-6 column">
 
-            </div>
+            {% from "_formhelpers.html" import render_field %}
+            <form class="form" method="post" action="/register/">
+                {{ render_field(form.username, placeholder="jsmith1") }}
+                {{ render_field(form.full_name, placeholder="Dr. John Smith") }}
+                {{ render_field(form.email, placeholder="email@example.com") }}
+                {{ render_field(form.password, placeholder="") }}
+                {{ render_field(form.confirm, placeholder="") }}
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+
         </div>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="../static/js/bootstrap.min.js"></script>
-</body>
-</html>
+{% endblock %}

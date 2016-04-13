@@ -1,6 +1,6 @@
 {% extends "base-bland.html" %}
 
-<!-- Partial view for 'Patient Registered' -->
+<!-- Partial view for 'User Account Confirmed' -->
 
 {% block title %}Account Confirmed{% endblock %}
 
@@ -12,10 +12,13 @@
         </div>
 
         <div class="row clearfix">
-            <div class="col-md-6 column">
-                 <h4>Thank you, {{ name }}. Your account is now active.</h4>
+            <div class="col-md-12 column">
+                <h4>Thank you, {{ name }}. Your account is now active.</h4>
+                </br>
+                <h4>You can now <a href="../">login here.</a></h4>
             </div>
         </div>
     </div>
 
 {% endblock %}
+

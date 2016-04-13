@@ -1,8 +1,8 @@
-{% macro render_field(field) %}
+{% macro render_field(field, placeholder) %}
 
     <div class="form-group">
         {{ field.label }}
-        {{ field(class="form-control", **kwargs)|safe }}
+        {{ field(placeholder=placeholder, class="form-control", **kwargs)|safe }}
         {% if field.errors %}
             <ul class=errors>
                 {% for error in field.errors %}

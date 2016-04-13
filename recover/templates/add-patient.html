@@ -4,7 +4,7 @@
 {% block title %}Add Patient{% endblock %}
 {% block page_header %}
     <div class="page-header">
-        <h1>Enroll New Patient</h1>
+        <h1><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Enroll New Patient</h1>
     </div>
     <style type="text/css">
         p { overflow-wrap: break-word; word-wrap: break-word; }
@@ -17,12 +17,23 @@
 
             {% from "_formhelpers.html" import render_field %}
             <form class="form" method=post action="/dashboard/add">
-                {{ render_field(form.first_name) }}
-                {{ render_field(form.last_name) }}
-                {{ render_field(form.email) }}
-                <button type="submit" class="btn btn-primary">Send Invitation</button>
+                {{ render_field(form.first_name, placeholder="John") }}
+                {{ render_field(form.last_name, placeholder="Smith") }}
+                {{ render_field(form.email, placeholder="john@example.com") }}
+                <button type="submit" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-send" aria-hidden="true"></span>
+                    Send Invitation
+                </button>
             </form>
 
         </div>
     </div>
+
+    <!-- Highlight "Add Patient" nav button -->
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#add-patient").addClass("active");
+        });
+    </script>
+
 {% endblock %}

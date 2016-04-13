@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from flask.ext.login import LoginManager, current_user
 from flask.ext.mongoengine import MongoEngine
+from flask_moment import Moment
 
 # Set up app and database connection
 app = Flask(__name__)
@@ -10,6 +11,8 @@ app.config['SECRET_KEY'] = 'wut'
 login_manager = LoginManager(app)
 
 db = MongoEngine(app)
+
+moment = Moment(app)
 
 
 @app.route('/')

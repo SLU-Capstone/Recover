@@ -1,0 +1,187 @@
+<!-- add-patient.html - Partial view for form to invite a new patient -->
+
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_header %}
+
+    <div class="page-header">
+        <div class="alert alert-success pw-success" role="alert" style="display:none;"></div>
+        <h1>Account Settings</h1>
+    </div>
+    <style type="text/css">
+        p { overflow-wrap: break-word; word-wrap: break-word; }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="col-sm-4"> <!--left column -->
+
+        <div class="panel panel-primary">
+            <div class="panel-heading"><span class="glyphicon glyphicon-user"></span> Profile</div>
+            <ul class="list-group">
+                <li class="list-group-item text-right"><span class="pull-left"><strong>Username</strong></span> {{ user.username}} </li>
+                <li class="list-group-item text-right"><span class="pull-left"><strong>Last login</strong></span>
+                    {% if user.last_login %}
+                        {{ moment(user.last_login).calendar() }}
+                    {% endif %}
+                </li>
+                <li class="list-group-item text-right"><span class="pull-left"><strong>Account status</strong></span>
+                    {% if user.confirmed %}
+                        <span class="label label-success">Verified</span>
+                    {% else %}
+                        <span class="label label-warning">Unverified</span>
+                    {% endif %}
+                </li>
+                <li class="list-group-item text-right"><span class="pull-left"><strong>Time zone</strong></span>
+                    <span id="time_zone"></span>
+                </li>
+                <li class="list-group-item text-right"><span class="pull-left"><strong>Date Joined</strong></span> {{ joined }}</li>
+            </ul>
+        </div>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading"><span class="glyphicon glyphicon-signal"></span> Data Export</div>
+            <div class="panel-body">You're current tracking {{ num_patients }} patient(s).
+                </br></br>
+                <button class="btn btn-primary" type="button">
+                    <span class="glyphicon glyphicon-circle-arrow-down" aria-hidden="true"></span>
+                    Export all data
+                </button>
+            </div>
+        </div>
+
+    </div>  <!--/col-4 / END left column-->
+
+    <!-- 'Settings' main content pane -->
+    <div class="col-sm-8" style="padding-left: 20px;">
+        <ul class="nav nav-tabs" id="myTab">
+            <li class="active"><a href="#settings" data-toggle="tab">Settings</a></li>
+        </ul>
+
+        <div class="tab-content">
+
+            <div class="tab-pane active" id="settings">
+
+                {% from "_formhelpers.html" import render_field %}
+
+                <form class="form" method="post" action="/settings/">
+                    <div class="col-xs-12">{{ render_field(form.full_name, placeholder="e.g. Dr. John Smith") }}</div>
+                    <div class="col-xs-12">{{ render_field(form.username, placeholder="e.g. jsmith1") }}</div>
+                    <div class="col-xs-12">{{ render_field(form.email, placeholder="e.g. john@example.com") }}</div>
+
+                    <div class="form-group bottom-buffer">
+                        <div class="col-xs-12">
+                            <br>
+                            <button class="btn btn-lg btn-success" type="submit"><i class="glyphicon glyphicon-ok-sign"></i> Save</button>
+                            <button class="btn btn-lg" type="reset"><i class="glyphicon glyphicon-repeat"></i> Reset</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="col-xs-12">
+                    <button type="button" id="change-pwd" class="btn btn-default top-buffer" data-toggle="modal" data-target="#pwModal">
+                        <i class="glyphicon glyphicon-lock"></i> Change Password
+                    </button>
+                </div>
+
+            </div>
+
+        </div> <!-- /tab-content -->
+    </div>     <!-- END 'Settings' main content pane -->
+
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="pwModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Change Password</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Please enter your current password along with your desired new password.</p>
+
+                    <div class="alert alert-warning" role="alert" style="display:none;"></div>
+
+                    <div>{{ render_field(password_form.current_password) }}</div>
+                    <div>{{ render_field(password_form.new_password) }}</div>
+                    <div>{{ render_field(password_form.new_password_confirm) }}</div>
+                </div>
+                <div class="modal-footer">
+                    <button id="submit" class="btn btn-success">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- AJAX for 'Change Password' Form -->
+    <script>
+
+        $(function() {
+            $("button#change-pwd").click(function() {
+                // Hide warning and clear out fields by default
+                $(".alert-warning").hide();
+                $(".modal-content").find("input").val("");
+            });
+        });
+
+        $(function() {
+            $("button#submit").click(function(){
+
+                var formData = {
+                    'current'       : $('#current_password').val(),
+                    'new'           : $('#new_password').val(),
+                    'new_confirm'   : $('#new_password_confirm').val()
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/change-password",
+                    data: formData,
+                    success: function(msg){
+                        if (msg != "success") {
+                            $(".alert-warning").html(msg);
+                            $(".alert-warning").show();
+                        } else {
+                            $("#pwModal").modal('hide');
+                            $(".pw-success").html("Your password has been successfully changed.");
+                            $(".pw-success").show();
+                        }
+                    },
+                    error: function(){
+                        $(".alert-warning").html("An error occurred, please try again later.");
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- Timezone Detection Code -->
+    <script type="text/javascript" src='../static/js/jstz.min.js'></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var tz = jstz.determine();
+            response_text = 'No timezone found';
+            if (typeof (tz) === 'undefined') {
+                response_text = 'No timezone found';
+            } else {
+                response_text = tz.name();
+            }
+            $('#time_zone').html(response_text);
+        });
+    </script>
+
+    <!-- Highlight "Settings" nav button -->
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#settings").addClass("active");
+        });
+    </script>
+
+{% endblock %}
