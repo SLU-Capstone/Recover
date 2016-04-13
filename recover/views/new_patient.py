@@ -104,7 +104,7 @@ def authorize_new_patient():
             PatientInvite.delete(invite)
             new_patient = Patient(slug=fitbit_id, first_name=invite.first_name, last_name=invite.last_name,
                                   email=invite.email, token=token['access_token'], refresh=token['refresh_token'],
-                                  health_data_per_day=[])
+                                  health_data_per_day=[], date_last_synced='')
             new_patient.save()
 
             # By default, get 5 days worth of data for the brand new patient

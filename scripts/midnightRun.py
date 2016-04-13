@@ -66,11 +66,10 @@ def midnight_run():
         # fetch all patient data
         for patient in patients:
             data = PatientData(patient)
-            last_synced = patient.date_last_synced.isoformat()
-            last_synced = last_synced[0:10]
+            last_synced = patient.date_last_synced
             data.get_heart_rate_data_for_date_range(last_synced)
             data.get_activity_data_for_date_range(last_synced)
-            patient.date_last_synced = datetime.datetime.now()
+            patient.date_last_synced = datetime.datetime.now().isoformat()[0:10]
             patient.save()
 
         # update alerts

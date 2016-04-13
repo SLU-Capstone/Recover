@@ -102,7 +102,7 @@ def patient_detail(slug):
     patient = Patient.objects.get_or_404(slug=slug)
     t = datetime.datetime.today()
     try:
-        last_pull = patient[DAILY_DATA][-1]['date']
+        last_pull = patient.date_last_synced
         if last_pull != t.isoformat()[0:10]:
             app.logger.addHandler(logging.FileHandler('log/patient_detail.txt'))
             app.logger.info(last_pull)

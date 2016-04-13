@@ -41,7 +41,7 @@ class PatientData:
         try:
             for i in range(x_days + 1):
                 day = (end_date - timedelta(days=x_days - i)).isoformat()
-                app.logger.info('getting day %s' % i)
+                app.logger.info('getting day %s (%s)' % (i, day))
                 response = fitbit.api_call(self.token, '/1/user/%s/activities/heart/date/%s/1d/1min.json' % (
                     self.patient.slug, day))
                 try:
@@ -56,7 +56,7 @@ class PatientData:
                     if not found:
                         self.patient.health_data_per_day.append(data)
 
-                    app.logger.info('day %s collected out of %s' % (i, len(response)))
+                    app.logger.info('day %s collected out of %s' % (i, x_days))
                     data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
                     app.logger.info('got resting')
                     for info in response['activities-heart-intraday']['dataset']:
@@ -66,13 +66,15 @@ class PatientData:
                     self.patient.save()
                 except (KeyError, TypeError, ValidationError, AttributeError) as e:
                     app.logger.info(e.message)
-                    app.logger.info(response[0])
+                    app.logger.info(response)
                     pass
 
         except Exception as e:
-            app.logger.info('call: /1/user/-/activities/heart/date/%s/1min.json' % day)
+            app.logger.info('call: /1/user/%s/activities/heart/date/%s/1min.json' % (self.patient.slug, day))
             app.logger.info(e.message)
+            app.logger.info(response)
             return False
+        self.patient.date_last_synced = day
         return True
 
     def get_heart_rate_data_for_date_range(self, start_date, end_date='today', detail_level='1min'):
@@ -114,23 +116,24 @@ class PatientData:
                     if not found:
                         self.patient.health_data_per_day.append(data)
 
-                    app.logger.info('day %s collected out of %s' % (i, len(response)))
-                    data['total_steps'] = response['activities-log-steps'][0]['value']
+                    app.logger.info('day %s collected out of %s' % (i, x_days))
+                    data['total_steps'] = response['activities-steps'][0]['value']
                     app.logger.info('got total Steps')
-                    for info in response['activities-log-steps-intraday']['dataset']:
+                    for info in response['activities-steps-intraday']['dataset']:
                         day_str = data.date
                         day_str += ' ' + info['time']
                         data['activity_data'][day_str] = info['value']
                     self.patient.save()
                 except (KeyError, TypeError, ValidationError, AttributeError) as e:
                     app.logger.info(e.message)
-                    app.logger.info(response[0])
+                    app.logger.info(response)
                     pass
 
         except Exception as e:
-            app.logger.info('call: /1/user/-/activities/heart/date/%s/1min.json' % day)
+            app.logger.info('call: /1/user/%s/activities/heart/date/%s/1min.json' % (self.patient.slug, day))
             app.logger.info(e.message)
             return False
+        self.patient.date_last_synced = day
         return True
 
     def get_activity_data_for_date_range(self, start_date, end_date='today', detail_level='15min'):
