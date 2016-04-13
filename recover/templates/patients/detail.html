@@ -34,12 +34,14 @@
         // Convert to x-y format for Vis JS
         all = [];
         for (var key in data) {
-            all.push({'x': key, 'y': data[key], group: 0});
+            if (data[key] > 0)
+                all.push({'x': key, 'y': data[key], group: 0});
         }
         var DATA = new Big(all);
 
         for (var key in hr) {
-            all.push({'x': key, 'y': hr[key], group: 1});
+            if (data[key] > 0)
+                all.push({'x': key, 'y': hr[key], group: 1});
         }
 
         var container = document.getElementById('visualization');
@@ -48,29 +50,32 @@
         var groups = new vis.DataSet();
         groups.add({
             id: 0,
-            content: "HR",
-            options: {
-                drawPoints: {
-                    style: 'circle' // square, circle
-                }
-        }});
+            content: "HR"
+        });
 
         groups.add({
             id: 1,
-            content: "Average Resting HR",
-            options: {
-                drawPoints: {
-                    style: 'square' // square, circle
+            content: "Average Resting HR"
+        });
+
+
+        data_axis = {
+            left: {
+                range: {
+                    min: 40,
+                    max: 180
                 }
-        }});
-
-
+            }
+        };
         var options = {
-          start: "{{ start }}",
-          end: "{{ end }}"
+            start: "{{ start }}",
+            end: "{{ end }}",
+            interpolation: true,
+            dataAxis: data_axis,
+            drawPoints: false
         };
         var graph2d = new vis.Graph2d(container, all, groups, options);
-        console.log(all.length)
+        console.log(all.length);
 
         graph2d.on('rangechanged', function(event) {
             var s = event['start'];
