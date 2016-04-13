@@ -14,6 +14,8 @@ patient_dashboard = Blueprint('patient_dashboard', __name__, template_folder='te
 DAILY_DATA = "health_data_per_day"
 HR = "heart_rate"
 RESTING_HR = "resting_heart_rate"
+STEPS = "activity_data"
+
 
 
 @patient_dashboard.route('/dashboard')
@@ -100,38 +102,40 @@ def patient_detail(slug):
     """
 
     patient = Patient.objects.get_or_404(slug=slug)
-    t = datetime.datetime.today()
+    today = datetime.datetime.today()
+    end = today
+    start = end - datetime.timedelta(days=1)
     try:
         last_pull = patient.date_last_synced
-        if last_pull != t.isoformat()[0:10]:
+        if last_pull != today.isoformat()[0:10]:
             app.logger.addHandler(logging.FileHandler('log/patient_detail.txt'))
             app.logger.info(last_pull)
-            app.logger.info(t.isoformat()[0:10])
-            today = t
+            app.logger.info(today.isoformat()[0:10])
+            today = today
             last = datetime.datetime.strptime(last_pull, '%Y-%m-%d')
             days = (today - last).days
-            PatientData(patient).get_heart_rate_data_for_x_days(days)
+            patient_data = PatientData(patient)
+            patient_data.get_heart_rate_data_for_x_days(days)
+            patient_data.get_activity_data_for_x_days(days)
         resting_hr = 0
-        d = {}
-        hrDaily = {}
-        start = patient[DAILY_DATA][0]['date']
-        end = patient[DAILY_DATA][-1]['date']
+        HRdata = {}
+        HRaverage = {}
+        StepsData = {}
         for i in range(0, len(patient[DAILY_DATA])):
-            d.update(patient[DAILY_DATA][i][HR])
+            HRdata.update(patient[DAILY_DATA][i][HR])
+            StepsData.update(patient[DAILY_DATA][i][STEPS])
             resting_hr += patient[DAILY_DATA][-1][RESTING_HR]
-            hrDaily[patient[DAILY_DATA][i]['date']] = patient[DAILY_DATA][i][RESTING_HR]
+            HRaverage[patient[DAILY_DATA][i]['date']] = patient[DAILY_DATA][i][RESTING_HR]
         resting_hr /= len(patient[DAILY_DATA])
 
     except (KeyError, IndexError):
         p = PatientData(patient)
         if p.get_heart_rate_data_for_day():
             resting_hr = patient[DAILY_DATA][-1][HR]
-            d = patient[DAILY_DATA][-1][HR]
+            HRdata = patient[DAILY_DATA][-1][HR]
         else:
             resting_hr = "No Data."
-            d = "No Data."
-        start = patient[DAILY_DATA][0]['date']
-        end = patient[DAILY_DATA][-1]['date']
+            HRdata = "No Data."
 
-    return render_template('patients/detail.html', patient=patient, resting=resting_hr, hrDaily=hrDaily, data=d,
-                           start=start, end=end)
+    return render_template('patients/detail.html', patient=patient, resting=resting_hr, HRaverage=HRaverage,
+                           HRdata=HRdata, StepsData=StepsData, start=start, end=end)

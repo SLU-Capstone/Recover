@@ -21,61 +21,105 @@
     <script src="../static/js/bigData.js"></script>
     <link href="../static/css/vis.css" rel="stylesheet" type="text/css" />
 
-    <div id="visualization"></div>
+    <h2>Heart Rate Data</h2>
+    <div class="row">
+        <div class="col-md-11">
+            <h4><span class="label label-success">Resting Heart Rate Average:</span></h4><p>{{ resting }}</p>
+        </div>
+    </div>
+    <div id="HR_visualization"></div>
+    <br>
+    <h2>Activity Data</h2>
+    <div id="STEP_visualization"></div>
 
     {# Populate the graph #}
     <script type="text/javascript">
 
-        {# Receive data from server-side into client-side JS object. #}
-        var data = {{ data | tojson }};
-        var hr = {{ hrDaily | tojson }};
+        {# Receive heartRateData from server-side into client-side JS object. #}
+        var heartRateData = {{ HRdata | tojson }};
+        var averageHeartRate = {{ HRaverage | tojson }};
+        var stepsData = {{ StepsData | tojson }};
+        var start = "{{ start }}";
+        var end = "{{ end }}";
+
+        var hrMAX = 0, hrMIN = 300, stepMAX = 0, stepMIN = 100000;
 
 
         // Convert to x-y format for Vis JS
-        all = [];
-        for (var key in data) {
-            if (data[key] > 0)
-                all.push({'x': key, 'y': data[key], group: 0});
+        allHR = [];
+        allSteps = []
+        for (var key in heartRateData) {
+            if (heartRateData[key] > 0) {
+                allHR.push({'x': key, 'y': heartRateData[key], group: 0});
+                if (hrMAX < heartRateData[key]) hrMAX = heartRateData[key];
+                if (hrMIN > heartRateData[key]) hrMIN = heartRateData[key];
+            }
         }
-        var DATA = new Big(all);
-
-        for (var key in hr) {
-            if (data[key] > 0)
-                all.push({'x': key, 'y': hr[key], group: 1});
+        var DATA = new Big(allHR);
+        for (var key in averageHeartRate) {
+            if (heartRateData[key] > 0)
+                allHR.push({'x': key, 'y': averageHeartRate[key], group: 1});
+        }
+        for (var key in stepsData) {
+            allSteps.push({'x': key, 'y': stepsData[key], group: 2});
+            if (stepMAX < stepsData[key]) stepMAX = stepsData[key];
+            if (stepMIN > stepsData[key]) stepMIN = stepsData[key];
         }
 
-        var container = document.getElementById('visualization');
+        var HR_container = document.getElementById('HR_visualization');
+        var STEP_container = document.getElementById('STEP_visualization');
         // var dataset = new vis.DataSet(all);
 
-        var groups = new vis.DataSet();
-        groups.add({
+        var HR_groups = new vis.DataSet();
+        var STEP_groups = new vis.DataSet();
+
+        HR_groups.add({
             id: 0,
             content: "HR"
         });
 
-        groups.add({
+        HR_groups.add({
             id: 1,
             content: "Average Resting HR"
+        });
+
+        STEP_groups.add({
+            id: 2,
+            content: "Step count"
         });
 
 
         data_axis = {
             left: {
                 range: {
-                    min: 40,
-                    max: 180
+                    min: hrMIN - 10,
+                    max: hrMAX + 10
                 }
             }
         };
-        var options = {
-            start: "{{ start }}",
-            end: "{{ end }}",
+        var HR_options = {
+            start: start,
+            end: end,
             interpolation: true,
             dataAxis: data_axis,
             drawPoints: false
         };
-        var graph2d = new vis.Graph2d(container, all, groups, options);
-        console.log(all.length);
+        var STEP_options = {
+            start: start,
+            end: end,
+            dataAxis: {
+                left: {
+                    range: {
+                        min: stepMIN - 10,
+                        max: stepMAX + 100
+                    }
+                }
+            },
+            drawPoints: false
+        };
+        var graph2d = new vis.Graph2d(HR_container, allHR, HR_groups, HR_options);
+        var step_graph = new vis.Graph2d(STEP_container, allSteps, STEP_groups, STEP_options);
+        console.log(allHR.length);
 
         graph2d.on('rangechanged', function(event) {
             var s = event['start'];
@@ -89,9 +133,4 @@
 
     </script>
 
-    <div class="row">
-        <div class="col-md-11">
-            <h4><span class="label label-success">Resting Heart Rate Average:</span></h4><p>{{ resting }}</p>
-        </div>
-    </div>
 {% endblock %}
