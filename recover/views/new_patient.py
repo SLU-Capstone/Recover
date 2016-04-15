@@ -127,7 +127,6 @@ def authorize_new_patient():
             max_steps_default = {'value': 5000, 'window': 60} # steps / 1 hr
             config = PatientConfig(minHR=min_hr_default, maxHR=max_hr_default, minSteps=min_steps_default,
                                    maxSteps=max_steps_default, patient=new_patient)
-            config.save()
             inviting_physician.patient_config.append(config)
             inviting_physician.save()
 
