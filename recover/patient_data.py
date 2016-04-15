@@ -1,4 +1,7 @@
 import logging
+
+from datetime import date
+
 from recover import app
 from mongoengine import ValidationError
 from fitbit import Fitbit
@@ -36,7 +39,7 @@ class PatientData:
         if end_date == 'today':
             end_date = date.today()
         else:
-            end_date = datetime.strptime(end_date, '%y-%m-%d').date()
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
         day = ''
         try:
             for i in range(x_days + 1):
@@ -72,7 +75,6 @@ class PatientData:
         except Exception as e:
             app.logger.info('call: /1/user/%s/activities/heart/date/%s/1min.json' % (self.patient.slug, day))
             app.logger.info(e.message)
-            app.logger.info(response)
             return False
         self.patient.date_last_synced = day
         return True
@@ -84,19 +86,23 @@ class PatientData:
         :param end_date: end date of range in yyyy-MM-dd string format
         """
         from datetime import datetime
-        start = datetime.strptime(start_date, '%y-%m-%d').date()
-        end = datetime.strptime(end_date, '%y-%m-%d').date()
+        start = datetime.strptime(start_date, '%Y-%m-%d').date()
+        try:
+            end = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:  # end_date == 'today'
+            end = date.today()
+
         x = (end - start).days
         return self.get_heart_rate_data_for_x_days(x, end_date)
 
-    def get_activity_data_for_x_days(self, x_days, end_date ='today'):
+    def get_activity_data_for_x_days(self, x_days, end_date='today'):
         app.logger.addHandler(logging.FileHandler('log/log.txt'))
 
         from datetime import date, timedelta, datetime
         if end_date == 'today':
             end_date = date.today()
         else:
-            end_date = datetime.strptime(end_date, '%y-%m-%d').date()
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
         day = ''
         try:
             for i in range(x_days + 1):
@@ -143,7 +149,10 @@ class PatientData:
         :param end_date: end date of range in yyyy-MM-dd string format
         """
         from datetime import datetime
-        start = datetime.strptime(start_date, '%y-%m-%d').date()
-        end = datetime.strptime(end_date, '%y-%m-%d').date()
+        start = datetime.strptime(start_date, '%Y-%m-%d').date()
+        try:
+            end = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:  # end_date == 'today'
+            end = date.today()
         x = (end - start).days
         return self.get_activity_data_for_x_days(x, end_date)

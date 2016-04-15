@@ -5,7 +5,7 @@ from mongoengine import DoesNotExist
 from recover.EmailClient import email_patient_invite
 from recover.fitbit import Fitbit
 from recover.forms.AddPatientForm import AddPatientForm
-from recover.models import PatientInvite, Patient
+from recover.models import PatientInvite, Patient, PatientConfig
 from recover.patient_data import PatientData
 
 patient_add = Blueprint('patient_add', __name__)
@@ -118,6 +118,16 @@ def authorize_new_patient():
             # Now save this patient to the inviting physician's list of patients.
             inviting_physician = invite.inviting_physician
             inviting_physician.patients.append(new_patient)
+            inviting_physician.save()
+
+            # Now attach a generic config to Patient for the Physician to edit later
+            min_hr_default = {'value': 50, 'window': 15}  # BPS / minute
+            max_hr_default = {'value': 110, 'window': 15} # BPS / minute
+            min_steps_default = {'value': 500, 'window': 60 * 12} # steps / 12 hr
+            max_steps_default = {'value': 5000, 'window': 60} # steps / 1 hr
+            config = PatientConfig(minHR=min_hr_default, maxHR=max_hr_default, minSteps=min_steps_default,
+                                   maxSteps=max_steps_default, patient=new_patient)
+            inviting_physician.patient_config.append(config)
             inviting_physician.save()
 
             return redirect('/patient-registered?name=' + invite.first_name)
