@@ -55,7 +55,7 @@
                 if (hrMIN > heartRateData[key]) hrMIN = heartRateData[key];
             }
         }
-        var DATA = new Big(allHR);
+        //var DATA = new Big(allHR);
         for (var key in averageHeartRate) {
             if (heartRateData[key] > 0)
                 allHR.push({'x': key, 'y': averageHeartRate[key], group: 1});
