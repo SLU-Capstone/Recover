@@ -36,18 +36,20 @@ def add_patient():
                 flash("Warning: You have already invited this patient to join.", 'warning')
                 return redirect('/dashboard')
 
+            full_name = "{} {}".format(form.first_name.data, form.last_name.data)
+
             # Generate a PatientInvite object and send an invite email to given patient
             invite = PatientInvite(inviting_physician=current_user.to_dbref(), accepted=False, email=form.email.data,
                                    first_name=form.first_name.data, last_name=form.last_name.data)
             invite.save()
 
-            email_sent = email_patient_invite(email=form.email.data, first_name=form.first_name.data,
+            email_sent = email_patient_invite(email=form.email.data, name=full_name,
                                               invite_id=str(invite.id), physician_name=current_user.full_name)
 
             if email_sent:
-                success_msg = "{fname} {lname} has been emailed an invitation, and will appear" \
-                              " on your Dashboard after granting access.".format(fname=form.first_name.data,
-                                                                                 lname=form.last_name.data)
+                success_msg = "{name} has been emailed an invitation, and will appear" \
+                              " on your Dashboard after granting access.".format(name=full_name)
+
                 flash(success_msg, 'success')
             else:
                 flash('We were unable to send the patient invitation. Please ensure the address provided is correct.',
