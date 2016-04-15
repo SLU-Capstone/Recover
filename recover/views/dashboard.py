@@ -121,15 +121,17 @@ def patient_detail(slug):
         HRdata = {}
         HRaverage = {}
         StepsData = {}
+        ave_count = 0
         for i in range(0, len(patient[DAILY_DATA])):
             HRdata.update(patient[DAILY_DATA][i][HR])
             StepsData.update(patient[DAILY_DATA][i][STEPS])
             try:
                 resting_hr += patient[DAILY_DATA][i][RESTING_HR]
+                ave_count += 1
             except TypeError:
                 pass
             HRaverage[patient[DAILY_DATA][i]['date']] = patient[DAILY_DATA][i][RESTING_HR]
-        resting_hr /= len(patient[DAILY_DATA])
+        resting_hr /= ave_count
 
     except (KeyError, IndexError):
         p = PatientData(patient)
