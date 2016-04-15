@@ -10,7 +10,10 @@
         <h1>{{ patient.first_name }} {{ patient.last_name }}</h1>
     </div>
     <style type="text/css">
-        p { overflow-wrap: break-word; word-wrap: break-word; }
+        p {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
     </style>
 {% endblock %}
 
@@ -19,12 +22,14 @@
 
     <script src="../static/js/vis.js"></script>
     <script src="../static/js/bigData.js"></script>
-    <link href="../static/css/vis.css" rel="stylesheet" type="text/css" />
+    <link href="../static/css/vis.css" rel="stylesheet" type="text/css"/>
 
     <h2>Heart Rate Data</h2>
     <div class="row">
         <div class="col-md-11">
-            <h4><span class="label label-success">Resting Heart Rate Average:</span></h4><p>{{ resting }}</p>
+            <h4><span class="label label-success">Resting Heart Rate Average:</span></h4>
+
+            <p>{{ resting }}</p>
         </div>
     </div>
     <div id="HR_visualization"></div>
@@ -35,6 +40,15 @@
     {# Populate the graph #}
     <script type="text/javascript">
 
+        function clone(obj) {
+            if (null == obj || "object" != typeof obj) return obj;
+            var copy = obj.constructor();
+            for (var attr in obj) {
+                if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+            }
+            return copy;
+        }
+
         {# Receive heartRateData from server-side into client-side JS object. #}
         var heartRateData = {{ HRdata | tojson }};
         var averageHeartRate = {{ HRaverage | tojson }};
@@ -44,10 +58,36 @@
 
         var hrMAX = 0, hrMIN = 300, stepMAX = 0, stepMIN = 100000;
 
+        var grouping = function (data) {
+            data.sort(function (a, b) {
+                var aDate = Date.parse(a.x.replace(/-/g, "/"));
+                var bDate = Date.parse(b.x.replace(/-/g, "/"));
+                if (aDate < bDate) return -1;
+                if (aDate > bDate) return 1;
+                return 0;
+            });
+            var grouped = []
+            var g = 2;
+            for (var i = 0; i < data.length - 1; i++) {
+                var elem = data[i];
+                var next = data[i + 1];
+                var date1 = Date.parse(elem.x.replace(/-/g, "/"));
+                var date2 = Date.parse(next.x.replace(/-/g, "/"));
+                var diff = ((date2 - date1) / 1000) / 60;
+                grouped.push({'x': elem.x, 'y': elem.y, group: g});
+                data.group = g;
+                if (diff > 15) {
+                    console.log(g, '-->', g+1);
+                    g++;
+                }
+            }
+            return grouped;
+        };
+
 
         // Convert to x-y format for Vis JS
         allHR = [];
-        allSteps = []
+        allSteps = [];
         for (var key in heartRateData) {
             if (heartRateData[key] > 0) {
                 allHR.push({'x': key, 'y': heartRateData[key], group: 0});
@@ -55,16 +95,20 @@
                 if (hrMIN > heartRateData[key]) hrMIN = heartRateData[key];
             }
         }
-        //var DATA = new Big(allHR);
+
+        allHR = grouping(allHR);
+        var n_groups = allHR[allHR.length - 1].group;
+
         for (var key in averageHeartRate) {
             if (heartRateData[key] > 0)
                 allHR.push({'x': key, 'y': averageHeartRate[key], group: 1});
         }
         for (var key in stepsData) {
-            allSteps.push({'x': key, 'y': stepsData[key], group: 2});
+            allSteps.push({'x': key, 'y': stepsData[key], group: 0});
             if (stepMAX < stepsData[key]) stepMAX = stepsData[key];
             if (stepMIN > stepsData[key]) stepMIN = stepsData[key];
         }
+
 
         var HR_container = document.getElementById('HR_visualization');
         var STEP_container = document.getElementById('STEP_visualization');
@@ -73,10 +117,13 @@
         var HR_groups = new vis.DataSet();
         var STEP_groups = new vis.DataSet();
 
-        HR_groups.add({
-            id: 0,
-            content: "HR"
-        });
+        for (var i=2; i<=n_groups; i++) {
+            HR_groups.add({
+                id: i,
+                content: "HR",
+                style: 'stroke:red'
+            });
+        }
 
         HR_groups.add({
             id: 1,
@@ -84,12 +131,20 @@
         });
 
         STEP_groups.add({
-            id: 2,
+            id: 0,
             content: "Step count"
         });
 
 
-        data_axis = {
+        var base_options = {
+            start: start,
+            end: end,
+            //interpolation: true,
+
+            drawPoints: false
+        };
+        var HR_options = clone(base_options);
+        HR_options.dataAxis = {
             left: {
                 range: {
                     min: hrMIN - 10,
@@ -97,39 +152,18 @@
                 }
             }
         };
-        var HR_options = {
-            start: start,
-            end: end,
-            interpolation: true,
-            dataAxis: data_axis,
-            drawPoints: false
-        };
-        var STEP_options = {
-            start: start,
-            end: end,
-            dataAxis: {
-                left: {
-                    range: {
-                        min: stepMIN - 10,
-                        max: stepMAX + 100
-                    }
+        var STEP_options = base_options;
+        STEP_options.dataAxis = {
+            left: {
+                range: {
+                    min: stepMIN - 10,
+                    max: stepMAX + 100
                 }
-            },
-            drawPoints: false
+            }
         };
+
         var graph2d = new vis.Graph2d(HR_container, allHR, HR_groups, HR_options);
         var step_graph = new vis.Graph2d(STEP_container, allSteps, STEP_groups, STEP_options);
-        console.log(allHR.length);
-
-        graph2d.on('rangechanged', function(event) {
-            var s = event['start'];
-            var e = event['end'];
-            console.log('Scaling down');
-            var items = DATA.getRange(s.toString(), e.toString());
-            graph2d.setItems(items);
-            console.log('Scaled down to ', items.length);
-        });
-
 
     </script>
 
