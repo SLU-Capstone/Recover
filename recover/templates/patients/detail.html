@@ -20,9 +20,12 @@
 
 {% block content %}
 
-    <script src="../static/js/vis.js"></script>
-    <script src="../static/js/FitBitGraphing.js"></script>
-    <link href="../static/css/vis.css" rel="stylesheet" type="text/css"/>
+    <script src="{{ url_for('static', filename='js/vis.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/FitBitGraphing.js') }}"></script>
+    <link href="{{ url_for('static', filename='css/vis.css') }}" rel="stylesheet" type="text/css"/>
+
+    {# This link makes a file in export_data directory. #}
+    <a href="{{ patient.slug }}/export">EXPORT</a>
 
     <h2>Heart Rate Data</h2>
     <div class="row">

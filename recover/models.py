@@ -1,4 +1,4 @@
-from recover import db
+from recover import db, app
 from flask import url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -133,6 +133,28 @@ class Patient(db.Document):
     health_data_per_day = db.EmbeddedDocumentListField('PatientHealthData')
     date_last_synced = db.StringField(max_length=10)
 
+    def export_data_as_json(self):
+        hr_data = {}
+        step_data = {}
+        for i in range(len(self.health_data_per_day)):
+            hr_data.update(self.health_data_per_day[i].heart_rate)
+            step_data.update(self.health_data_per_day[i].activity_data)
+
+        exporting_data = {
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'patient_health_data': {
+                'heart_rate': hr_data,
+                'activity': step_data
+            }
+        }
+        import json
+        fn = self.first_name + '_' + self.last_name + '_recover_data.json'
+        file_name = app.config['JSON_FOLDER'] + fn
+        with open(file_name, 'w') as outfile:
+            json.dump(exporting_data, outfile, separators=(',', ': '), indent=4, sort_keys=True)
+        return file_name
+
     def get_url(self):
         """ Returns the appropriate url for the patients unique ID. """
         return url_for('post', kwargs={'slug': self.slug})
@@ -144,5 +166,4 @@ class Patient(db.Document):
     meta = {
         'ordering': ['last_name'],
         'indexes': ['first_name', 'slug']
-
     }

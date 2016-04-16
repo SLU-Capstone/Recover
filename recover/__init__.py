@@ -1,12 +1,17 @@
+import os
+
 from flask import Flask, render_template
 from flask.ext.login import LoginManager, current_user
 from flask.ext.mongoengine import MongoEngine
 from flask_moment import Moment
 
 # Set up app and database connection
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.config['MONGODB_SETTINGS'] = {'DB': 'tester'}
 app.config['SECRET_KEY'] = 'wut'
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+JSON_FOLDER = os.path.join(APP_ROOT, 'static/recover_export_data')
+app.config['JSON_FOLDER'] = JSON_FOLDER + '/'
 
 login_manager = LoginManager(app)
 
