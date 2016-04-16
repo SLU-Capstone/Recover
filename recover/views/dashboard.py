@@ -147,7 +147,7 @@ def patient_profile(slug):
 @login_required
 def export(slug):
     """
-    Allows all health data associated with the patient to be downloaded.
+    Allows all health data associated with a given patient to be downloaded.
     The data is in the form of a JSON file and is zipped.
 
     :param slug: A unique id associated with a given patient.

@@ -36,13 +36,13 @@ class PatientData:
     def get_heart_rate_data_for_x_days(self, x_days, end_date='today'):
         """
         Retrieves and saves a patient's heart-rate data (daily average and time-series data) for X days, with
-        a specified end date which defaults to the current day
+        a specified end date which defaults to the current day.
 
         :param x_days:
         :param end_date:
         :returns True or False whether or not the fetch was successful
         """
-        app.logger.addHandler(logging.FileHandler('log/log.txt'))
+        app.logger.addHandler(logging.FileHandler('log/patient_data.txt'))
 
         from datetime import date, timedelta, datetime
         if end_date == 'today':
@@ -90,7 +90,7 @@ class PatientData:
 
     def get_heart_rate_data_for_date_range(self, start_date, end_date='today'):
         """
-        Helper function to retrieve heart rate data for a date range
+        Helper function to retrieve heart rate data for a given date range.
 
         :param start_date: start date of range in yyyy-MM-dd string format
         :param end_date: end date of range in yyyy-MM-dd string format
@@ -109,13 +109,13 @@ class PatientData:
     def get_activity_data_for_x_days(self, x_days, end_date='today'):
         """
         Helper function to retrieve activity (step) data for X days with a specified end date that
-        defaults to the current day
+        defaults to the current day.
 
         :param x_days: The number of days to pull
         :param end_date: end date of range in yyyy-MM-dd string format
         :returns True or False whether or not the fetch was successful
         """
-        app.logger.addHandler(logging.FileHandler('log/log.txt'))
+        app.logger.addHandler(logging.FileHandler('log/patient_data.txt'))
 
         from datetime import date, timedelta, datetime
         if end_date == 'today':
@@ -163,7 +163,7 @@ class PatientData:
 
     def get_activity_data_for_date_range(self, start_date, end_date='today'):
         """
-        Helper function to retrieve activity (step) data for a date range
+        Helper function to retrieve activity (step) data for a given date range.
 
         :param start_date: start date of range in yyyy-MM-dd string format
         :param end_date: end date of range in yyyy-MM-dd string format
