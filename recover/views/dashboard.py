@@ -28,7 +28,31 @@ def dashboard():
     with all of the patients associated with the logged on user as input.
     """
     people = current_user.patients
-    return render_template('patients/dashboard.html', physician=current_user, patients=people)
+
+    fetch_dates = []
+    for p in people:
+        d = p.date_last_data_fetch.split('-')
+        fetch_dates.append('{}/{}/{}'.format(d[1], d[2], d[0]))
+
+    return render_template('patients/dashboard.html', physician=current_user, patients=people, fetch_dates=fetch_dates,
+                           alert_counts=alert_counts_per_patient())
+
+
+def alert_counts_per_patient():
+    """
+    Returns a dictionary of the number of unread alerts that are outstanding on each patient.
+    patient_alerts is keyed by the patient object's id.
+    """
+    patient_alerts = {}
+    for alert in current_user.alerts:
+        if not alert.read:
+            patient_alerts[alert.patient.id] += 1
+
+    for p in current_user.patients:
+        if p not in patient_alerts:
+            patient_alerts[p.id] = 0
+
+    return patient_alerts
 
 
 @patient_dashboard.route('/settings/', methods=['GET', 'POST'])

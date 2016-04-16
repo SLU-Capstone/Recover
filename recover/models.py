@@ -129,6 +129,7 @@ class Patient(db.Document):
     first_name = db.StringField(max_length=32, required=True)
     last_name = db.StringField(max_length=32, required=True)
     email = db.EmailField(required=True)
+    date_joined = db.DateTimeField()
     # Fitbit Access Token
     token = db.StringField(max_length=511, required=True)
     # Fitbit Refresh Token
