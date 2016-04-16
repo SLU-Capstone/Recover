@@ -1,4 +1,6 @@
-from flask import Blueprint, request, flash, render_template, redirect
+import os
+
+from flask import Blueprint, request, flash, render_template, redirect, send_from_directory, url_for
 from flask.ext.login import login_user, login_required, current_user, logout_user
 from mongoengine import DoesNotExist, NotUniqueError
 from recover import login_manager, app
@@ -159,6 +161,29 @@ def not_found(error):
 @app.errorhandler(500)
 def internal_error(error):
     return render_template('500.html'), 500
+
+
+@user_management.route('/settings/export', methods=['GET'])
+@login_required
+def export_all():
+    """
+    Allows all health data associated with the current user's patients
+    to be downloaded. The data is in the form of JSON files for each patient
+    and is zipped.
+    """
+    user = current_user
+    files = []
+    for patient in user.patients:
+        files.append(patient.export_data_as_json())
+    zipfile = app.config['JSON_FOLDER'] + 'recover_data.zip'
+    command = 'zip -j ' + zipfile
+    for f in files:
+        command += ' ' + f
+    os.system('rm ' + zipfile)
+    os.system(command)
+
+    return send_from_directory(directory=app.config['JSON_FOLDER'], filename='recover_data.zip',
+                               as_attachment=True, attachment_filename='recover_data.zip')
 
 
 # Admin section - WIP #

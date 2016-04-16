@@ -1,6 +1,8 @@
 import logging
 import datetime
-from flask import Blueprint, render_template, flash, request
+import os
+
+from flask import Blueprint, render_template, flash, request, send_from_directory
 from flask.ext.login import login_required, current_user
 from recover import app
 from recover.models import Patient, check_password_hash, generate_password_hash
@@ -15,7 +17,6 @@ DAILY_DATA = "health_data_per_day"
 HR = "heart_rate"
 RESTING_HR = "resting_heart_rate"
 STEPS = "activity_data"
-
 
 
 @patient_dashboard.route('/dashboard')
@@ -97,8 +98,7 @@ def patient_detail(slug):
     `recover/templates/patients/detail.html` with the selected patient
     as input.
 
-    Parameters:
-     - *slug*: A unique id associated with a given patient.
+    :param slug: A unique id associated with a given patient.
     """
 
     patient = Patient.objects.get_or_404(slug=slug)
@@ -144,3 +144,22 @@ def patient_detail(slug):
 
     return render_template('patients/detail.html', patient=patient, resting=resting_hr, HRaverage=HRaverage,
                            HRdata=HRdata, StepsData=StepsData, start=start, end=end)
+
+
+@patient_dashboard.route('/dashboard/<slug>/export', methods=['GET'])
+@login_required
+def export(slug):
+    """
+    Allows all health data associated with the patient to be downloaded.
+    The data is in the form of a JSON file and is zipped.
+
+    :param slug: A unique id associated with a given patient.
+    """
+    patient = Patient.objects.get_or_404(slug=slug)
+    file_name = patient.export_data_as_json()
+    zipfile = app.config['JSON_FOLDER'] + 'recover_data.zip'
+    command = 'zip -j ' + zipfile + ' ' + file_name
+    os.system('rm ' + zipfile)
+    os.system(command)
+    return send_from_directory(directory=app.config['JSON_FOLDER'], filename='recover_data.zip',
+                               as_attachment=True, attachment_filename='recover_data.zip')
