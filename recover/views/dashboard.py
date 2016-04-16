@@ -24,11 +24,11 @@ STEPS = "activity_data"
 def dashboard():
     """
     Renders the dashboard home for a logged on user.
-    Corresponding html file is in `recover/templates/patients/list.html`
+    Corresponding html file is in `recover/templates/patients/dashboard.html`
     with all of the patients associated with the logged on user as input.
     """
     people = current_user.patients
-    return render_template('patients/list.html', physician=current_user, patients=people)
+    return render_template('patients/dashboard.html', physician=current_user, patients=people)
 
 
 @patient_dashboard.route('/settings/', methods=['GET', 'POST'])
@@ -91,13 +91,10 @@ def change_password():
 
 @patient_dashboard.route('/dashboard/<slug>', methods=['GET'])
 @login_required
-def patient_detail(slug):
+def patient_profile(slug):
     """
-    Renders a detailed view of a selected patient. More functionality
-    is coming soon! Corresponding html file is in
-    `recover/templates/patients/detail.html` with the selected patient
-    as input.
-
+    Renders a detailed view of a selected patient's profile.
+    Corresponding html file is in `recover/templates/patients/profile.html`
     :param slug: A unique id associated with a given patient.
     """
 
@@ -108,7 +105,7 @@ def patient_detail(slug):
     try:
         last_pull = patient.date_last_synced
         if last_pull != today.isoformat()[0:10]:
-            app.logger.addHandler(logging.FileHandler('log/patient_detail.txt'))
+            app.logger.addHandler(logging.FileHandler('log/patient_profile.txt'))
             app.logger.info(last_pull)
             app.logger.info(today.isoformat()[0:10])
             today = today
@@ -142,7 +139,7 @@ def patient_detail(slug):
             resting_hr = "No Data."
             HRdata = "No Data."
 
-    return render_template('patients/detail.html', patient=patient, resting=resting_hr, HRaverage=HRaverage,
+    return render_template('patients/profile.html', patient=patient, resting=resting_hr, HRaverage=HRaverage,
                            HRdata=HRdata, StepsData=StepsData, start=start, end=end)
 
 
