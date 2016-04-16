@@ -16,6 +16,7 @@ class PatientData:
 
     def __init__(self, patient):
         """ Set up this object with the patient's Fitbit access tokens.
+
         :type patient: Patient
         """
         self.patient = patient
@@ -23,16 +24,24 @@ class PatientData:
         self.token['access_token'] = patient.token
         self.token['refresh_token'] = patient.refresh
 
-    def get_heart_rate_data_for_day(self, date='today', detail_level='1min'):
+    def get_heart_rate_data_for_day(self, day='today'):
         """
         Retrieves and saves a patient's heart-rate data (daily average and time-series data) for a given day.
-        :type detail_level: string
-        :param date: date of interest in yyyy-MM-dd format as a string
-        :param detail_level: detail level is a string. either 1min or 1sec
+
+        :param day: date of interest in yyyy-MM-dd format as a string
+        :returns True or False whether or not the fetch was successful
         """
-        return self.get_heart_rate_data_for_x_days(1, end_date=date)
+        return self.get_heart_rate_data_for_x_days(1, end_date=day)
 
     def get_heart_rate_data_for_x_days(self, x_days, end_date='today'):
+        """
+        Retrieves and saves a patient's heart-rate data (daily average and time-series data) for X days, with
+        a specified end date which defaults to the current day
+
+        :param x_days:
+        :param end_date:
+        :returns True or False whether or not the fetch was successful
+        """
         app.logger.addHandler(logging.FileHandler('log/log.txt'))
 
         from datetime import date, timedelta, datetime
@@ -79,11 +88,13 @@ class PatientData:
         self.patient.date_last_synced = day
         return True
 
-    def get_heart_rate_data_for_date_range(self, start_date, end_date='today', detail_level='1min'):
+    def get_heart_rate_data_for_date_range(self, start_date, end_date='today'):
         """
         Helper function to retrieve heart rate data for a date range
+
         :param start_date: start date of range in yyyy-MM-dd string format
         :param end_date: end date of range in yyyy-MM-dd string format
+        :returns True or False whether or not the fetch was successful
         """
         from datetime import datetime
         start = datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -96,6 +107,14 @@ class PatientData:
         return self.get_heart_rate_data_for_x_days(x, end_date)
 
     def get_activity_data_for_x_days(self, x_days, end_date='today'):
+        """
+        Helper function to retrieve activity (step) data for X days with a specified end date that
+        defaults to the current day
+
+        :param x_days: The number of days to pull
+        :param end_date: end date of range in yyyy-MM-dd string format
+        :returns True or False whether or not the fetch was successful
+        """
         app.logger.addHandler(logging.FileHandler('log/log.txt'))
 
         from datetime import date, timedelta, datetime
@@ -142,11 +161,13 @@ class PatientData:
         self.patient.date_last_synced = day
         return True
 
-    def get_activity_data_for_date_range(self, start_date, end_date='today', detail_level='15min'):
+    def get_activity_data_for_date_range(self, start_date, end_date='today'):
         """
         Helper function to retrieve activity (step) data for a date range
+
         :param start_date: start date of range in yyyy-MM-dd string format
         :param end_date: end date of range in yyyy-MM-dd string format
+        :returns True or False whether or not the fetch was successful
         """
         from datetime import datetime
         start = datetime.strptime(start_date, '%Y-%m-%d').date()

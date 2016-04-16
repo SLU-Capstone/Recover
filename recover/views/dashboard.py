@@ -98,8 +98,7 @@ def patient_detail(slug):
     `recover/templates/patients/detail.html` with the selected patient
     as input.
 
-    Parameters:
-     - *slug*: A unique id associated with a given patient.
+    :param slug: A unique id associated with a given patient.
     """
 
     patient = Patient.objects.get_or_404(slug=slug)
@@ -150,6 +149,12 @@ def patient_detail(slug):
 @patient_dashboard.route('/dashboard/<slug>/export', methods=['GET'])
 @login_required
 def export(slug):
+    """
+    Allows all health data associated with the patient to be downloaded.
+    The data is in the form of a JSON file and is zipped.
+
+    :param slug: A unique id associated with a given patient.
+    """
     patient = Patient.objects.get_or_404(slug=slug)
     file_name = patient.export_data_as_json()
     zipfile = app.config['JSON_FOLDER'] + 'recover_data.zip'

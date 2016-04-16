@@ -6,6 +6,17 @@ from datetime import datetime
 
 
 def new_patient_alert(actual_val, val, window, trigger, patient, time):
+    """
+    Helper function to set up a new Alert document
+
+    :param actual_val: Value that triggered alert
+    :param val: Value that the configuration had
+    :param window: time window from configuration
+    :param trigger: dict with keys 'class' and 'operation' to distinguish HR/STEP and MIN/MAX
+    :param patient: Patient reference
+    :param time: timestamp of the alert
+    :return: A new alert object
+    """
     alert = Alert()
     alert.recorded_value = actual_val
     alert.threshold_value = val
@@ -18,6 +29,14 @@ def new_patient_alert(actual_val, val, window, trigger, patient, time):
 
 
 def check(window, operation, data):
+    """
+    A moving average algorithm to determine whether an alert should be triggered
+
+    :param window: time window to check
+    :param operation: function to do the check
+    :param data: Health data to parse
+    :return: Returns a tuple with the value that triggered an alert and timestamp
+    """
     vals = deque()
     times = deque()
     begin_time = ''
@@ -51,6 +70,9 @@ def check(window, operation, data):
 
 
 def pull_all():
+    """
+    Go through every patient in our system and pull data.
+    """
     physicians = User.objects()
     for physician in physicians:
         patients = physician.patients
@@ -65,6 +87,9 @@ def pull_all():
 
 
 def check_all():
+    """
+    Goes through all physician to check the patients and whether or not to trigger alerts
+    """
     physicians = User.objects()
     for physician in physicians:
         # update alerts

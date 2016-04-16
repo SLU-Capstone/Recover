@@ -11,6 +11,11 @@ FROM_ADDRESS = "notifications@getrecover.co"
 def send_email(destination_email, recipient_name, subject, message):
     """
     Sends an email to recipient_name at destination_email with the given subject and message.
+
+    :param destination_email: email recipient
+    :param recipient_name: name of person receiving email
+    :param subject: subject of email message
+    :param message: body of the email message
     :returns: True or False indicating whether email was sent successfully.
     """
     sg = sendgrid.SendGridClient(secret.SENDGRID_API_KEY, raise_errors=True)
@@ -35,6 +40,12 @@ def email_patient_invite(email, name, invite_id, physician_name):
     """
     Sends an invitation email to a patient with the name of their inviting physician,
     including a confirmation link to sign up for the service.
+
+    :param email: Email address of a patient that is being invited to our system
+    :param name: Name of patient being invited
+    :param invite_id: Unique id associated with a physician to link the patient to
+    :param physician_name: Physician's name for the invitation
+    :returns True or False indicating whether the email was sent successfully
     """
 
     message = 'Hello {name}, \n\n' \
@@ -53,6 +64,10 @@ def email_physician_confirmation(email, name):
     Sends an account confirmation email to a new physician user.
     This verifies that the user has access to the email address they provided,
     and that they will be able to receive future service-related alerts.
+
+    :param email: Email of new physician registering for our system
+    :param name: Name of new physician for register confirmation
+    :returns True or False whether or no the email was sent successfully
     """
 
     link = 'http://' + BASE_PATH + CONFIRM_ROUTE + email.encode('hex')

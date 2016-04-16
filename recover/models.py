@@ -20,12 +20,14 @@ class User(db.Document):
 
     def set_password(self, password):
         """
+
         :type password: str
         """
         self.password = generate_password_hash(password)
 
     def check_password(self, password):
         """
+
         :type password: str
         """
         return check_password_hash(self.password, password)
@@ -33,6 +35,7 @@ class User(db.Document):
     def __unicode__(self):
         """
         String representation of a Patient
+
         :rtype: str
         """
         return self.email
@@ -134,6 +137,13 @@ class Patient(db.Document):
     date_last_synced = db.StringField(max_length=10)
 
     def export_data_as_json(self):
+        """
+        This function exports the patient's health data to a JSON file named
+        "FIRSTNAME_LASTNAME_recover_data.json" in the directory of the
+        applications JSON_FOLDER.
+
+        :return: JSON file path as string
+        """
         hr_data = {}
         step_data = {}
         for i in range(len(self.health_data_per_day)):

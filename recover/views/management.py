@@ -166,6 +166,11 @@ def internal_error(error):
 @user_management.route('/settings/export', methods=['GET'])
 @login_required
 def export_all():
+    """
+    Allows all health data associated with the current user's patients
+    to be downloaded. The data is in the form of JSON files for each patient
+    and is zipped.
+    """
     user = current_user
     files = []
     for patient in user.patients:

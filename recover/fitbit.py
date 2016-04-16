@@ -1,16 +1,15 @@
-"""
-A Python library for accessing the FitBit API.
-This library provides a wrapper to the FitBit API and does not provide storage of tokens or caching if that is required.
-Most of the code has been adapted from: https://github.com/magnific0/FitBit.py
-"""
 import base64
 import requests
 import secret
 import urllib
 
 
-# noinspection PyIncorrectDocstring
 class Fitbit:
+    """
+    A Python library for accessing the FitBit API.
+    This library provides a wrapper to the FitBit API and does not provide storage of tokens or caching if that is required.
+    Most of the code has been adapted from: https://github.com/magnific0/FitBit.py
+    """
     # All information must be as on the https://dev.fitbit.com/apps page.
     def __init__(self):
         """ Set up variables to use in the rest of the classes functions. """
