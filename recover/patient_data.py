@@ -85,7 +85,7 @@ class PatientData:
             app.logger.info('call: /1/user/%s/activities/heart/date/%s/1min.json' % (self.patient.slug, day))
             app.logger.info(e.message)
             return False
-        self.patient.date_last_synced = day
+        self.patient.date_last_data_fetch = day
         return True
 
     def get_heart_rate_data_for_date_range(self, start_date, end_date='today'):
@@ -158,7 +158,7 @@ class PatientData:
             app.logger.info('call: /1/user/%s/activities/heart/date/%s/1min.json' % (self.patient.slug, day))
             app.logger.info(e.message)
             return False
-        self.patient.date_last_synced = day
+        self.patient.date_last_data_fetch = day
         return True
 
     def get_activity_data_for_date_range(self, start_date, end_date='today'):

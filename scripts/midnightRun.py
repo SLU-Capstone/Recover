@@ -79,10 +79,10 @@ def pull_all():
         # fetch all patient data
         for patient in patients:
             data = PatientData(patient)
-            last_synced = patient.date_last_synced
+            last_synced = patient.date_last_data_fetch
             data.get_heart_rate_data_for_date_range(last_synced)
             data.get_activity_data_for_date_range(last_synced)
-            patient.date_last_synced = date.today().isoformat()[0:10]
+            patient.date_last_data_fetch = date.today().isoformat()[0:10]
             patient.save()
 
 
@@ -123,6 +123,7 @@ def check_all():
                     new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
                     physician.alerts.append(new_alert)
 
+                    # check max steps
                     val = config.maxSteps['value']
                     window = config.maxSteps['window']
                     actual_value, timestamp = check(window, lambda x: x < val, day.activity_data)

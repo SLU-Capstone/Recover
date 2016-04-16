@@ -103,7 +103,7 @@ def patient_profile(slug):
     end = today
     start = end - datetime.timedelta(days=1)
     try:
-        last_pull = patient.date_last_synced
+        last_pull = patient.date_last_data_fetch
         if last_pull != today.isoformat()[0:10]:
             app.logger.addHandler(logging.FileHandler('log/patient_profile.txt'))
             app.logger.info(last_pull)

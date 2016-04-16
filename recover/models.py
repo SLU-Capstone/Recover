@@ -134,7 +134,7 @@ class Patient(db.Document):
     # Fitbit Refresh Token
     refresh = db.StringField(max_length=511, required=True)
     health_data_per_day = db.EmbeddedDocumentListField('PatientHealthData')
-    date_last_synced = db.StringField(max_length=10)
+    date_last_data_fetch = db.StringField(max_length=10)
 
     def export_data_as_json(self):
         """
