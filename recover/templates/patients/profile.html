@@ -1,11 +1,9 @@
 <!-- profile.html - Partial view for properties on each patient -->
 
 {% extends "base.html" %}
-
-{% block title %}Patient Detail{% endblock %}
-
+{% block title %}Patient Profile{% endblock %}
 {% block page_header %}
-    </br></br>
+
     <div class="page-header">
         <h1>{{ patient.first_name }} {{ patient.last_name }}</h1>
     </div>
@@ -24,25 +22,62 @@
     <script src="{{ url_for('static', filename='js/FitBitGraphing.js') }}"></script>
     <link href="{{ url_for('static', filename='css/vis.css') }}" rel="stylesheet" type="text/css"/>
 
-    {# This link makes a file in export_data directory. #}
-    <a href="{{ patient.slug }}/export">EXPORT</a>
+    <p>Alerts will go here. Use bootstrap dismissable alerts? or Use collapsable div?</p>
 
-    <h2>Heart Rate Data</h2>
-    <div class="row">
-        <div class="col-md-11">
-            <h4><span class="label label-success">Resting Heart Rate Average:</span></h4>
+    <ul class="nav nav-tabs" id="myTab" data-tabs="tabs">
+        <li class="active"><a href="#graphs" data-toggle="tab">Graphs</a></li>
+        <li><a href="#notes" data-toggle="tab">Notes</a></li>
+        <li><a href="#config" data-toggle="tab">Settings</a></li>
+    </ul>
 
-            <p>{{ resting }}</p>
+
+    <!-- 1. GRAPHING TAB CONTENT -->
+    <div class="tab-content top-buffer">
+
+        <div class="tab-pane active" id="graphs">
+            <h2>Heart Rate History <small>bpm / time</small></h2>
+            <div class="row">
+                <div class="col-md-11">
+                    <h4><span class="label label-primary">Average Resting Heart Rate:</span> <span class="badge">{{ resting }}</span></h4>
+                </div>
+            </div>
+            <div class="top-buffer" id="HR_visualization"></div>
+            <br>
+            <h2>Activity History <small># steps / time</small></h2>
+            <div class="bottom-buffer" id="STEP_visualization"></div>
         </div>
-    </div>
-    <div id="HR_visualization"></div>
-    <br>
-    <h2>Activity Data</h2>
-    <div id="STEP_visualization"></div>
+
+        <!-- 2. PATIENT NOTES CONTENT -->
+        <div class="tab-pane" id="notes">
+            <form>
+               <div class="form-group">
+                <label for="comment">Patient Notes:</label>
+                <textarea placeholder="You can add notes to this patient's file over time." class="form-control" rows="5" id="comment"></textarea>
+            </div>
+                <button id="submit" class="btn btn-success">Save</button>
+            </form>
+        </div>
+
+        <!-- 3. SETTINGS TAB CONTENT (Alert Config, Remove Patient & Export Buttons) -->
+        <div class="tab-pane" id="config">
+            <a href="{{ patient.slug }}/export" class="btn btn-primary" href="">
+                <span class="glyphicon glyphicon-circle-arrow-down" aria-hidden="true"></span>
+                Export Patient Data
+            </a>
+            <a class="btn btn-danger" href="">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                Remove Patient
+            </a>
+
+            </br></br>
+            <p><strong>TODO: FORM HERE TO CREATE & EDIT "PatientConfig" settings</strong></p>
+        </div>
+
+    </div> <!-- /tab-content -->
+
 
     {# Populate the graph #}
     <script type="text/javascript">
-
         // Receive heartRateData from server-side into client-side JS object.
         var heartRateData = {{ HRdata | tojson }};
         var averageHeartRate = {{ HRaverage | tojson }};
@@ -51,8 +86,6 @@
         var end = "{{ end }}";
 
         FitBitGraphing(heartRateData, averageHeartRate, stepsData, start, end);
-
-
     </script>
 
 {% endblock %}

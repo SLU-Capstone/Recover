@@ -88,6 +88,10 @@ class Alert(db.EmbeddedDocument):
     incident_time = db.DateTimeField(required=True)
     read = db.BooleanField(default=False)
 
+    def __unicode__(self):
+        """ TODO: String representation of an Alert """
+        return "Coming Soon"
+
 
 class PatientInvite(db.Document):
     """
