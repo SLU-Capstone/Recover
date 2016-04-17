@@ -152,7 +152,10 @@ def patient_profile(slug):
             except TypeError:
                 pass
             HRaverage[patient[DAILY_DATA][i]['date']] = patient[DAILY_DATA][i][RESTING_HR]
-        resting_hr /= ave_count
+        try:
+            resting_hr /= ave_count
+        except ZeroDivisionError:
+            pass
 
     except (KeyError, IndexError):
         p = PatientData(patient)
