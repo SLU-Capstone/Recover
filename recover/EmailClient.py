@@ -3,9 +3,9 @@ import secret
 import logging
 from recover import app
 
-BASE_PATH = "162.243.19.76"
+BASE_PATH = "getrecover.co"
 CONFIRM_ROUTE = "/confirm-account?id="
-FROM_ADDRESS = "notifications@getrecover.co"
+FROM_ADDRESS = "notifications@" + BASE_PATH
 
 
 def send_email(destination_email, recipient_name, subject, message):
@@ -48,11 +48,13 @@ def email_patient_invite(email, name, invite_id, physician_name):
     :returns True or False indicating whether the email was sent successfully
     """
 
-    message = 'Hello {name}, \n\n' \
-              '{physician} has invited you to join Recover.\n\n' \
-              'Please click the confirmation link below to grant Recover access to your Fitbit data.\n\n' \
-              'http://{URL}/authorize?state={invite_id}'.format(name=name, physician=physician_name,
-                                                                URL=BASE_PATH, invite_id=invite_id)
+    message = 'Hello {name}, <br><br>' \
+              '{physician} has invited you to join Recover.<br>' \
+              'Please click the confirmation link below to grant Recover access to your Fitbit data.<br><br>' \
+              'http://{URL}/authorize?state={invite_id}<br><br>' \
+              'Thank you,<br>' \
+              'Recover Team'.format(name=name, physician=physician_name,
+                                    URL=BASE_PATH, invite_id=invite_id)
 
     subject = "You're invited to Recover!"
 
@@ -72,11 +74,11 @@ def email_physician_confirmation(email, name):
 
     link = 'http://' + BASE_PATH + CONFIRM_ROUTE + email.encode('hex')
 
-    message = 'Hello {name}, \n\n' \
-              'Thank you for registering for Recover. \n\n' \
-              'Please click the confirmation link below to confirm your account. \n\n' \
-              '{link}\n\n' \
-              'Thank you,\n' \
+    message = 'Hello {name}, <br><br>' \
+              'Thank you for registering for Recover! ' \
+              'Please click the confirmation link below to confirm your account. <br><br>' \
+              '{link}<br><br>' \
+              'Thank you,<br>' \
               'Recover Team'.format(name=name, link=link)
 
     subject = "Required: Please Confirm Recover Account"
