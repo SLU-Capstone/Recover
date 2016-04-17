@@ -43,6 +43,8 @@
                 <a class="navbar-brand" href="/dashboard">Recover Dashboard</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
+                <p class="navbar-text">Signed in as {{ current_user.full_name }}</p>
+
                 <ul class="nav navbar-nav navbar-right">
                     <li id="add-patient"><a href="/dashboard/add"><span class="glyphicon glyphicon-plus"></span>  Add Patient</a></li>
                     <li id="settings"><a href="/settings"><span class="glyphicon glyphicon-cog"></span>  Settings</a></li>
