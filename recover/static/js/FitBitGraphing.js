@@ -1,3 +1,7 @@
+// variables for smoothing factors in trend()
+var ALPHA = 0.15;
+var BETA = 0.15;
+
 FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, end) {
 
     // Convert to x-y format for Vis JS
@@ -91,8 +95,8 @@ var setup = function (data, group_start, inner_group) {
 // Double Exponential smoothing algorithm with more weight on past events
 var trend = function (data_arr, n_groups) {
     // set up for algorithm
-    var alpha = 0.25;
-    var beta = 0.25;
+    var alpha = ALPHA;
+    var beta = BETA;
     var s = data_arr[1].y;
     var b = data_arr[1].y - data_arr[0].y;
 
