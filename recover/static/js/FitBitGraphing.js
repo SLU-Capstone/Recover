@@ -4,6 +4,8 @@ var BETA = 0.15;
 
 FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, end) {
 
+    var hr_visibility = {};
+
     // Convert to x-y format for Vis JS
     var allSteps = setup(stepsData, 0);
     var allHR = setup(averageHeartRate, 1);
@@ -20,27 +22,32 @@ FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, en
     var STEP_groups = new vis.DataSet();
 
     for (var i = HR[0].group; i <= HR[HR.length - 1].group; i++) {
-        console.log(i);
         HR_groups.add({
             id: i,
             content: "HR",
-            style: 'stroke:red'
+            style: 'stroke:red',
+            visible: true
         });
+        hr_visibility[i] = true;
     }
+
     for (var t = trends[0].group; t <= trends[trends.length - 1].group; t++) {
-        console.log('at ', t);
         HR_groups.add({
             id: t,
             content: "HR Trend",
-            style: 'stroke:blue'
+            style: 'stroke:blue',
+            visible: true
         });
+        hr_visibility[t] = true;
     }
 
     HR_groups.add({
         id: 1,
         content: "Average Resting HR",
-        style: 'stroke:green'
+        style: 'stroke:green',
+        visible: true
     });
+    hr_visibility[1] = true;
 
     STEP_groups.add({
         id: 0,
@@ -59,6 +66,9 @@ FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, en
             range: {
                 min: 35,
                 max: 200
+            },
+            title: {
+                text: 'BPM'
             }
         }
     };
@@ -69,12 +79,38 @@ FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, en
             range: {
                 min: -10,
                 max: 1500
+            },
+            title: {
+                text: 'Number of Steps'
             }
         }
     };
 
     var graph2d = new vis.Graph2d(HR_container, allHR, HR_groups, HR_options);
     var step_graph = new vis.Graph2d(STEP_container, allSteps, STEP_groups, STEP_options);
+
+
+    document.getElementById('toggle-real-HR').onclick = function() {
+        for (var i = HR[0].group; i <= HR[HR.length - 1].group; i++) {
+            hr_visibility[i] = !hr_visibility[i];
+        }
+        graph2d.setOptions({
+            groups: {
+                visibility: hr_visibility
+            }
+        });
+    };
+
+    document.getElementById('toggle-smooth-HR').onclick = function() {
+        for (var t = trends[0].group; t <= trends[trends.length - 1].group; t++) {
+            hr_visibility[t] = !hr_visibility[t];
+        }
+        graph2d.setOptions({
+            groups: {
+                visibility: hr_visibility
+            }
+        });
+    };
 
 };
 
@@ -112,7 +148,6 @@ var trend = function (data_arr, n_groups) {
     }];
     var i = 2;
     for (var g = data_arr[0].group; g <= n_groups; g++) {
-        console.log(group_num + n_groups, i);
         for (; i < data_arr.length - 1 && data_arr[i].group == g; i++) {
 
             var old_s = s;
@@ -159,7 +194,6 @@ var grouping = function (data) {
             grouped.push({'x': elem.x, 'y': elem.y, group: g});
             data.group = g;
             if (diff > 15) {
-                console.log(g, '-->', g + 1);
                 g++;
             }
         }
