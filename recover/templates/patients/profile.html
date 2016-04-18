@@ -24,42 +24,9 @@
     <script src="{{ url_for('static', filename='js/FitBitGraphing.js') }}"></script>
     <link href="{{ url_for('static', filename='css/vis.css') }}" rel="stylesheet" type="text/css"/>
 
-    <!-- Alerts view (TODO: factor out into new partial view) -->
-    {% if alerts|length > 0 %}
-        <div class="panel panel-warning">
-        <div class="panel-heading accordion" data-toggle="collapse" data-target="#alerts">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" href="#alerts"><span class="glyphicon glyphicon-flag"></span>
-                    Unread Alerts
-                     <span class="badge">{{ alerts|length }}</span>
-                </a>
-                <span class="glyphicon glyphicon-chevron-down pull-right"></span>
-            </h4>
-        </div>
-        <div id="alerts" class="panel-collapse collapse">
-            <ul class="list-group">
-                {% for alert in alerts %}
-                    <li class="list-group-item">{{ alert }}</li>
-                {% endfor %}
-            </ul>
-            <div class="panel-footer container-fluid">
-                <button id="dismiss-alerts" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span>
-                    Clear all alerts
-                </button>
-            </div>
-        </div>
-    </div>
-    {% else %}
-        <div class="panel panel-success">
-        <div class="panel-heading" data-toggle="collapse" data-target="#alerts">
-            <h4 class="panel-title">
-                <span class="glyphicon glyphicon-ok"></span> No Unread Alerts
-            </h4>
-        </div>
-        </div>
-    {% endif %}
+    {% include "patient_alerts_partial.html" %}
 
-
+    <!-- Navigation tabs -->
     <ul class="nav nav-tabs" id="myTab" data-tabs="tabs">
         <li class="active"><a href="#graphs" data-toggle="tab">Graphs</a></li>
         <li><a href="#notes" data-toggle="tab">Notes</a></li>

@@ -1,0 +1,33 @@
+{% if alerts|length > 0 %}
+    <div class="panel panel-warning">
+    <div class="panel-heading accordion" data-toggle="collapse" data-target="#alerts">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#alerts"><span class="glyphicon glyphicon-flag"></span>
+                Unread Alerts
+                 <span class="badge">{{ alerts|length }}</span>
+            </a>
+            <span class="glyphicon glyphicon-chevron-down pull-right"></span>
+        </h4>
+    </div>
+    <div id="alerts" class="panel-collapse collapse">
+        <ul class="list-group">
+            {% for alert in alerts %}
+                <li class="list-group-item">{{ alert }}</li>
+            {% endfor %}
+        </ul>
+        <div class="panel-footer container-fluid">
+            <button id="dismiss-alerts" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span>
+                Clear all alerts
+            </button>
+        </div>
+    </div>
+</div>
+{% else %}
+    <div class="panel panel-success">
+    <div class="panel-heading" data-toggle="collapse" data-target="#alerts">
+        <h4 class="panel-title">
+            <span class="glyphicon glyphicon-ok"></span> No Unread Alerts
+        </h4>
+    </div>
+    </div>
+{% endif %}
