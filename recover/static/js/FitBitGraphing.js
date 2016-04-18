@@ -57,7 +57,8 @@ FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, en
     var base_options = {
         start: start,
         end: end,
-        //interpolation: true,
+        min: '2016/01/01',
+        max: end,
         drawPoints: false
     };
     var HR_options = clone(base_options);
@@ -86,7 +87,7 @@ FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, en
         }
     };
 
-    var graph2d = new vis.Graph2d(HR_container, allHR, HR_groups, HR_options);
+    var hr_graph = new vis.Graph2d(HR_container, allHR, HR_groups, HR_options);
     var step_graph = new vis.Graph2d(STEP_container, allSteps, STEP_groups, STEP_options);
 
 
@@ -94,7 +95,7 @@ FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, en
         for (var i = HR[0].group; i <= HR[HR.length - 1].group; i++) {
             hr_visibility[i] = !hr_visibility[i];
         }
-        graph2d.setOptions({
+        hr_graph.setOptions({
             groups: {
                 visibility: hr_visibility
             }
@@ -105,12 +106,29 @@ FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, en
         for (var t = trends[0].group; t <= trends[trends.length - 1].group; t++) {
             hr_visibility[t] = !hr_visibility[t];
         }
-        graph2d.setOptions({
+        hr_graph.setOptions({
             groups: {
                 visibility: hr_visibility
             }
         });
     };
+
+    hr_graph.on('rangechange', function(event) {
+        var new_start = event.start;
+        var new_end = event.end;
+        step_graph.setOptions({
+            start: new_start,
+            end: new_end
+        });
+    });
+    step_graph.on('rangechange', function(event) {
+        var new_start = event.start;
+        var new_end = event.end;
+        hr_graph.setOptions({
+            start: new_start,
+            end: new_end
+        });
+    });
 
 };
 
