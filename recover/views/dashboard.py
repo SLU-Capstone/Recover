@@ -55,6 +55,17 @@ def alert_counts_per_patient():
     return patient_alerts
 
 
+def unread_alerts(patient_id):
+    """
+    Returns an array of all unread alerts for a given patient.
+    """
+    alerts = []
+    for alert in current_user.alerts:
+        if not alert.read and alert.patient.id == patient_id:
+            alerts.append(alert)
+    return alerts
+
+
 @patient_dashboard.route('/settings/', methods=['GET', 'POST'])
 @login_required
 def settings():
@@ -167,7 +178,8 @@ def patient_profile(slug):
             HRdata = "No Data."
 
     return render_template('patients/profile.html', patient=patient, resting=resting_hr, HRaverage=HRaverage,
-                           HRdata=HRdata, StepsData=StepsData, start=start, end=end)
+                           HRdata=HRdata, StepsData=StepsData, start=start, end=end,
+                           alerts=unread_alerts(patient.id))
 
 
 @patient_dashboard.route('/dashboard/<slug>/export', methods=['GET'])

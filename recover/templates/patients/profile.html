@@ -5,7 +5,9 @@
 {% block page_header %}
 
     <div class="page-header">
-        <h1>{{ patient.first_name }} {{ patient.last_name }}</h1>
+        <h1>{{ patient.first_name }} {{ patient.last_name }}
+            <small class="text-muted half-size">Patient Since {{ patient.date_joined.strftime('%m/%d/%Y') }}</small>
+        </h1>
     </div>
     <style type="text/css">
         p {
@@ -22,7 +24,41 @@
     <script src="{{ url_for('static', filename='js/FitBitGraphing.js') }}"></script>
     <link href="{{ url_for('static', filename='css/vis.css') }}" rel="stylesheet" type="text/css"/>
 
-    <p>Alerts will go here. Use bootstrap dismissable alerts? or Use collapsable div?</p>
+    <!-- Alerts view (TODO: factor out into new partial view) -->
+    {% if alerts|length > 0 %}
+        <div class="panel panel-warning">
+        <div class="panel-heading accordion" data-toggle="collapse" data-target="#alerts">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" href="#alerts"><span class="glyphicon glyphicon-flag"></span>
+                    Unread Alerts
+                     <span class="badge">{{ alerts|length }}</span>
+                </a>
+                <span class="glyphicon glyphicon-chevron-down pull-right"></span>
+            </h4>
+        </div>
+        <div id="alerts" class="panel-collapse collapse">
+            <ul class="list-group">
+                {% for alert in alerts %}
+                    <li class="list-group-item">{{ alert }}</li>
+                {% endfor %}
+            </ul>
+            <div class="panel-footer container-fluid">
+                <button id="dismiss-alerts" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span>
+                    Clear all alerts
+                </button>
+            </div>
+        </div>
+    </div>
+    {% else %}
+        <div class="panel panel-success">
+        <div class="panel-heading" data-toggle="collapse" data-target="#alerts">
+            <h4 class="panel-title">
+                <span class="glyphicon glyphicon-ok"></span> No Unread Alerts
+            </h4>
+        </div>
+        </div>
+    {% endif %}
+
 
     <ul class="nav nav-tabs" id="myTab" data-tabs="tabs">
         <li class="active"><a href="#graphs" data-toggle="tab">Graphs</a></li>
@@ -35,7 +71,7 @@
     <div class="tab-content top-buffer">
 
         <div class="tab-pane active" id="graphs">
-            <h2>Heart Rate History <small>bpm / time</small></h2>
+            <h3>Heart Rate History <small>bpm / time</small></h3>
             <div class="row">
                 <div class="col-md-11">
                     <h4><span class="label label-primary">Average Resting Heart Rate:</span> <span class="badge">{{ resting }}</span></h4>
@@ -43,17 +79,17 @@
             </div>
             <div class="top-buffer" id="HR_visualization"></div>
             <br>
-            <h2>Activity History <small># steps / time</small></h2>
+            <h3>Activity History <small># steps / time</small></h3>
             <div class="bottom-buffer" id="STEP_visualization"></div>
         </div>
 
         <!-- 2. PATIENT NOTES CONTENT -->
         <div class="tab-pane" id="notes">
             <form>
-               <div class="form-group">
-                <label for="comment">Patient Notes:</label>
-                <textarea placeholder="You can add notes to this patient's file over time." class="form-control" rows="5" id="comment"></textarea>
-            </div>
+                <div class="form-group">
+                    <label for="comment">Patient Notes:</label>
+                    <textarea placeholder="You can add notes to this patient's file over time." class="form-control" rows="5" id="comment"></textarea>
+                </div>
                 <button id="submit" class="btn btn-success">Save</button>
             </form>
         </div>
