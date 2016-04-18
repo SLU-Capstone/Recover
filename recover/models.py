@@ -60,7 +60,7 @@ class User(db.Document):
 class PatientConfig(db.EmbeddedDocument):
     """
     Model to represent a physician's custom data thresholds for a given patient.
-    A physician has exactly one such object per patient.
+    A physician has exactly *ONE* such object per patient.
     Each of the 4 dictionaries below have "value" and "window" fields that represent preferred thresholds.
     Also holds a "notes" field in which the physician can append notes over time.
     """
@@ -68,7 +68,7 @@ class PatientConfig(db.EmbeddedDocument):
     maxHR = db.DictField()
     minSteps = db.DictField()
     maxSteps = db.DictField()
-    notes = db.StringField(max_length=10000)
+    notes = db.StringField(max_length=10000, default="")
     patient = db.ReferenceField('Patient', required=True, unique=True)
 
 

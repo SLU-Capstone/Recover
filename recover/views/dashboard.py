@@ -179,7 +179,7 @@ def patient_profile(slug):
 
     return render_template('patients/profile.html', patient=patient, resting=resting_hr, HRaverage=HRaverage,
                            HRdata=HRdata, StepsData=StepsData, start=start, end=end,
-                           alerts=unread_alerts(patient.id))
+                           alerts=unread_alerts(patient.id), config=config_for_patient(patient.id))
 
 
 @patient_dashboard.route('/remove-patient', methods=['POST'])
@@ -208,6 +208,25 @@ def remove_patient():
         return jsonify({"status": 200})
 
 
+@patient_dashboard.route('/update-notes', methods=['POST'])
+@login_required
+def update_notes():
+    """
+    Updates the 'notes' field on the PatientConfig object for a given patient.
+    """
+    if request.form['slug'] is None or request.form['notes'] is None:
+        return "An error occurred, please try again later."
+    else:
+        slug = request.form['slug']
+        patient = Patient.objects.get_or_404(slug=slug)
+        config = config_for_patient(patient.id)
+
+        config.notes = request.form['notes']
+        config.save()
+
+        return jsonify({"status": 200})
+
+
 @patient_dashboard.route('/dashboard/<slug>/export', methods=['GET'])
 @login_required
 def export(slug):
@@ -225,3 +244,10 @@ def export(slug):
     os.system(command)
     return send_from_directory(directory=app.config['JSON_FOLDER'], filename='recover_data.zip',
                                as_attachment=True, attachment_filename='recover_data.zip')
+
+
+def config_for_patient(patient_id):
+    """
+    Returns the physician's config object for a given patient.
+    """
+    return [c for c in current_user.patient_config if c.patient.id == patient_id][0]

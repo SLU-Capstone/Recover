@@ -50,16 +50,10 @@
             <div class="bottom-buffer" id="STEP_visualization"></div>
         </div>
 
+
         <!-- 2. PATIENT NOTES CONTENT -->
-        <div class="tab-pane" id="notes">
-            <form>
-                <div class="form-group">
-                    <label for="comment">Patient Notes:</label>
-                    <textarea placeholder="You can add notes to this patient's file over time." class="form-control" rows="5" id="comment"></textarea>
-                </div>
-                <button id="submit" class="btn btn-success">Save</button>
-            </form>
-        </div>
+        {% include "patients/patient_notes_pane.html" %}
+
 
         <!-- 3. SETTINGS TAB CONTENT (Alert Config, Remove Patient & Export Buttons) -->
         <div class="tab-pane" id="config">
@@ -80,6 +74,7 @@
     </div> <!-- /tab-content -->
 
     {% include "remove_patient_modal.html" %}
+
 
     {# Populate the graph #}
     <script type="text/javascript">

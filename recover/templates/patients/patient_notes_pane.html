@@ -1,0 +1,51 @@
+<div class="tab-pane" id="notes">
+    <div class="form-group">
+        <label for="comment">Patient Notes:</label>
+        <textarea placeholder="You can add notes to this patient's file over time." class="form-control" rows="5" id="notes">{% if config.notes|length > 0 %}{{config.notes }}{% endif %}</textarea>
+    </div>
+    <button id="notes-save" class="btn btn-success">Save</button>
+</div>
+
+<script>
+$(function() {
+    $("button#notes-save").click(function() {
+
+        var data = {
+            'slug'  : "{{ patient.slug }}",
+            'notes' : $('textarea#notes').val()
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "/update-notes",
+            data: data,
+            success: function(resp) {
+                if (resp.status == 200) {
+                    $.notify({
+                        // options
+                        message: 'Patient notes successfully updated!',
+                        icon: 'glyphicon glyphicon-ok',
+                    },{
+                        // settings
+                        type: 'success',
+                        placement: {
+                            from: "top",
+                            align: "center"
+                        },
+                        animate: {
+                            enter: 'animated fadeInDown',
+                            exit: 'animated fadeOutUp'
+                        },
+                        delay: 3000
+                    });
+                } else {
+                    console.log("Error in updating Notes field on Patient Profile.")
+                }
+            },
+            error: function() {
+                console.log("Error in updating Notes field on Patient Profile.")
+            }
+        });
+    });
+});
+</script>
