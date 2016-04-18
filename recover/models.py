@@ -90,7 +90,20 @@ class Alert(db.EmbeddedDocument):
 
     def __unicode__(self):
         """ TODO: String representation of an Alert """
-        return "Coming Soon"
+        info = self.patient.first_name + ' ' + self.patient.last_name + ' '
+        if self.trigger_info['operation'] == 'MAX':
+            info += 'exceeded '
+        else:
+            info += 'was below '
+        info += 'the set value of ' + str(self.threshold_value) + ' '
+        if self.trigger_info['class'] == 'HR':
+            'beats per minute '
+        else:
+            info += 'steps '
+        info += 'over a time period of ' + str(self.time_window) + ' minutes. ' + \
+                'The recorded value was ' + str(self.recorded_value) + ' starting at ' + \
+                str(self.incident_time)
+        return info
 
 
 class PatientInvite(db.Document):
