@@ -113,7 +113,7 @@ FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, en
         });
     };
 
-    hr_graph.on('rangechange', function(event) {
+    hr_graph.on('rangechanged', function(event) {
         var new_start = event.start;
         var new_end = event.end;
         step_graph.setOptions({
@@ -121,7 +121,7 @@ FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, en
             end: new_end
         });
     });
-    step_graph.on('rangechange', function(event) {
+    step_graph.on('rangechanged', function(event) {
         var new_start = event.start;
         var new_end = event.end;
         hr_graph.setOptions({
