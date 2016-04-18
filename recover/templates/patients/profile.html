@@ -67,10 +67,11 @@
                 <span class="glyphicon glyphicon-circle-arrow-down" aria-hidden="true"></span>
                 Export Patient Data
             </a>
-            <a class="btn btn-danger" href="">
+
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#removeModal">
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                 Remove Patient
-            </a>
+            </button>
 
             </br></br>
             <p><strong>TODO: FORM HERE TO CREATE & EDIT "PatientConfig" settings</strong></p>
@@ -78,6 +79,7 @@
 
     </div> <!-- /tab-content -->
 
+    {% include "remove_patient_modal.html" %}
 
     {# Populate the graph #}
     <script type="text/javascript">

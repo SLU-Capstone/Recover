@@ -1,0 +1,44 @@
+<!-- 'Remove Patient' modal -->
+<div class="modal fade" id="removeModal" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Remove Patient</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you would like to discontinue tracking and remove the patient
+                    <strong>{{ patient.first_name }} {{ patient.last_name }}</strong> from your dashboard?
+                    This operation cannot be undone and all data will be lost.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="remove-submit" class="btn btn-danger">Remove Patient</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Never Mind</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function() {
+    $("button#remove-submit").click(function(){
+        $.ajax({
+            type: "POST",
+            url: "/remove-patient",
+            data: { 'slug': "{{ patient.slug }}" },
+            success: function(resp) {
+                if (resp.status == 200) {
+                    $("#removeModal").modal('hide');
+                    window.location.href = '/dashboard'
+                } else {
+                    $("#removeModal").modal('hide');
+                }
+            },
+            error: function(){
+                $("#removeModal").modal('hide');
+            }
+        });
+    });
+});
+</script>

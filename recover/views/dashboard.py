@@ -2,10 +2,10 @@ import logging
 import datetime
 import os
 
-from flask import Blueprint, render_template, flash, request, send_from_directory
+from flask import Blueprint, render_template, flash, request, send_from_directory, jsonify
 from flask.ext.login import login_required, current_user
 from recover import app
-from recover.models import Patient, check_password_hash, generate_password_hash
+from recover.models import User, Patient, check_password_hash, generate_password_hash
 from recover.patient_data import PatientData
 from recover.forms.EditProfileForm import EditProfileForm
 from recover.forms.ChangePasswordForm import ChangePasswordForm
@@ -180,6 +180,32 @@ def patient_profile(slug):
     return render_template('patients/profile.html', patient=patient, resting=resting_hr, HRaverage=HRaverage,
                            HRdata=HRdata, StepsData=StepsData, start=start, end=end,
                            alerts=unread_alerts(patient.id))
+
+
+@patient_dashboard.route('/remove-patient', methods=['POST'])
+@login_required
+def remove_patient():
+    """
+    Removes a patient from a physician's list of current patients.
+    After, we redirect the user back to the dashboard.
+    """
+    if request.form['slug'] is None:
+        return "An error occurred, please try again later."
+    else:
+        slug = request.form['slug']
+        patient = Patient.objects.get_or_404(slug=slug)
+        name = "{} {}".format(patient.first_name, patient.last_name)
+
+        # Remove this patient from the physician's list of active patients.
+        User.objects(id=current_user.id).update_one(pull__patients=patient)
+
+        # Remove all physician's config settings on this patient.
+        for config in current_user.patient_config:
+            if config.patient.id == patient.id:
+                current_user.patient_config.filter(patient=patient).delete()
+
+        flash('The patient {} has been removed successfully from your dashboard.'.format(name), 'success')
+        return jsonify({"status": 200})
 
 
 @patient_dashboard.route('/dashboard/<slug>/export', methods=['GET'])
