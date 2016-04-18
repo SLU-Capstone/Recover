@@ -89,7 +89,7 @@ class Alert(db.EmbeddedDocument):
     read = db.BooleanField(default=False)
 
     def __unicode__(self):
-        """ TODO: String representation of an Alert """
+        """ String representation of an Alert """
         info = self.patient.first_name + ' ' + self.patient.last_name + ' '
         if self.trigger_info['operation'] == 'MAX':
             info += 'exceeded '
