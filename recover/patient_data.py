@@ -42,7 +42,7 @@ class PatientData:
         :param end_date:
         :returns True or False whether or not the fetch was successful
         """
-        app.logger.addHandler(logging.FileHandler('log/patient_data.txt'))
+        app.logger.addHandler(logging.FileHandler(app.config['INFO'] + 'patient_data.txt'))
 
         from datetime import date, timedelta, datetime
         if end_date == 'today':
@@ -115,7 +115,7 @@ class PatientData:
         :param end_date: end date of range in yyyy-MM-dd string format
         :returns True or False whether or not the fetch was successful
         """
-        app.logger.addHandler(logging.FileHandler('log/patient_data.txt'))
+        app.logger.addHandler(logging.FileHandler(app.config['INFO'] + 'patient_data.txt'))
 
         from datetime import date, timedelta, datetime
         if end_date == 'today':

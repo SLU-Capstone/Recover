@@ -1,4 +1,6 @@
 import sendgrid
+from flask import json
+
 import secret
 import logging
 from recover import app
@@ -25,7 +27,7 @@ def send_email(destination_email, recipient_name, subject, message):
     message = sendgrid.Mail(to=to, subject=subject, html=html, text=message, from_name="Recover App",
                             from_email=FROM_ADDRESS)
 
-    app.logger.addHandler(logging.FileHandler('log/email_client.txt'))
+    app.logger.addHandler(logging.FileHandler(app.config['INFO'] + 'email_client.txt'))
 
     try:
         status, msg = sg.send(message)
