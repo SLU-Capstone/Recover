@@ -2,7 +2,7 @@ from flask import Blueprint, request, flash, render_template, redirect
 from flask.ext.login import login_required, current_user
 from mongoengine import DoesNotExist
 from datetime import datetime
-
+from celery import chain
 from recover.EmailClient import email_patient_invite
 from recover.fitbit import Fitbit
 from recover.forms.AddPatientForm import AddPatientForm
@@ -112,8 +112,10 @@ def authorize_new_patient():
 
             # By default, get 5 days worth of data for the brand new patient
             new_patient_data = PatientData(new_patient)
-            PatientData.get_heart_rate_data_for_x_days.delay(new_patient_data, 5)
-            PatientData.get_activity_data_for_x_days.delay(new_patient_data, 5)
+            result = new_patient_data.get_heart_rate_data_for_x_days.delay(5, end_date='today')
+            result.wait()
+            result = new_patient_data.get_activity_data_for_x_days.delay(5, end_date='today')
+            result.wait()
 
             # Now save this patient to the inviting physician's list of patients.
             inviting_physician = invite.inviting_physician

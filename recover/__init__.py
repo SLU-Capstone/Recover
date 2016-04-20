@@ -32,8 +32,8 @@ def make_celery(app):
     return celery
 
 app.config.update(
-    CELERY_BROKER_URL='mongodb://localhost:28017/tester',
-    CELERY_RESULT_BACKEND='mongodb://localhost:28017/tester'
+    CELERY_BROKER_URL='redis://localhost:6379',
+    CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 )
 celery = make_celery(app)
 

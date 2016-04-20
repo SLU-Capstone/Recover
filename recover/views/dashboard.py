@@ -30,8 +30,9 @@ def dashboard():
 
     fetch_dates = []
     for p in people:
-        d = p.date_last_data_fetch.split('-')
-        fetch_dates.append('{}/{}/{}'.format(d[1], d[2], d[0]))
+        if p.date_last_data_fetch != '':
+            d = p.date_last_data_fetch.split('-')
+            fetch_dates.append('{}/{}/{}'.format(d[1], d[2], d[0]))
 
     return render_template('patients/dashboard.html', physician=current_user, patients=people, fetch_dates=fetch_dates,
                            alert_counts=alert_counts_per_patient())
