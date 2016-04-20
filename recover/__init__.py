@@ -32,8 +32,8 @@ def make_celery(app):
     return celery
 
 app.config.update(
-    CELERY_BROKER_URL='mongod://localhost:28017',
-    CELERY_RESULT_BACKEND='mongod://localhost:28017'
+    CELERY_BROKER_URL='mongodb://localhost:28017',
+    CELERY_RESULT_BACKEND='mongodb://localhost:28017'
 )
 celery = make_celery(app)
 
