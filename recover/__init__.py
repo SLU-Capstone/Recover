@@ -12,7 +12,8 @@ app.config['SECRET_KEY'] = 'wut'
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 JSON_FOLDER = os.path.join(APP_ROOT, 'static/recover_export_data')
 app.config['JSON_FOLDER'] = JSON_FOLDER + '/'
-app.config['INFO'] = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '/log/'
+app.config['INFO'] =  os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '/log/'
+app.config['PROPAGATE_EXCEPTIONS'] = True
 
 login_manager = LoginManager(app)
 

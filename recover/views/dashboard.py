@@ -140,10 +140,9 @@ def patient_profile(slug):
     try:
         last_pull = patient.date_last_data_fetch
         if last_pull != today.isoformat()[0:10]:
-            if app.debug:
-                app.logger.addHandler(logging.FileHandler(app.config['INFO'] + 'patient_profile.txt'))
-                app.logger.info(last_pull)
-                app.logger.info(today.isoformat()[0:10])
+            app.logger.addHandler(logging.FileHandler(app.config['INFO'] + 'patient_profile.txt'))
+            app.logger.info(last_pull)
+            app.logger.info(today.isoformat()[0:10])
             today = today
             last = datetime.datetime.strptime(last_pull, '%Y-%m-%d')
             days = (today - last).days
