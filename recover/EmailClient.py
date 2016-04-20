@@ -24,10 +24,17 @@ def send_email(destination_email, recipient_name, subject, message):
     message = sendgrid.Mail(to=to, subject=subject, html=html, text=message, from_name="Recover App",
                             from_email=FROM_ADDRESS)
 
+    if app.debug:
+        app.logger.addHandler(logging.FileHandler(app.config['INFO'] + 'email_client.txt'))
+
     try:
-        sg.send(message)
+        status, msg = sg.send(message)
+        if app.debug:
+            app.logger.info('Email send successfully: %s - %s' % (status, message))
         return True
-    except sendgrid.SendGridError:
+    except sendgrid.SendGridError as e:
+        if app.debug:
+            app.logger.info('A SendGrid error occurred: %s - %s - %s - %s' % (e.__class__, e, status, message))
         return False
 
 

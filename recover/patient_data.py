@@ -42,7 +42,8 @@ class PatientData:
         :param end_date:
         :returns True or False whether or not the fetch was successful
         """
-        app.logger.addHandler(logging.FileHandler(app.config['INFO'] + 'patient_data.txt'))
+        if app.debug:
+            app.logger.addHandler(logging.FileHandler(app.config['INFO'] + 'patient_data.txt'))
 
         from datetime import date, timedelta, datetime
         if end_date == 'today':
@@ -53,7 +54,8 @@ class PatientData:
         try:
             for i in range(x_days + 1):
                 day = (end_date - timedelta(days=x_days - i)).isoformat()
-                app.logger.info('getting day %s (%s)' % (i, day))
+                if app.debug:
+                    app.logger.info('getting day %s (%s)' % (i, day))
                 response = fitbit.api_call(self.token, '/1/user/%s/activities/heart/date/%s/1d/1min.json' % (
                     self.patient.slug, day))
                 try:
@@ -68,22 +70,24 @@ class PatientData:
                     if not found:
                         self.patient.health_data_per_day.append(data)
 
-                    app.logger.info('day %s collected out of %s' % (i, x_days))
+                    if app.debug:
+                        app.logger.info('day %s collected out of %s' % (i, x_days))
                     data['resting_heart_rate'] = response['activities-heart'][0]['value']['restingHeartRate']
-                    app.logger.info('got resting')
                     for info in response['activities-heart-intraday']['dataset']:
                         day_str = data.date
                         day_str += ' ' + info['time']
                         data['heart_rate'][day_str] = info['value']
                     self.patient.save()
                 except (KeyError, TypeError, ValidationError, AttributeError) as e:
-                    app.logger.info(e.message)
-                    app.logger.info(response)
+                    if app.debug:
+                        app.logger.info(e.message)
+                        app.logger.info(response)
                     pass
 
         except Exception as e:
-            app.logger.info('call: /1/user/%s/activities/heart/date/%s/1min.json' % (self.patient.slug, day))
-            app.logger.info(e.message)
+            if app.debug:
+                app.logger.info('call: /1/user/%s/activities/heart/date/%s/1min.json' % (self.patient.slug, day))
+                app.logger.info(e.message)
             return False
         self.patient.date_last_data_fetch = day
         return True
@@ -115,7 +119,8 @@ class PatientData:
         :param end_date: end date of range in yyyy-MM-dd string format
         :returns True or False whether or not the fetch was successful
         """
-        app.logger.addHandler(logging.FileHandler(app.config['INFO'] + 'patient_data.txt'))
+        if app.debug:
+            app.logger.addHandler(logging.FileHandler(app.config['INFO'] + 'patient_data.txt'))
 
         from datetime import date, timedelta, datetime
         if end_date == 'today':
@@ -126,7 +131,8 @@ class PatientData:
         try:
             for i in range(x_days + 1):
                 day = (end_date - timedelta(days=x_days - i)).isoformat()
-                app.logger.info('getting day %s' % i)
+                if app.debug:
+                    app.logger.info('getting day %s' % i)
                 response = fitbit.api_call(self.token, '/1/user/%s/activities/steps/date/%s/1d/15min.json' % (
                     self.patient.slug, day))
                 try:
@@ -141,22 +147,24 @@ class PatientData:
                     if not found:
                         self.patient.health_data_per_day.append(data)
 
-                    app.logger.info('day %s collected out of %s' % (i, x_days))
+                    if app.debug:
+                        app.logger.info('day %s collected out of %s' % (i, x_days))
                     data['total_steps'] = response['activities-steps'][0]['value']
-                    app.logger.info('got total Steps')
                     for info in response['activities-steps-intraday']['dataset']:
                         day_str = data.date
                         day_str += ' ' + info['time']
                         data['activity_data'][day_str] = info['value']
                     self.patient.save()
                 except (KeyError, TypeError, ValidationError, AttributeError) as e:
-                    app.logger.info(e.message)
-                    app.logger.info(response)
+                    if app.debug:
+                        app.logger.info(e.message)
+                        app.logger.info(response)
                     pass
 
         except Exception as e:
-            app.logger.info('call: /1/user/%s/activities/heart/date/%s/1min.json' % (self.patient.slug, day))
-            app.logger.info(e.message)
+            if app.debug:
+                app.logger.info('call: /1/user/%s/activities/heart/date/%s/1min.json' % (self.patient.slug, day))
+                app.logger.info(e.message)
             return False
         self.patient.date_last_data_fetch = day
         return True
