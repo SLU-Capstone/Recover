@@ -1,6 +1,5 @@
 import sendgrid
 import secret
-import logging
 
 BASE_PATH = "getrecover.co"
 CONFIRM_ROUTE = "/confirm-account?id="
