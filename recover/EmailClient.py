@@ -1,9 +1,6 @@
 import sendgrid
-from flask import json
-
 import secret
 import logging
-from recover import app
 
 BASE_PATH = "getrecover.co"
 CONFIRM_ROUTE = "/confirm-account?id="
@@ -27,14 +24,10 @@ def send_email(destination_email, recipient_name, subject, message):
     message = sendgrid.Mail(to=to, subject=subject, html=html, text=message, from_name="Recover App",
                             from_email=FROM_ADDRESS)
 
-    app.logger.addHandler(logging.FileHandler(app.config['INFO'] + 'email_client.txt'))
-
     try:
-        status, msg = sg.send(message)
-        app.logger.info('Email send successfully: %s - %s' % (status, message))
+        sg.send(message)
         return True
-    except sendgrid.SendGridError as e:
-        app.logger.info('A SendGrid error occurred: %s - %s - %s - %s' % (e.__class__, e, status, message))
+    except sendgrid.SendGridError:
         return False
 
 
