@@ -147,8 +147,8 @@ def patient_profile(slug):
             last = datetime.datetime.strptime(last_pull, '%Y-%m-%d')
             days = (today - last).days
             patient_data = PatientData(patient)
-            patient_data.get_heart_rate_data_for_x_days(days)
-            patient_data.get_activity_data_for_x_days(days)
+            patient_data.get_heart_rate_data_for_x_days.delay(days)
+            patient_data.get_activity_data_for_x_days.delay(days)
         resting_hr = 0
         HRdata = {}
         HRaverage = {}

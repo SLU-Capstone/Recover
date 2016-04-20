@@ -1,11 +1,13 @@
 import sendgrid
 import secret
+from recover import celery
 
 BASE_PATH = "getrecover.co"
 CONFIRM_ROUTE = "/confirm-account?id="
 FROM_ADDRESS = "notifications@" + BASE_PATH
 
 
+@celery.task()
 def send_email(destination_email, recipient_name, subject, message):
     """
     Sends an email to recipient_name at destination_email with the given subject and message.
@@ -52,7 +54,7 @@ def email_patient_invite(email, name, invite_id, physician_name):
 
     subject = "You're invited to Recover!"
 
-    return send_email(email, name, subject, message)
+    return send_email.delay(email, name, subject, message)
 
 
 def email_physician_confirmation(email, name):
@@ -77,4 +79,4 @@ def email_physician_confirmation(email, name):
 
     subject = "Required: Please Confirm Recover Account"
 
-    return send_email(email, name, subject, message)
+    return send_email.delay(email, name, subject, message)
