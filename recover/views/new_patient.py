@@ -112,8 +112,8 @@ def authorize_new_patient():
 
             # By default, get 5 days worth of data for the brand new patient
             new_patient_data = PatientData(new_patient)
-            PatientData.get_heart_rate_data_for_x_days.delay(new_patient_data, 5)
-            PatientData.get_activity_data_for_x_days.delay(new_patient_data, 5)
+            PatientData.get_heart_rate_data_for_x_days(new_patient_data, 5)
+            PatientData.get_activity_data_for_x_days(new_patient_data, 5)
 
             # Now save this patient to the inviting physician's list of patients.
             inviting_physician = invite.inviting_physician
