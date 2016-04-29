@@ -1,5 +1,4 @@
 import os
-from celery import Celery
 from flask import Flask, render_template
 from flask.ext.login import LoginManager, current_user
 from flask.ext.mongoengine import MongoEngine
@@ -14,28 +13,6 @@ JSON_FOLDER = os.path.join(APP_ROOT, 'static/recover_export_data')
 app.config['JSON_FOLDER'] = JSON_FOLDER + '/'
 app.config['INFO'] = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '/log/'
 app.config['PROPAGATE_EXCEPTIONS'] = True
-
-
-def make_celery(app):
-    celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
-    celery.conf.update(app.config)
-    TaskBase = celery.Task
-
-    class ContextTask(TaskBase):
-        abstract = True
-
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return TaskBase.__call__(self, *args, **kwargs)
-
-    celery.Task = ContextTask
-    return celery
-
-app.config.update(
-    CELERY_BROKER_URL='mongodb://localhost:28017/tester',
-    CELERY_RESULT_BACKEND='mongodb://localhost:28017/tester'
-)
-celery = make_celery(app)
 
 login_manager = LoginManager(app)
 

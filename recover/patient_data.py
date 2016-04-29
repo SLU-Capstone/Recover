@@ -1,7 +1,6 @@
 from datetime import date
 from mongoengine import ValidationError
 from fitbit import Fitbit
-from recover import celery
 from recover.models import Patient, PatientHealthData
 
 fitbit = Fitbit()
@@ -20,7 +19,6 @@ class PatientData:
         self.token['access_token'] = patient.token
         self.token['refresh_token'] = patient.refresh
 
-    @celery.task()
     def get_heart_rate_data_for_day(self, day='today'):
         """
         Retrieves and saves a patient's heart-rate data (daily average and time-series data) for a given day.
@@ -30,7 +28,6 @@ class PatientData:
         """
         return self.get_heart_rate_data_for_x_days(1, end_date=day)
 
-    @celery.task()
     def get_heart_rate_data_for_x_days(self, x_days, end_date='today'):
         """
         Retrieves and saves a patient's heart-rate data (daily average and time-series data) for X days, with
@@ -81,7 +78,6 @@ class PatientData:
         self.patient.date_last_data_fetch = day
         return True
 
-    @celery.task()
     def get_heart_rate_data_for_date_range(self, start_date, end_date='today'):
         """
         Helper function to retrieve heart rate data for a given date range.
@@ -100,7 +96,6 @@ class PatientData:
         x = (end - start).days
         return self.get_heart_rate_data_for_x_days(x, end_date)
 
-    @celery.task()
     def get_activity_data_for_x_days(self, x_days, end_date='today'):
         """
         Helper function to retrieve activity (step) data for X days with a specified end date that
@@ -151,7 +146,6 @@ class PatientData:
         self.patient.date_last_data_fetch = day
         return True
 
-    @celery.task()
     def get_activity_data_for_date_range(self, start_date, end_date='today'):
         """
         Helper function to retrieve activity (step) data for a given date range.
