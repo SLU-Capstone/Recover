@@ -105,15 +105,24 @@ def authorize_new_patient():
         if not invite.accepted:
             invite.accepted = True
             PatientInvite.delete(invite)
-            new_patient = Patient(slug=fitbit_id, first_name=invite.first_name, last_name=invite.last_name,
-                                  email=invite.email, token=token['access_token'], refresh=token['refresh_token'],
-                                  date_joined=datetime.now(), health_data_per_day=[], date_last_data_fetch='')
-            new_patient.save()
 
-            # By default, get 5 days worth of data for the brand new patient
-            new_patient_data = PatientData(new_patient)
-            PatientData.get_heart_rate_data_for_x_days(new_patient_data, 5)
-            PatientData.get_activity_data_for_x_days(new_patient_data, 5)
+            existing_patient = Patient.find_one('slug', fitbit_id)
+
+            if existing_patient is None:
+                new_patient = Patient(slug=fitbit_id, first_name=invite.first_name, last_name=invite.last_name,
+                                      email=invite.email, token=token['access_token'], refresh=token['refresh_token'],
+                                      date_joined=datetime.now(), health_data_per_day=[], date_last_data_fetch='')
+                new_patient.save()
+
+                # By default, get 5 days worth of data for the brand new patient
+                new_patient_data = PatientData(new_patient)
+                PatientData.get_heart_rate_data_for_x_days(new_patient_data, 5)
+                PatientData.get_activity_data_for_x_days(new_patient_data, 5)
+            else:
+                existing_patient.token = token['access_token']
+                existing_patient.refresh = token['refresh_token']
+                existing_patient.save()
+                new_patient = existing_patient
 
             # Now save this patient to the inviting physician's list of patients.
             inviting_physician = invite.inviting_physician
