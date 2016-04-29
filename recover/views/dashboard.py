@@ -223,17 +223,19 @@ def update_notes():
         return jsonify({"status": 200})
 
 
-@patient_dashboard.route('/dashboard/<slug>/export', methods=['GET'])
+@patient_dashboard.route('/dashboard/<slug>/export/<begin>/<end>', methods=['GET'])
 @login_required
-def export(slug):
+def export(slug, begin, end):
     """
     Allows all health data associated with a given patient to be downloaded.
     The data is in the form of a JSON file and is zipped.
 
     :param slug: A unique id associated with a given patient.
+    :param begin: string of date to begin in YYYY-MM-DD format
+    :param end: string of date to end in YYYY-MM-DD format
     """
     patient = Patient.objects.get_or_404(slug=slug)
-    file_name = patient.export_data_as_json()
+    file_name = patient.export_data_as_json(begin, end)
     zipfile = app.config['JSON_FOLDER'] + 'recover_data.zip'
     command = 'zip -j ' + zipfile + ' ' + file_name
     os.system('rm ' + zipfile)

@@ -163,18 +163,21 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 
-@user_management.route('/settings/export', methods=['GET'])
+@user_management.route('/settings/export/<begin>/<end>', methods=['GET'])
 @login_required
-def export_all():
+def export_all(begin, end):
     """
     Allows all health data associated with the current user's patients
     to be downloaded. The data is in the form of JSON files for each patient
     and is zipped.
+
+    :param begin: string of date to begin in YYYY-MM-DD format
+    :param end: string of date to end in YYYY-MM-DD format
     """
     user = current_user
     files = []
     for patient in user.patients:
-        files.append(patient.export_data_as_json())
+        files.append(patient.export_data_as_json(begin, end))
     zipfile = app.config['JSON_FOLDER'] + 'recover_data.zip'
     command = 'zip -j ' + zipfile
     for f in files:
