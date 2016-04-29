@@ -140,7 +140,7 @@ class Fitbit:
         resp['token'] = token
 
         if status_code == 200:
-            return resp
+            return resp, token
         elif status_code == 401:
             print "The access token you provided has been expired let me refresh that for you."
             # Refresh the access token with the refresh token if expired. Access tokens should be good for 1 hour.

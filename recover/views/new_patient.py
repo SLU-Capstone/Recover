@@ -92,7 +92,7 @@ def authorize_new_patient():
         return redirect('/')
 
     try:
-        response = api.api_call(token, '/1/user/-/profile.json')
+        response, token = api.api_call(token, '/1/user/-/profile.json')
     except Exception as e:
         flash(e.message, 'warning')
         return redirect('/')

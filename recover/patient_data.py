@@ -50,8 +50,11 @@ class PatientData:
         try:
             for i in range(x_days + 1):
                 day = (end_date - timedelta(days=x_days - i)).isoformat()
-                response = fitbit.api_call(self.token, '/1/user/%s/activities/heart/date/%s/1d/1min.json' % (
+                response, token = fitbit.api_call(self.token, '/1/user/%s/activities/heart/date/%s/1d/1min.json' % (
                     self.patient.slug, day))
+                self.patient.token = token['access_token']
+                self.patient.refresh = token['refresh_token']
+                self.patient.save()
                 try:
                     data = PatientHealthData(date=day)
                     all_data = self.patient.health_data_per_day
@@ -117,8 +120,11 @@ class PatientData:
         try:
             for i in range(x_days + 1):
                 day = (end_date - timedelta(days=x_days - i)).isoformat()
-                response = fitbit.api_call(self.token, '/1/user/%s/activities/steps/date/%s/1d/15min.json' % (
+                response, token = fitbit.api_call(self.token, '/1/user/%s/activities/steps/date/%s/1d/15min.json' % (
                     self.patient.slug, day))
+                self.patient.token = token['access_token']
+                self.patient.refresh = token['refresh_token']
+                self.patient.save()
                 try:
                     data = PatientHealthData(date=day)
                     all_data = self.patient.health_data_per_day
