@@ -15,6 +15,8 @@
 
 {% block content %}
 
+    <link href="{{ url_for('static', filename='css/bootstrap-datepicker.css') }}" rel="stylesheet">
+
     <div class="col-sm-4"> <!--left column -->
 
         <div class="panel panel-primary">
@@ -43,27 +45,31 @@
 
     <!-- Export Data Section -->
         <div class="panel panel-primary">
-            <script src="{{ url_for('static', filename='js/bootstrap-datetimepicker.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
+
             <div class="panel-heading"><span class="glyphicon glyphicon-signal"></span> Data Export</div>
             <div class="panel-body">You're current tracking {{ num_patients }} patient(s).
                 </br></br>
+
                 <div class="form-group">
-                    <div class='input-group date' id="startDate">
-                        <input type='text' class="form-control" />
+                    <div class="input-group date">
+                        <input placeholder="Start Date" type="text" class="form-control" id="startDate">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
                     </div>
                 </div>
+
                 <div class="form-group">
-                    <div class='input-group date' id="endDate">
-                        <input type='text' class="form-control" />
+                    <div class="input-group date">
+                        <input placeholder="End Date" type="text" class="form-control" id="endDate">
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
                     </div>
                 </div>
-                <button class="btn btn-primary" type="button" onclick="window.location='export'">
+
+                <button class="btn btn-primary" type="button" id="submit-export">
                     <span class="glyphicon glyphicon-circle-arrow-down" aria-hidden="true"></span>
                     Export all data
                 </button>
@@ -126,24 +132,20 @@
         });
     </script>
 
-    <!-- Highlight "Settings" nav button -->
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $("#settings").addClass("active");
-        });
-    </script>
-
     <!-- Date picker for exporting data -->
-    <script>
-        jQuery(function () {
-            jQuery('#startDate').datetimepicker({ format: 'yyyy-MM-dd' });
-            jQuery('#endDate').datetimepicker({ format: 'yyyy-MM-dd' });
-            jQuery("#startDate").on("dp.change",function (e) {
-                jQuery('#endDate').data("DateTimePicker").setMinDate(e.date);
-            });
-            jQuery("#endDate").on("dp.change",function (e) {
-                jQuery('#startDate').data("DateTimePicker").setMaxDate(e.date);
-            });
+    <script type="text/javascript">
+        $('.input-group.date').datepicker({
+            format: "yyyy-mm-dd",
+            todayBtn: "linked",
+            clearBtn: true
+        });
+
+        $('#submit-export').click(function() {
+            var begin = $( "input#startDate" ).val();
+            var end = $( "input#startDate" ).val();
+            console.log("Begin: " + begin);
+            console.log("End: " + end);
+            window.location = 'export' + '/' + begin + '/' + end;
         });
     </script>
 
