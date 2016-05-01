@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from recover import db, app
 from flask import url_for
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -137,6 +136,10 @@ class PatientHealthData(db.EmbeddedDocument):
     day_complete = db.BooleanField()
     checked = db.BooleanField()
 
+    meta = {
+        'ordering': ['date'],
+    }
+
 
 class Patient(db.Document):
     """
@@ -155,6 +158,16 @@ class Patient(db.Document):
     refresh = db.StringField(max_length=511, required=True)
     health_data_per_day = db.EmbeddedDocumentListField('PatientHealthData')
     date_last_data_fetch = db.StringField(max_length=10)
+
+    def date_last_worn(self):
+        """
+
+        :return: str of date last worn.
+        """
+        for data in self.health_data_per_day.reverse():
+            if not data.heart_rate:
+                return data.date
+        raise Exception("No data")
 
     def export_data_as_json(self, begin, end):
         """

@@ -173,9 +173,14 @@ def patient_profile(slug):
             resting_hr = "No Data."
             HRdata = "No Data."
 
+    try:
+        last_worn = patient.date_last_worn()
+    except Exception as e:
+        last_worn = e.message
     return render_template('patients/profile.html', patient=patient, resting=resting_hr, HRaverage=HRaverage,
                            HRdata=HRdata, StepsData=StepsData, start=start, end=end,
-                           alerts=unread_alerts(patient.id), config=config_for_patient(patient.id))
+                           alerts=unread_alerts(patient.id), config=config_for_patient(patient.id),
+                           last_worn=last_worn)
 
 
 @patient_dashboard.route('/remove-patient', methods=['POST'])
