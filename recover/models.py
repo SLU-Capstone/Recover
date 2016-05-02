@@ -87,6 +87,7 @@ class Alert(db.EmbeddedDocument):
     trigger_info = db.DictField()
     patient = db.ReferenceField('Patient', required=True)
     incident_time = db.DateTimeField(required=True)
+    incident_length = db.IntField()
     read = db.BooleanField(default=False)
 
     def __unicode__(self):
@@ -103,7 +104,7 @@ class Alert(db.EmbeddedDocument):
             info += 'steps '
         info += 'over a time period of ' + str(self.time_window) + ' minutes. ' + \
                 'The recorded value was ' + str(self.recorded_value) + ' starting at ' + \
-                str(self.incident_time)
+                str(self.incident_time) + ' and lasting ' + str(self.incident_length) + ' minutes'
         return info
 
 
