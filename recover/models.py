@@ -164,10 +164,13 @@ class Patient(db.Document):
 
         :return: str of date last worn.
         """
-        for data in self.health_data_per_day.reverse():
-            if not data.heart_rate:
-                return data.date
-        raise Exception("No data")
+        date = "No data"
+        for data in self.health_data_per_day:
+            if data.heart_rate:
+                date = data.date
+        if date == "No data":
+            raise Exception("No data")
+        return date
 
     def export_data_as_json(self, begin, end):
         """
