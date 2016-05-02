@@ -1,24 +1,42 @@
 // variables for smoothing factors in trend()
 var ALPHA = 0.15;
 var BETA = 0.15;
+var allHR, hr_graph, trends, HR_groups, step_graph, allSteps;
+var alert, alert2;
+
+var mapAlert = function(time, window) {
+    alert = {
+        x: time,
+        y: 10000,
+        group: -1
+    };
+    alert2 = {
+        x: new Date(new Date(time).getTime() + window*60000),
+        y: 10000,
+        group: -1
+    };
+    hr_graph.moveTo(time);
+    hr_graph.setItems([alert, alert2].concat(allHR));
+    step_graph.setItems([alert, alert2].concat(allSteps));
+};
 
 FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, end) {
 
     var hr_visibility = {};
 
     // Convert to x-y format for Vis JS
-    var allSteps = setup(stepsData, 0);
-    var allHR = setup(averageHeartRate, 1);
+    allSteps = setup(stepsData, 0);
+    allHR = setup(averageHeartRate, 1);
     var HR = setup(heartRateData, 2, true);
     var n_groups = HR[HR.length - 1].group;
-    var trends = trend(HR, n_groups);
+    trends = trend(HR, n_groups);
     allHR = allHR.concat(HR);
     allHR = allHR.concat(trends);
 
     var HR_container = document.getElementById('HR_visualization');
     var STEP_container = document.getElementById('STEP_visualization');
 
-    var HR_groups = new vis.DataSet();
+    HR_groups = new vis.DataSet();
     var STEP_groups = new vis.DataSet();
 
     for (var i = HR[0].group; i <= HR[HR.length - 1].group; i++) {
@@ -40,6 +58,15 @@ FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, en
         });
         hr_visibility[t] = true;
     }
+    HR_groups.add({
+        id: -1,
+        content: "alert",
+        options: {
+            shaded: {
+                orientation: 'bottom'
+            }
+        }
+    });
 
     HR_groups.add({
         id: 1,
@@ -52,6 +79,16 @@ FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, en
     STEP_groups.add({
         id: 0,
         content: "Step count"
+    });
+
+    STEP_groups.add({
+        id: -1,
+        content: "alert",
+        options: {
+            shaded: {
+                orientation: 'bottom'
+            }
+        }
     });
 
     var base_options = {
@@ -87,8 +124,8 @@ FitBitGraphing = function (heartRateData, averageHeartRate, stepsData, start, en
         }
     };
 
-    var hr_graph = new vis.Graph2d(HR_container, allHR, HR_groups, HR_options);
-    var step_graph = new vis.Graph2d(STEP_container, allSteps, STEP_groups, STEP_options);
+    hr_graph = new vis.Graph2d(HR_container, allHR, HR_groups, HR_options);
+    step_graph = new vis.Graph2d(STEP_container, allSteps, STEP_groups, STEP_options);
 
 
     document.getElementById('toggle-real-HR').onclick = function() {
