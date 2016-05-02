@@ -1,6 +1,5 @@
 import datetime
 import os
-
 from flask import Blueprint, render_template, flash, request, send_from_directory, jsonify
 from flask.ext.login import login_required, current_user
 from recover import app
@@ -45,7 +44,10 @@ def alert_counts_per_patient():
     patient_alerts = {}
     for alert in current_user.alerts:
         if not alert.read:
-            patient_alerts[alert.patient.id] += 1
+            try:
+                patient_alerts[alert.patient.id] += 1
+            except KeyError:
+                patient_alerts[alert.patient.id] = 1
 
     for p in current_user.patients:
         if p not in patient_alerts:
