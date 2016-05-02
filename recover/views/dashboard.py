@@ -50,7 +50,7 @@ def alert_counts_per_patient():
                 patient_alerts[alert.patient.id] = 1
 
     for p in current_user.patients:
-        if p not in patient_alerts:
+        if p.id not in patient_alerts:
             patient_alerts[p.id] = 0
 
     return patient_alerts
