@@ -76,6 +76,7 @@ class PatientData:
         except Exception as e:
             return False
         self.patient.date_last_data_fetch = day
+        self.patient.save()
         return True
 
     def get_heart_rate_data_for_date_range(self, start_date, end_date='today'):
@@ -144,6 +145,7 @@ class PatientData:
         except Exception as e:
             return False
         self.patient.date_last_data_fetch = day
+        self.patient.save()
         return True
 
     def get_activity_data_for_date_range(self, start_date, end_date='today'):

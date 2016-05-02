@@ -106,9 +106,14 @@ def authorize_new_patient():
             invite.accepted = True
             PatientInvite.delete(invite)
 
-            existing_patient = Patient.find_one('slug', fitbit_id)
+            try:
+                existing_patient = Patient.objects.get(slug=fitbit_id)
+                existing_patient.token = token['access_token']
+                existing_patient.refresh = token['refresh_token']
+                existing_patient.save()
+                new_patient = existing_patient
 
-            if existing_patient is None:
+            except DoesNotExist:
                 new_patient = Patient(slug=fitbit_id, first_name=invite.first_name, last_name=invite.last_name,
                                       email=invite.email, token=token['access_token'], refresh=token['refresh_token'],
                                       date_joined=datetime.now(), health_data_per_day=[], date_last_data_fetch='')
@@ -118,11 +123,6 @@ def authorize_new_patient():
                 new_patient_data = PatientData(new_patient)
                 PatientData.get_heart_rate_data_for_x_days(new_patient_data, 5)
                 PatientData.get_activity_data_for_x_days(new_patient_data, 5)
-            else:
-                existing_patient.token = token['access_token']
-                existing_patient.refresh = token['refresh_token']
-                existing_patient.save()
-                new_patient = existing_patient
 
             # Now save this patient to the inviting physician's list of patients.
             inviting_physician = invite.inviting_physician

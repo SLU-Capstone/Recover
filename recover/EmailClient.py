@@ -45,7 +45,8 @@ def email_patient_invite(email, name, invite_id, physician_name):
 
     message = 'Hello {name}, <br><br>' \
               '{physician} has invited you to join Recover.<br>' \
-              'Please click the confirmation link below to grant Recover access to your Fitbit data.<br><br>' \
+              'Please click the confirmation link below to grant Recover access to your Fitbit data. ' \
+              'After signing into FitBit, the page may take a minute to load.<br><br>' \
               'http://{URL}/authorize?state={invite_id}<br><br>' \
               'Thank you,<br>' \
               'Recover Team'.format(name=name, physician=physician_name,
