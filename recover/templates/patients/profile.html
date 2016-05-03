@@ -121,15 +121,15 @@
         <div class="tab-pane active" id="history">
             <h3>Alerts History</h3>
             <ul class="list-group">
-            {% for note in config.notes %}
-                <li class="list-group-item">
-                    {{ note.time() }}
-                    <br><br>
-                    {% for line in note.note.split('\n') %}
-                        <p>{{ line }}</p>
-                    {% endfor %}
-                </li>
-            {% endfor %}
+                {% for note in config.notes %}
+                    <li class="list-group-item">
+                        {{ note.time() }}
+                        <br><br>
+                        {% for line in note.note.split('\n') %}
+                            <p>{{ line }}</p>
+                        {% endfor %}
+                    </li>
+                {% endfor %}
             </ul>
         </div>
 

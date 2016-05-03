@@ -17,7 +17,7 @@ class User(db.Document):
     last_active = db.DateTimeField()
     patients = db.ListField(db.ReferenceField('Patient'))
     patient_config = db.EmbeddedDocumentListField('PatientConfig')
-    alerts = db.EmbeddedDocumentListField('Alert')
+    alerts = db.SortedListField(db.EmbeddedDocumentField('Alert'), ordering="incident_time", reverse=True)
 
     def set_password(self, password):
         """
@@ -91,6 +91,7 @@ class Note(db.EmbeddedDocument):
     meta = {
         'ordering': ['timestamp'],
     }
+
 
 class Alert(db.EmbeddedDocument):
     """

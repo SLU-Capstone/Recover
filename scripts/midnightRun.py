@@ -130,6 +130,8 @@ def check_all():
                             length = p['length']
                             new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp, length)
                             physician.alerts.append(new_alert)
+                            config = [c for c in physician.patient_config if c.patient.slug == patient.slug][0]
+                            config.add_note(timestamp, str(new_alert))
 
                     # check max hr
                     val = config.maxHR['value']
@@ -143,6 +145,8 @@ def check_all():
                             length = p['length']
                             new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp, length)
                             physician.alerts.append(new_alert)
+                            config = [c for c in physician.patient_config if c.patient.slug == patient.slug][0]
+                            config.add_note(timestamp, str(new_alert))
 
                     # check min steps
                     val = config.minSteps['value']
@@ -156,6 +160,8 @@ def check_all():
                             length = p['length']
                             new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp, length)
                             physician.alerts.append(new_alert)
+                            config = [c for c in physician.patient_config if c.patient.slug == patient.slug][0]
+                            config.add_note(timestamp, str(new_alert))
 
                     # check max steps
                     val = config.maxSteps['value']
@@ -169,6 +175,8 @@ def check_all():
                             length = p['length']
                             new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp, length)
                             physician.alerts.append(new_alert)
+                            config = [c for c in physician.patient_config if c.patient.slug == patient.slug][0]
+                            config.add_note(timestamp, str(new_alert))
 
                     day.checked = True
 
