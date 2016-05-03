@@ -31,6 +31,7 @@
         <li class="active"><a href="#graphs" data-toggle="tab">Graphs</a></li>
         <li><a href="#notes" data-toggle="tab">Notes</a></li>
         <li><a href="#config" data-toggle="tab">Settings</a></li>
+        <li><a href="#history" data-toggle="tab">History</a></li>
     </ul>
 
 
@@ -111,6 +112,18 @@
             </div>
 
         </div>
+
+        <!-- 4. All alerts (read and unread) -->
+
+        <div class="tab-pane active" id="history">
+            <h3>Alerts History</h3>
+            <ul>
+            {% for alert in all_alerts %}
+                <li>{{ alert }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+
 
     </div> <!-- /tab-content -->
 
