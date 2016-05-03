@@ -236,8 +236,10 @@ def update_notes():
         patient = Patient.objects.get_or_404(slug=slug)
         config = config_for_patient(patient.id)
 
-        config.notes = request.form['notes']
-        config.save()
+        text = request.form['notes']
+        timestamp = datetime.datetime.today()
+        config.add_note(timestamp, text)
+        current_user.save()
 
         return jsonify({"status": 200})
 
