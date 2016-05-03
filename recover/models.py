@@ -168,7 +168,7 @@ class Patient(db.Document):
             total += value
         return total
 
-    def steps_average(self, ):
+    def steps_average(self):
         days = 0
         total = 0
         for data in self.health_data_per_day:
