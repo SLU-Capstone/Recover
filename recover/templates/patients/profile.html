@@ -212,7 +212,7 @@
             <ul class="list-group">
                 {% for note in config.notes %}
                     <li class="list-group-item">
-                        {{ note.time() }}
+                        <strong>{{ note.time() }}</strong>
                         <br><br>
                         {% for line in note.note.split('\n') %}
                             <p>{{ line }}</p>

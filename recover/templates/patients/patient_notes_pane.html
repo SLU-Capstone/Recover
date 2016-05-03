@@ -1,7 +1,16 @@
 <div class="tab-pane" id="notes">
     <div class="form-group">
         <label for="comment">Patient Notes:</label>
-        <textarea placeholder="You can add notes to this patient's file over time." class="form-control" rows="5" id="notes"></textarea>
+<textarea placeholder="You can add notes to this patient's file over time." class="form-control" rows="10" id="notes">
+Overall Rating:
+
+Heart Rate Overview:
+Resting Heart Rate: {{ patient.resting_today() }}
+
+Activity Data Overview:
+Step count: {{ patient.steps_today() }}
+
+</textarea>
     </div>
     <button id="notes-save" class="btn btn-success">Save</button>
 </div>

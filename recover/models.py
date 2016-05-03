@@ -178,8 +178,11 @@ class Patient(db.Document):
     token = db.StringField(max_length=511, required=True)
     # Fitbit Refresh Token
     refresh = db.StringField(max_length=511, required=True)
-    health_data_per_day = db.EmbeddedDocumentListField('PatientHealthData')
+    health_data_per_day = db.SortedListField(db.EmbeddedDocumentField('PatientHealthData'), ordering="date")
     date_last_data_fetch = db.StringField(max_length=10)
+
+    def resting_today(self):
+        return self.health_data_per_day[-1].resting_heart_rate
 
     def steps_today(self):
         return self.health_data_per_day[-1].total_steps
