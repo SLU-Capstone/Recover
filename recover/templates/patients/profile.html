@@ -121,9 +121,9 @@
 
         <div class="tab-pane active" id="history">
             <h3>Alerts History</h3>
-            <ul>
+            <ul class="list-group">
             {% for alert in all_alerts %}
-                <li>{{ alert }}</li>
+                <li class="list-group-item">{{ alert }}</li>
             {% endfor %}
             </ul>
         </div>
