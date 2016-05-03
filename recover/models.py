@@ -175,8 +175,7 @@ class Patient(db.Document):
 
     def date_last_worn(self):
         """
-
-        :return: str of date last worn.
+        :return: String of date last worn.
         """
         date = "No data"
         for data in self.health_data_per_day:

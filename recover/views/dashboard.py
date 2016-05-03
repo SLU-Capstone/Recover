@@ -187,7 +187,8 @@ def patient_profile(slug):
             HRdata = "No Data."
 
     try:
-        last_worn = patient.date_last_worn()
+        last_worn = datetime.datetime.strptime(patient.date_last_worn(), "%Y-%m-%d")
+        last_worn = last_worn.strftime('%b %-d, %Y')
     except Exception as e:
         last_worn = e.message
     return render_template('patients/profile.html', patient=patient, resting=resting_hr, HRaverage=HRaverage,
