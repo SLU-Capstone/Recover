@@ -298,10 +298,15 @@ def config_for_patient(patient_id):
 @patient_dashboard.route('/mark-alert-read', methods=['POST'])
 @login_required
 def mark_alert_read():
-    id = request.form['id']
-    for alert in current_user.alerts:
-        if id == str(alert.id):
-            alert.read = True
-    current_user.save()
-
-    return jsonify({"status": 200})
+    """
+    Sets the 'read' flag on an Alert with given ID as True.
+    """
+    if request.form['id'] is None:
+        return "An error occurred. No Alert ID was provided."
+    else:
+        alert_id = request.form['id']
+        for alert in current_user.alerts:
+            if alert_id == str(alert.id):
+                alert.read = True
+        current_user.save()
+        return jsonify({"status": 200})

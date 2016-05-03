@@ -10,7 +10,7 @@
         </h4>
     </div>
     <div id="alerts" class="panel-collapse collapse">
-        <ul class="list-group">
+        <ul id="alerts-list" class="list-group">
             {% for alert in alerts %}
                 <li id="{{ alert.id }}" class="list-group-item">
                     <a id="single-alert" href="#" onclick="mapAlert('{{ alert.incident_time }}', {{ alert.incident_length }})">
@@ -21,7 +21,7 @@
             {% endfor %}
         </ul>
         <div class="panel-footer container-fluid">
-            <button id="dismiss-alerts" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span>
+            <button id="clear-all-alerts" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span>
                 Clear all alerts
             </button>
         </div>
@@ -40,34 +40,60 @@
 
 <script type="text/javascript">
 
+    function decrementAlertBadge() {
+        var count = parseInt($("span#alert-count").text());
+        --count;
+        $("span#alert-count").text(count.toString());
+    }
+
     $(document).ready(function() {
+
+        // Mark individual alert as unread
         $("a#remove-alert").click(function(event) {
             var id = $(event.target).parent().parent().attr('id');
 
-            var data = {
-                'id'  :  id
-            };
             $.ajax({
-            type: "POST",
-            url: "/mark-alert-read",
-            data: data,
-            success: function(resp) {
-                if (resp.status == 200) {
-                    console.log("Successfully removed alert" + id);
-                    $(event.target).parent().parent().remove();
-                    var count = parseInt($("span#alert-count").text());
-                    --count;
-                    $("span#alert-count").text(count.toString());
-
-                } else {
-                    console.log("Error in updating Notes field on Patient Profile.")
+                type: "POST",
+                url: "/mark-alert-read",
+                data: { 'id' : id },
+                success: function(resp) {
+                    if (resp.status == 200) {
+                        $(event.target).parent().parent().remove();
+                        decrementAlertBadge();
+                    } else {
+                        console.log("Error in marking alert as read in Patient Profile.")
+                    }
+                },
+                error: function() {
+                    console.log("Error in marking alert as read in Patient Profile.")
                 }
-            },
-            error: function() {
-                console.log("Error in updating Notes field on Patient Profile.")
-            }
+            });
         });
 
+        // Mark all alerts as unread
+        $("button#clear-all-alerts").click(function(event) {
+
+            $('ul#alerts-list').children('li').each(function () {
+                var alert_element = $(this);
+                var alert_id = alert_element.attr('id');
+
+                $.ajax({
+                    type: "POST",
+                    url: "/mark-alert-read",
+                    data: {'id' : alert_id},
+                    success: function(resp) {
+                        if (resp.status == 200) {
+                            alert_element.remove();
+                            decrementAlertBadge();
+                        } else {
+                            console.log("Error in marking alert as read in Patient Profile.")
+                        }
+                    },
+                    error: function() {
+                        console.log("Error in marking alert as read in Patient Profile.")
+                    }
+                });
+            });
         });
     });
 
