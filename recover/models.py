@@ -69,9 +69,23 @@ class PatientConfig(db.EmbeddedDocument):
     maxHR = db.DictField()
     minSteps = db.DictField()
     maxSteps = db.DictField()
-    notes = db.StringField(max_length=10000, default="")
+    notes = db.EmbeddedDocumentListField('Note')
     patient = db.ReferenceField('Patient', required=True, unique=True)
 
+    def add_note(self, timestamp, text):
+        self.notes.append(Note(timestamp=timestamp, note=text))
+
+
+class Note(db.EmbeddedDocument):
+    """
+    Note and timestamp for a specific user and patient. Stored in Configurations
+    """
+    timestamp = db.DateTimeField(required=True)
+    note = db.StringField(max_length=800, default="")
+
+    meta = {
+        'ordering': ['timestamp'],
+    }
 
 class Alert(db.EmbeddedDocument):
     """
