@@ -160,6 +160,18 @@ class Patient(db.Document):
     health_data_per_day = db.EmbeddedDocumentListField('PatientHealthData')
     date_last_data_fetch = db.StringField(max_length=10)
 
+    def steps_today(self):
+        return self.health_data_per_day[-1].total_steps
+
+    def steps_average(self):
+        days = 0
+        total = 0
+        for data in self.health_data_per_day:
+            days += 1
+            for key, value in data.activity_data.iteritems():
+                total += value
+        return total / days
+
     def date_last_worn(self):
         """
 

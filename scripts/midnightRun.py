@@ -5,7 +5,7 @@ from recover.patient_data import *
 from datetime import datetime
 
 
-def new_patient_alert(actual_val, val, window, trigger, patient, time):
+def new_patient_alert(actual_val, val, window, trigger, patient, time, duration):
     """
     Helper function to set up a new Alert document
 
@@ -15,6 +15,7 @@ def new_patient_alert(actual_val, val, window, trigger, patient, time):
     :param trigger: dict with keys 'class' and 'operation' to distinguish HR/STEP and MIN/MAX
     :param patient: Patient reference
     :param time: timestamp of the alert
+    :param duration: int minutes of incident length
     :return: A new alert object
     """
     alert = Alert()
@@ -24,6 +25,7 @@ def new_patient_alert(actual_val, val, window, trigger, patient, time):
     alert.trigger_info = trigger
     alert.patient = patient
     alert.incident_time = time
+    alert.incident_length = duration
     alert.read = False
     return alert
 
@@ -35,13 +37,17 @@ def check(window, operation, data):
     :param window: time window to check
     :param operation: function to do the check
     :param data: Health data to parse
-    :return: Returns a tuple with the value that triggered an alert and timestamp
+    :return: Returns a dict with the value that triggered an alert, timestamp, and duration
     """
+    alert_value = 0
+    problems = []
     vals = deque()
     times = deque()
     begin_time = ''
     total = 0
     size = 0
+    flag = False
+    alert_begin = ''
     for key, value in data.iteritems():
         if begin_time == '':  # first iteration only
             begin_time = key
@@ -55,7 +61,20 @@ def check(window, operation, data):
         else:
             average = float(total) / size
             if operation(average):
-                return average, begin_time
+                if not flag:
+                    flag = True
+                    alert_begin = datetime.strptime(begin_time, '%Y-%m-%d %H:%M:%S').date()
+                    alert_value = value
+            elif flag and not operation(average):
+                flag = False
+                diff = datetime.strptime(key, '%Y-%m-%d %H:%M:%S').date()
+                diff -= datetime.strptime(alert_begin, '%Y-%m-%d %H:%M:%S').date()
+                problems.append({
+                    'value': alert_value,
+                    'timestamp': alert_begin,
+                    'length': diff.seconds / 60
+                })
+
             total -= vals.popleft()
             size -= 1
             times.popleft()
@@ -64,9 +83,9 @@ def check(window, operation, data):
                 begin_time = new_front
                 times.appendleft(begin_time)
             except IndexError:
-                return 0, datetime
+                return problems
 
-    return 0, datetime
+    return problems
 
 
 def pull_all():
@@ -102,34 +121,54 @@ def check_all():
                     # check min hr
                     val = config.minHR['value']
                     window = config.minHR['window']
-                    actual_value, timestamp = check(window, lambda x: x > val, day.heart_rate)
                     trigger = {'class': 'HR', 'operation': 'MIN'}
-                    new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
-                    physician.alerts.append(new_alert)
+                    problems = check(window, lambda x: x > val, day.heart_rate)
+                    if len(problems) > 0:
+                        for p in problems:
+                            actual_value = p['value']
+                            timestamp = p['timestamp']
+                            length = p['length']
+                            new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp, length)
+                            physician.alerts.append(new_alert)
 
                     # check max hr
                     val = config.maxHR['value']
                     window = config.maxHR['window']
-                    actual_value, timestamp = check(window, lambda x: x < val, day.heart_rate)
                     trigger = {'class': 'HR', 'operation': 'MAX'}
-                    new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
-                    physician.alerts.append(new_alert)
+                    problems = check(window, lambda x: x < val, day.heart_rate)
+                    if len(problems) > 0:
+                        for p in problems:
+                            actual_value = p['value']
+                            timestamp = p['timestamp']
+                            length = p['length']
+                            new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp, length)
+                            physician.alerts.append(new_alert)
 
                     # check min steps
                     val = config.minSteps['value']
                     window = config.minSteps['window']
-                    actual_value, timestamp = check(window, lambda x: x > val, day.activity_data)
                     trigger = {'class': 'STEP', 'operation': 'MIN'}
-                    new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
-                    physician.alerts.append(new_alert)
+                    problems = check(window, lambda x: x > val, day.activity_data)
+                    if len(problems) > 0:
+                        for p in problems:
+                            actual_value = p['value']
+                            timestamp = p['timestamp']
+                            length = p['length']
+                            new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp, length)
+                            physician.alerts.append(new_alert)
 
                     # check max steps
                     val = config.maxSteps['value']
                     window = config.maxSteps['window']
-                    actual_value, timestamp = check(window, lambda x: x < val, day.activity_data)
                     trigger = {'class': 'STEP', 'operation': 'MAX'}
-                    new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp)
-                    physician.alerts.append(new_alert)
+                    problems = check(window, lambda x: x < val, day.activity_data)
+                    if len(problems) > 0:
+                        for p in problems:
+                            actual_value = p['value']
+                            timestamp = p['timestamp']
+                            length = p['length']
+                            new_alert = new_patient_alert(actual_value, val, window, trigger, patient, timestamp, length)
+                            physician.alerts.append(new_alert)
 
                     day.checked = True
 

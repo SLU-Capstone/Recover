@@ -24,6 +24,17 @@
     <script src="{{ url_for('static', filename='js/FitBitGraphing.js') }}"></script>
     <link href="{{ url_for('static', filename='css/vis.css') }}" rel="stylesheet" type="text/css"/>
 
+    <div class="row bottom-buffer">
+        <div class="col-md-6">
+            <h4><span class="label label-primary">Lifetime Average Resting Heart Rate:</span> <span class="badge">{{ resting }}</span></h4>
+            <h4><span class="label label-primary">Date Last Worn:</span> <span class="badge">{{ last_worn }}</span></h4>
+        </div>
+        <div class="col-md-6">
+            <h4><span class="label label-primary">Steps Average:</span> <span class="badge">{{ patient.steps_average() }}</span></h4>
+            <h4><span class="label label-primary">Steps Today:</span> <span class="badge">{{ patient.steps_today() }}</span></h4>
+        </div>
+    </div>
+
     {% include "patient_alerts_partial.html" %}
 
     <!-- Navigation tabs -->
@@ -34,7 +45,6 @@
         <li><a href="#history" data-toggle="tab">History</a></li>
     </ul>
 
-
     <!-- 1. GRAPHING TAB CONTENT -->
     <div class="tab-content top-buffer">
 
@@ -42,12 +52,6 @@
             <h3>Heart Rate History <small>bpm / time</small></h3>
             <button class="btn btn-default" id="toggle-real-HR"><span class="glyphicon glyphicon-stats"></span> Toggle Raw Data</button>
             <button class="btn btn-default" id="toggle-smooth-HR"><span class="glyphicon glyphicon-signal"></span> Toggle Smoothed Data</button>
-            <div class="row">
-                <div class="col-md-11">
-                    <h4><span class="label label-primary">Average Resting Heart Rate:</span> <span class="badge">{{ resting }}</span></h4>
-                    <h4><span class="label label-primary">Date Last Worn:</span> <span class="badge">{{ last_worn }}</span></h4>
-                </div>
-            </div>
             <div class="top-buffer" id="HR_visualization"></div>
             <br>
             <h3>Activity History <small># steps / time</small></h3>
