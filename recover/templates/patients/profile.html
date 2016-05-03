@@ -60,23 +60,79 @@
 
         <!-- 3. SETTINGS TAB CONTENT (Alert Config, Remove Patient & Export Buttons) -->
         <div class="tab-pane" id="config">
-            <a href="{{ patient.slug }}/export" class="btn btn-primary" href="">
-                <span class="glyphicon glyphicon-circle-arrow-down" aria-hidden="true"></span>
-                Export Patient Data
-            </a>
 
-            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#removeModal">
-                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                Remove Patient
-            </button>
-
-            </br></br>
             <p><strong>TODO: FORM HERE TO CREATE & EDIT "PatientConfig" settings</strong></p>
+
+            <div class="col-md-6">
+                <div class="panel panel-primary">
+                    <script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
+                    <link href="{{ url_for('static', filename='css/bootstrap-datepicker.css') }}" rel="stylesheet">
+
+                    <div class="panel-heading"><span class="glyphicon glyphicon-signal"></span> Data Export</div>
+                    <div class="panel-body">Select a date range below for the desired data interval.
+                        </br></br>
+
+                        <div class="form-group">
+                            <div class="input-group date">
+                                <input placeholder="Start Date" type="text" class="form-control" id="startDate">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="input-group date">
+                                <input placeholder="End Date" type="text" class="form-control" id="endDate">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" type="button" id="submit-export">
+                            <span class="glyphicon glyphicon-circle-arrow-down" aria-hidden="true"></span>
+                            Export data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="panel panel-warning">
+                    <div class="panel-heading"><span class="glyphicon glyphicon-danger"></span> Remove Patient</div>
+                    <div class="panel-body">
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#removeModal">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            Remove Patient from My Dashboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div> <!-- /tab-content -->
 
     {% include "remove_patient_modal.html" %}
+
+
+    <!-- Date picker for exporting data -->
+    <script type="text/javascript">
+        $('.input-group.date').datepicker({
+            format: "yyyy-mm-dd",
+            todayBtn: "linked",
+            clearBtn: true
+        });
+
+        $('#submit-export').click(function() {
+            var begin = $( "input#startDate" ).val();
+            var end = $( "input#startDate" ).val();
+            console.log("Begin: " + begin);
+            console.log("End: " + end);
+            window.location = '/dashboard/' + "{{ patient.id }}" + '/export/' + begin + '/' + end;
+        });
+    </script>
 
 
     {# Populate the graph #}
