@@ -19,9 +19,10 @@ Step count: {{ patient.steps_today() }}
 $(function() {
     $("button#notes-save").click(function() {
 
+        var text = $('textarea#notes').val();
         var data = {
             'slug'  : "{{ patient.slug }}",
-            'notes' : $('textarea#notes').val()
+            'notes' : text
         };
 
         $.ajax({
@@ -47,6 +48,9 @@ $(function() {
                         },
                         delay: 3000
                     });
+
+                    var li = "<li class=\"list-group-item\"><strong>Now</strong><br><br><p>" + text + "</p></li>";
+                    $("div#history ul").prepend(li);
                 } else {
                     console.log("Error in updating Notes field on Patient Profile.")
                 }

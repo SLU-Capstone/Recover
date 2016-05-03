@@ -86,9 +86,9 @@
 
         </div>
 
-        <!-- 4. All alerts (read and unread) -->
-        <div class="tab-pane active" id="history">
-            <h3>Alerts History</h3>
+    <!-- 4. All alerts (read and unread) -->
+        <div class="tab-pane" id="history">
+            <h3>Alert and Note History</h3>
             <ul class="list-group">
                 {% for note in config.notes %}
                     <li class="list-group-item">
@@ -101,9 +101,9 @@
                 {% endfor %}
             </ul>
         </div>
-
-
     </div> <!-- /tab-content -->
+
+
 
     {% include "remove_patient_modal.html" %}
 
