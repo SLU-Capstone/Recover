@@ -303,3 +303,5 @@ def mark_alert_read():
         if id == str(alert.id):
             alert.read = True
     current_user.save()
+
+    return jsonify({"status": 200})

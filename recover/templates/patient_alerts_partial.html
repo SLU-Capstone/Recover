@@ -4,7 +4,7 @@
         <h4 class="panel-title">
             <a data-toggle="collapse" href="#alerts"><span class="glyphicon glyphicon-flag"></span>
                 Unread Alerts
-                 <span class="badge">{{ alerts|length }}</span>
+                 <span id="alert-count" class="badge">{{ alerts|length }}</span>
             </a>
             <span class="glyphicon glyphicon-chevron-down pull-right"></span>
         </h4>
@@ -16,6 +16,7 @@
                     <a id="single-alert" href="#" onclick="mapAlert('{{ alert.incident_time }}', {{ alert.incident_length }})">
                         {{ alert }}
                     </a>
+                    <a href="#" id="remove-alert"><span class="glyphicon glyphicon-trash pull-right"></span></a>
                 </li>
             {% endfor %}
         </ul>
@@ -35,3 +36,39 @@
     </div>
     </div>
 {% endif %}
+
+
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        $("a#remove-alert").click(function(event) {
+            var id = $(event.target).parent().parent().attr('id');
+
+            var data = {
+                'id'  :  id
+            };
+            $.ajax({
+            type: "POST",
+            url: "/mark-alert-read",
+            data: data,
+            success: function(resp) {
+                if (resp.status == 200) {
+                    console.log("Successfully removed alert" + id);
+                    $(event.target).parent().parent().remove();
+                    var count = parseInt($("span#alert-count").text());
+                    --count;
+                    $("span#alert-count").text(count.toString());
+
+                } else {
+                    console.log("Error in updating Notes field on Patient Profile.")
+                }
+            },
+            error: function() {
+                console.log("Error in updating Notes field on Patient Profile.")
+            }
+        });
+
+        });
+    });
+
+</script>
