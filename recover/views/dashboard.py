@@ -244,6 +244,29 @@ def update_notes():
         return jsonify({"status": 200})
 
 
+@patient_dashboard.route('/update-config', methods=['POST'])
+@login_required
+def update_config():
+    """
+    Updates the PatientConfig object for a given patient.
+    """
+    if request.form['slug'] is None:
+        return "An error occurred, please try again later."
+    else:
+        slug = request.form['slug']
+        patient = Patient.objects.get_or_404(slug=slug)
+
+        config = config_for_patient(patient.id)
+
+        config.minHR = {'value': int(request.form['minHR']), 'window': int(request.form['minHR-time'])}
+        config.maxHR = {'value': int(request.form['maxHR']), 'window': int(request.form['maxHR-time'])}
+        config.minSteps = {'value': int(request.form['minSteps']), 'window': int(request.form['minSteps-time'])}
+        config.maxSteps = {'value': int(request.form['maxSteps']), 'window': int(request.form['maxSteps-time'])}
+
+        current_user.save()
+        return jsonify({"status": 200})
+
+
 @patient_dashboard.route('/dashboard/<slug>/export/<begin>/<end>', methods=['GET'])
 @login_required
 def export(slug, begin, end):

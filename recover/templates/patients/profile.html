@@ -66,131 +66,11 @@
         <!-- 3. SETTINGS TAB CONTENT (Alert Config, Remove Patient & Export Buttons) -->
         <div class="tab-pane" id="config">
 
-            <div class="col-md-12 bottom-buffer">
-                <div class="panel panel-primary">
-                    <div class="panel-heading"><span class="glyphicon glyphicon-bell"></span> Patient Alert Settings</div>
+            <!-- ALERT CONFIGURATION FORM -->
+            {% include "patients/config_settings_partial.html" %}
 
-                    <div class="panel-body">
-
-                        <p>Please configure minimum and maximum thresholds for this patient's activity and heart rate data.
-                            You will receive alerts if the patient's data deviates from this range.
-                        </p>
-
-                        <div class="form-group">
-
-                            <div class="col-md-3 bottom-buffer">
-                                <label for="minHR">Minimum Heart Rate</label>
-                                <div class="input-group">
-                                  <input type="number" min="30" max="250" step="5" class="form-control" id="minHR" placeholder="e.g. 55" aria-describedby="minHR-addon">
-                                  <span class="input-group-addon" id="minHR-addon"> BPM</span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3 bottom-buffer">
-                                <label for="minHR-time">Min HR - Time Interval</label>
-                                <div class="input-group">
-                                  <input type="number" min="1" max="1000" step="5" class="form-control" id="minHR-time" placeholder="10 min" aria-describedby="minHR-addon">
-                                  <span class="input-group-addon" id="minHR-addon"> minutes</span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3 bottom-buffer">
-                                <label for="maxHR">Maximum Heart Rate</label>
-                                <div class="input-group">
-                                  <input type="number" min="30" max="250" step="5" class="form-control" id="maxHR" placeholder="e.g. 150" aria-describedby="maxHR-addon">
-                                  <span class="input-group-addon" id="maxHR-addon"> BPM</span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3 bottom-buffer">
-                                <label for="maxHR-time">Max HR - Time Interval</label>
-                                <div class="input-group">
-                                  <input type="number" min="1" max="1000" step="5" class="form-control" id="maxHR-time" placeholder="15 min" aria-describedby="minHR-addon">
-                                  <span class="input-group-addon" id="minHR-addon"> minutes</span>
-                                </div>
-                            </div>
-
-                            <hr style="width: 100%; color: #337AB7; height: 1px; background-color:#337AB7;" />
-
-                            <div class="col-md-3 bottom-buffer">
-                                <label for="minSteps">Minimum Step Count</label>
-                                <div class="input-group">
-                                  <input type="number" min="0" step="50" class="form-control" id="minSteps" placeholder="e.g. 500" aria-describedby="minSteps-addon">
-                                  <span class="input-group-addon" id="minSteps-addon"> steps</span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3 bottom-buffer">
-                                <label for="minSteps-time">Min Steps - Time Interval</label>
-                                <div class="input-group">
-                                  <input type="number" min="1" max="1000" step="5" class="form-control" id="maxSteps-time" placeholder="15 min" aria-describedby="minHR-addon">
-                                  <span class="input-group-addon" id="minHR-addon"> minutes</span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3 bottom-buffer">
-                                <label for="maxSteps-times">Maximum Step Count</label>
-                                <div class="input-group">
-                                  <input type="number" min="0" step="50" class="form-control" id="maxSteps-time" placeholder="e.g. 10000" aria-describedby="maxSteps-addon">
-                                  <span class="input-group-addon" id="maxSteps-addon"> steps</span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3 bottom-buffer">
-                                <label for="maxHR-time">Min Steps - Time Interval</label>
-                                <div class="input-group">
-                                  <input type="number" min="1" max="1000" step="5" class="form-control" id="maxHR-time" placeholder="10 min" aria-describedby="minHR-addon">
-                                  <span class="input-group-addon" id="minHR-addon"> minutes</span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <button class="btn btn-success" type="button" id="submit-export">
-                                <span class="glyphicon glyphicon-circle-arrow-down" aria-hidden="true"></span>
-                                    Save Settings
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TODO: Refactor out this date picker / data export functionality into partial view. -->
-            <div class="col-md-6">
-                <div class="panel panel-primary">
-                    <script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
-                    <link href="{{ url_for('static', filename='css/bootstrap-datepicker.css') }}" rel="stylesheet">
-
-                    <div class="panel-heading"><span class="glyphicon glyphicon-signal"></span> Data Export</div>
-                    <div class="panel-body">
-
-                        <p>Select a date range below for the desired data interval.</p>
-
-                        <div class="form-group">
-                            <div class="input-group date">
-                                <input placeholder="Start Date" type="text" class="form-control" id="startDate">
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="input-group date">
-                                <input placeholder="End Date" type="text" class="form-control" id="endDate">
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
-                            </div>
-                        </div>
-
-                        <button class="btn btn-primary" type="button" id="submit-export">
-                            <span class="glyphicon glyphicon-circle-arrow-down" aria-hidden="true"></span>
-                            Export data
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <!-- Form for selecting a date range to export patient data -->
+            {% include "patients/data_export_partial.html" %}
 
             <div class="col-md-6">
                 <div class="panel panel-warning">
@@ -226,6 +106,7 @@
     </div> <!-- /tab-content -->
 
     {% include "remove_patient_modal.html" %}
+
 
 
     <!-- Date picker for exporting data -->
