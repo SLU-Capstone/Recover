@@ -26,7 +26,7 @@
 
     <div class="row bottom-buffer">
         <div class="col-md-6">
-            <h4><span class="label label-primary">Lifetime Average Resting Heart Rate:</span> <span class="badge">{{ resting }}</span></h4>
+            <h4><span class="label label-primary">All-Time Average Resting Heart Rate:</span> <span class="badge">{{ resting }}</span></h4>
             <h4><span class="label label-primary">Date Last Worn:</span> <span class="badge">{{ last_worn }}</span></h4>
         </div>
         <div class="col-md-6">
@@ -42,6 +42,7 @@
         <li class="active"><a href="#graphs" data-toggle="tab">Graphs</a></li>
         <li><a href="#notes" data-toggle="tab">Notes</a></li>
         <li><a href="#config" data-toggle="tab">Settings</a></li>
+        <li><a href="#history" data-toggle="tab">History</a></li>
     </ul>
 
     <!-- 1. GRAPHING TAB CONTENT -->
@@ -115,6 +116,23 @@
             </div>
 
         </div>
+
+        <!-- 4. All alerts (read and unread) -->
+        <div class="tab-pane active" id="history">
+            <h3>Alerts History</h3>
+            <ul class="list-group">
+            {% for note in config.notes %}
+                <li class="list-group-item">
+                    {{ note.time() }}
+                    <br><br>
+                    {% for line in note.note.split('\n') %}
+                        <p>{{ line }}</p>
+                    {% endfor %}
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+
 
     </div> <!-- /tab-content -->
 

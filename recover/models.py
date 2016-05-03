@@ -69,11 +69,12 @@ class PatientConfig(db.EmbeddedDocument):
     maxHR = db.DictField()
     minSteps = db.DictField()
     maxSteps = db.DictField()
-    notes = db.EmbeddedDocumentListField('Note')
+    notes = db.SortedListField(db.EmbeddedDocumentField('Note'), ordering="timestamp", reverse=True)
     patient = db.ReferenceField('Patient', required=True, unique=True)
 
     def add_note(self, timestamp, text):
-        self.notes.append(Note(timestamp=timestamp, note=text))
+        note = Note(timestamp=timestamp, note=text)
+        self.notes.append(note)
 
 
 class Note(db.EmbeddedDocument):
@@ -82,6 +83,10 @@ class Note(db.EmbeddedDocument):
     """
     timestamp = db.DateTimeField(required=True)
     note = db.StringField(max_length=800, default="")
+
+    def time(self):
+        time = self.timestamp.strftime('%b %-d, %Y at %I:%M %p: ')
+        return time
 
     meta = {
         'ordering': ['timestamp'],
@@ -118,7 +123,8 @@ class Alert(db.EmbeddedDocument):
             info += 'steps '
         info += 'over a time period of ' + str(self.time_window) + ' minutes. ' + \
                 'The recorded value was ' + str(self.recorded_value) + ' starting at ' + \
-                str(self.incident_time) + ' and lasting ' + str(self.incident_length) + ' minutes'
+                self.incident_time.strftime('%b %-d, %Y at %I:%M %p') + ' and lasting ' + str(
+            self.incident_length) + ' minutes.'
         return info
 
 
@@ -188,8 +194,7 @@ class Patient(db.Document):
 
     def date_last_worn(self):
         """
-
-        :return: str of date last worn.
+        :return: String of date last worn.
         """
         date = "No data"
         for data in self.health_data_per_day:

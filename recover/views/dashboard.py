@@ -56,13 +56,24 @@ def alert_counts_per_patient():
     return patient_alerts
 
 
-def unread_alerts(patient_id):
+def all_alerts(patient_id):
     """
     Returns an array of all unread alerts for a given patient.
     """
     alerts = []
     for alert in current_user.alerts:
-        if not alert.read and alert.patient.id == patient_id:
+        if alert.patient.id == patient_id:
+            alerts.append(alert)
+    return alerts
+
+
+def unread_alerts(patient_id):
+    """
+    Returns an array of all unread alerts for a given patient.
+    """
+    alerts = []
+    for alert in all_alerts(patient_id):
+        if not alert.read:
             alerts.append(alert)
     return alerts
 
@@ -176,13 +187,14 @@ def patient_profile(slug):
             HRdata = "No Data."
 
     try:
-        last_worn = patient.date_last_worn()
+        last_worn = datetime.datetime.strptime(patient.date_last_worn(), "%Y-%m-%d")
+        last_worn = last_worn.strftime('%b %-d, %Y')
     except Exception as e:
         last_worn = e.message
     return render_template('patients/profile.html', patient=patient, resting=resting_hr, HRaverage=HRaverage,
                            HRdata=HRdata, StepsData=StepsData, start=start, end=end,
                            alerts=unread_alerts(patient.id), config=config_for_patient(patient.id),
-                           last_worn=last_worn)
+                           last_worn=last_worn, all_alerts=all_alerts(patient.id))
 
 
 @patient_dashboard.route('/remove-patient', methods=['POST'])
@@ -227,7 +239,7 @@ def update_notes():
         text = request.form['notes']
         timestamp = datetime.datetime.today()
         config.add_note(timestamp, text)
-        config.save()
+        current_user.save()
 
         return jsonify({"status": 200})
 
