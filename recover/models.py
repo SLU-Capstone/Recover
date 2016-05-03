@@ -1,3 +1,4 @@
+import bson
 from datetime import datetime
 from recover import db, app
 from flask import url_for
@@ -101,6 +102,7 @@ class Alert(db.EmbeddedDocument):
     'trigger_info' is a dictionary that represents the threshold conditions that triggered the alert, and
     is of the following format: { 'class'='HR' / 'STEP' , operation = "MIN" / "MAX" }
     """
+    id = db.ObjectIdField(primary_key=True, default=lambda: bson.objectid.ObjectId())
     recorded_value = db.IntField()
     threshold_value = db.IntField()
     time_window = db.IntField()
@@ -112,7 +114,7 @@ class Alert(db.EmbeddedDocument):
 
     def __unicode__(self):
         """ String representation of an Alert """
-        info = self.patient.first_name + ' ' + self.patient.last_name + ' '
+        info = 'ALERT: ' + self.patient.first_name + ' ' + self.patient.last_name + ' '
         if self.trigger_info['operation'] == 'MAX':
             info += 'exceeded '
         else:

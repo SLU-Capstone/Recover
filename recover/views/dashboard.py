@@ -293,3 +293,13 @@ def config_for_patient(patient_id):
     Returns the physician's config object for a given patient.
     """
     return [c for c in current_user.patient_config if c.patient.id == patient_id][0]
+
+
+@patient_dashboard.route('/mark-alert-read', methods=['POST'])
+@login_required
+def mark_alert_read():
+    id = request.form['id']
+    for alert in current_user.alerts:
+        if id == str(alert.id):
+            alert.read = True
+    current_user.save()

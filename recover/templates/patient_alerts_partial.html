@@ -12,7 +12,7 @@
     <div id="alerts" class="panel-collapse collapse">
         <ul class="list-group">
             {% for alert in alerts %}
-                <li class="list-group-item">
+                <li id="{{ alert.id }}" class="list-group-item">
                     <a id="single-alert" href="#" onclick="mapAlert('{{ alert.incident_time }}', {{ alert.incident_length }})">
                         {{ alert }}
                     </a>
